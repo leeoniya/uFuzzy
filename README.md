@@ -11,7 +11,7 @@ uFuzzy is a fuzzy search lib designed to match a relatively short search string 
 It might be best described as a more forgiving [String.prototype.indexOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf).
 
 Common use cases are list filtering, auto-complete/suggest, title/name or description search, filenames or functions.
-uFuzzy is case insensitive and requires that all alpha-numeric characters in the needle occur in the match, with and adjustable tolerance for additionally inserted characters.
+uFuzzy is case insensitive and requires that all alpha-numeric characters in the needle occur in the match in the same sequence, with an adjustable tolerance for additionally inserted characters.
 As a consequence, terms can only be matched in supplied order; `horse cart` will not match `cart horse`, but would be matched for either `cart` or `horse`.
 This disqualifies uFuzzy from being used as a spellcheck (since missing letters can occur), or a fulltext or document/object search, where terms can be out of order.
 
