@@ -1,0 +1,42 @@
+{
+  "name": "ufuzzy",
+  "version": "0.0.1",
+  "description": "A fuzzy matcher that doesn't suck",
+  "main": "./dist/uFuzzy.cjs.js",
+  "module": "./dist/uFuzzy.esm.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leeoniya/uFuzzy.git"
+  },
+  "files": [
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "dist"
+  ],
+  "keywords": [
+    "micro",
+    "fast",
+    "fuzzy",
+    "match",
+    "search",
+    "filter",
+    "hint",
+    "autocomplete",
+    "sort"
+  ],
+  "author": "Leon Sorokin <leeoniya@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/leeoniya/uFuzzy/issues"
+  },
+  "homepage": "https://github.com/leeoniya/uFuzzy#readme",
+  "devDependencies": {
+    "rollup": "^2.79.0",
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}
