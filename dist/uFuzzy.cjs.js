@@ -100,7 +100,7 @@ function uFuzzy(opts) {
 		return out;
 	};
 
-	let nonAciiRe = /[^a-z0-9]/i;
+	let interBound = new RegExp(opts.interSplit);
 	let intraBound = new RegExp(opts.intraSplit);
 
 	const rank = (idxs, haystack, needle) => {
@@ -156,13 +156,13 @@ function uFuzzy(opts) {
 					let rgtBoost = 0;
 
 					// prefix boosts
-					if (lftCharIdx == -1           || nonAciiRe.test(mhstr[lftCharIdx]))
+					if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
 						lftBoost += 1;
 					else if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
 						lftBoost += 0.5;
 
 					// suffix boosts
-					if (rgtCharIdx == mhstr.length || nonAciiRe.test(mhstr[rgtCharIdx]))
+					if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
 						rgtBoost += 1;
 					else if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
 						rgtBoost += 0.5;
