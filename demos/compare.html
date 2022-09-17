@@ -76,6 +76,31 @@
 				return performance.now() - start;
 			}
 
+			// https://stackoverflow.com/questions/9960908/permutations-in-javascript/37580979#37580979
+			function permute(arr) {
+				let length = arr.length,
+					result = [arr.slice()],
+					c = new Array(length).fill(0),
+					i = 1, k, p;
+
+				while (i < length) {
+					if (c[i] < i) {
+						k = i % 2 && c[i];
+						p = arr[i];
+						arr[i] = arr[k];
+						arr[k] = p;
+						++c[i];
+						i = 1;
+						result.push(arr.slice());
+					} else {
+						c[i] = 0;
+						++i;
+					}
+				}
+
+				return result;
+			}
+
 			// fuzzysort     https://github.com/farzher/fuzzysort          https://rawgit.com/farzher/fuzzysort/master/test.html
 			// FuzzySearch   https://github.com/wouter2203/fuzzy-search
 
@@ -88,14 +113,19 @@
 			// https://github.com/nextapps-de/flexsearch
 			// https://github.com/LyraSearch/lyra
 
+			let oooPermute = false;
+
 			let libs = [
 				{
 					name: 'μFuzzy',
-					script: '../dist/uFuzzy.iife.min.js',
+					script: '../dist/uFuzzy.iife.js',
 					opts: {
 					//	intraLimit: Infinity,
 					//	intraChars: '.',
+					//	intraLimit: 1,
 						withRanges: true,
+					//	strictPre: true,
+					//	strictSuf: false,
 					},
 					setup: (haystack, opts) => {
 						let u = new uFuzzy(opts);
@@ -104,20 +134,48 @@
 
 						return {
 							search: needle => {
-								let idxs = u.filter(haystack, needle);
-								let found = idxs;
-								toStr = idx => haystack[idx];
+								// abc col tow
+								// res to da
+								if (oooPermute) {
+									let needles = permute(needle.split(/[^A-Za-z0-9]+/g)).map(terms => terms.join(' '));
 
-								if (idxs.length <= 1e3) {
-									found = u.rank(idxs, haystack, needle);
+									let allFound = [];
 
-									if (opts.withRanges)
-										toStr = m => highlightParts(haystack[m.idx], m.ranges);
-									else
-										toStr = m => haystack[m.idx];
+									needles.forEach(needle => {
+										let idxs = u.filter(haystack, needle);
+										let found = idxs;
+										toStr = idx => haystack[idx];
+
+										if (idxs.length <= 1e3) {
+											found = u.rank(idxs, haystack, needle);
+
+											if (opts.withRanges)
+												toStr = m => highlightParts(haystack[m.idx], m.ranges);
+											else
+												toStr = m => haystack[m.idx];
+										}
+
+										allFound = allFound.concat(found); // re-rank?
+									});
+
+									return allFound;
 								}
+								else {
+									let idxs = u.filter(haystack, needle);
+									let found = idxs;
+									toStr = idx => haystack[idx];
 
-								return found;
+									if (idxs.length <= 1e3) {
+										found = u.rank(idxs, haystack, needle);
+
+										if (opts.withRanges)
+											toStr = m => highlightParts(haystack[m.idx], m.ranges);
+										else
+											toStr = m => haystack[m.idx];
+									}
+
+									return found;
+								}
 							},
 							toStr: m => toStr(m),
 						};

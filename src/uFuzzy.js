@@ -4,10 +4,18 @@ const cmp = new Intl.Collator('en').compare;
 
 const inf = Infinity;
 
+const isInt = /\d/;
+
 const OPTS = {
 	// term segmentation & punct/whitespace merging
 	interSplit: '[^A-Za-z0-9]+',
 	intraSplit: '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]',
+
+	strictPre: false,
+	strictSuf: false,
+
+	upperChars: '[A-Z]',
+	lowerChars: '[a-z]',
 
 	// allowance between terms
 	interChars: '.',
@@ -21,6 +29,15 @@ const OPTS = {
 //	scoreLimit: 1000,
 	// should scoring compute matched substr ranges for highlighting
 	withRanges: false,
+
+	/*
+	// term permutations for out-of-order
+	oooLimit: 0,
+
+	// diacritics list for needle/query prep, e.g. [/oóö/, /aá/]
+	// https://github.com/motss/normalize-diacritics/blob/main/src/index.ts
+	diacritics: [],
+	*/
 
 	// final sorting fn
 	sort: (scored, haystack, needle) => {
@@ -43,11 +60,19 @@ const lazyRepeat = (chars, limit) => (
 	               chars + `{0,${limit}}?`
 );
 
+// Safari sucks: https://bugs.webkit.org/show_bug.cgi?id=174931
+// https://caniuse.com/js-regexp-lookbehind
+const canLookBehind = !/(?<!h)i/.test('hi');
+
 export default function uFuzzy(opts) {
 	opts = Object.assign({}, OPTS, opts);
 
 	let intraSplit = new RegExp(opts.intraSplit, 'g');
 	let interSplit = new RegExp(opts.interSplit, 'g');
+
+	const isUpper = new RegExp(opts.upperChars);
+
+	const negatedType = char => isInt.test(char) ? '\\d' : isUpper.test(char) ? opts.upperChars : opts.lowerChars;
 
 	const prepQuery = (query, capt = 0) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
@@ -62,7 +87,22 @@ export default function uFuzzy(opts) {
 			intraCharsTpl = ')(' + intraCharsTpl + ')(';
 		}
 
+		// array of regexp tpls for each term
 		let reTpl = parts.map(p => p.split('').join(intraCharsTpl));
+
+		if (canLookBehind && opts.strictPre) {
+			reTpl = reTpl.map(term => {
+				let char = term[0];
+				return '(?<!' + negatedType(char) + ')' + char + term.slice(1);
+			});
+		}
+
+		if (opts.strictSuf) {
+			reTpl = reTpl.map(term => {
+				let char = term.at(-1);
+				return term.slice(0, -1) + '(?!' + negatedType(char) + ')' + char;
+			});
+		}
 
 		let interCharsTpl = lazyRepeat(opts.interChars, opts.interLimit);
 
@@ -138,6 +178,12 @@ export default function uFuzzy(opts) {
 					}
 
 					// TODO: use difference in group/part length to boost eSyms? or iSyms (inexact)
+				}
+
+				// TODO: work around Safari's lack of lookbehinds
+				if (!canLookBehind && opts.strictPre) {
+					// we'll need to throw out any non-left-bounded substr matches that snuck through the filtering phase
+					// should then use scored.push(match) instead of scored[i] = match
 				}
 
 				if (fullMatch) {
