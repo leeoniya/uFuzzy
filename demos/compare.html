@@ -205,6 +205,83 @@
 					toStr: null,
 				},
 				{
+					name: 'match-sorter',
+					script: './lib/match-sorter.umd.min.js',
+					opts: {keepDiacritics: true},
+					setup: (haystack, opts) => {
+						return {
+							search: needle => {
+								return matchSorter.matchSorter(haystack, needle, opts);
+							},
+							toStr: m => m,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
+					name: 'Fuse.js',
+					script: './lib/fuse.min.js',
+					opts: {
+					//	includeScore: true
+					},
+					setup: (haystack, opts) => {
+						const fuse = new Fuse(haystack, opts);
+
+						return {
+							search: needle => {
+								return fuse.search(needle);
+							},
+							toStr: m => m.item,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+			/*
+				{
+					name: 'LiquidMetal',
+					script: './lib/liquidmetal.js',
+					opts: {},
+					setup: (haystack, opts) => {
+						return {
+							search: needle => {
+								let scores = Array(haystack.length);
+
+								for (let i = 0; i < haystack.length; i++) {
+									scores.push({
+										i,
+										score: LiquidMetal.score(haystack[i],  needle),
+									});
+								}
+
+								return scores.filter(m => m.score > 0).sort((a, b) => a.score - b.score);
+							},
+							toStr: m => haystack[m.i],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+			*/
+				{
+					name: 'QuickScore',
+					script: './lib/quick-score.min.js',
+					opts: {},
+					setup: (haystack, opts) => {
+						const qs = new quickScore.QuickScore(haystack);
+
+						return {
+							search: needle => {
+								return qs.search(needle);
+							},
+							toStr: m => m.item,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
 					name: 'fuzzyMatch',
 					script: './lib/fuzzyMatch.js',
 					opts: {},
