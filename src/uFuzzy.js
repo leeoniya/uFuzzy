@@ -60,10 +60,6 @@ const lazyRepeat = (chars, limit) => (
 	               chars + `{0,${limit}}?`
 );
 
-// Safari sucks: https://bugs.webkit.org/show_bug.cgi?id=174931
-// https://caniuse.com/js-regexp-lookbehind
-const canLookBehind = !/(?<!h)i/.test('hi');
-
 export default function uFuzzy(opts) {
 	opts = Object.assign({}, OPTS, opts);
 
@@ -72,7 +68,7 @@ export default function uFuzzy(opts) {
 
 	const isUpper = new RegExp(opts.upperChars);
 
-	const negatedType = char => isInt.test(char) ? '\\d' : isUpper.test(char) ? opts.upperChars : opts.lowerChars;
+	const typeClassOf = char => isInt.test(char) ? '\\d' : isUpper.test(char) ? opts.upperChars : opts.lowerChars;
 
 	const prepQuery = (query, capt = 0) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
@@ -90,19 +86,11 @@ export default function uFuzzy(opts) {
 		// array of regexp tpls for each term
 		let reTpl = parts.map(p => p.split('').join(intraCharsTpl));
 
-		if (canLookBehind && opts.strictPre) {
-			reTpl = reTpl.map(term => {
-				let char = term[0];
-				return '(?<!' + negatedType(char) + ')' + char + term.slice(1);
-			});
-		}
+		if (opts.strictPre)
+			reTpl = reTpl.map(term => '(?<!' + typeClassOf(term[0]) + ')' + term);
 
-		if (opts.strictSuf) {
-			reTpl = reTpl.map(term => {
-				let char = term.at(-1);
-				return term.slice(0, -1) + '(?!' + negatedType(char) + ')' + char;
-			});
-		}
+		if (opts.strictSuf)
+			reTpl = reTpl.map(term => term + '(?!' + typeClassOf(term.at(-1)) + ')');
 
 		let interCharsTpl = lazyRepeat(opts.interChars, opts.interLimit);
 
@@ -159,7 +147,7 @@ export default function uFuzzy(opts) {
 			let span = m[0].length;
 
 			for (let j = 0, k = 1; j < parts.length; j++, k+=2) {
-				let group = m[k].toLowerCase();
+				let group = m[k];
 				let fullMatch = group == parts[j];
 
 				// when intraLimit > 0 'test' query can match 'ttest' in 'fittest'
@@ -178,12 +166,6 @@ export default function uFuzzy(opts) {
 					}
 
 					// TODO: use difference in group/part length to boost eSyms? or iSyms (inexact)
-				}
-
-				// TODO: work around Safari's lack of lookbehinds
-				if (!canLookBehind && opts.strictPre) {
-					// we'll need to throw out any non-left-bounded substr matches that snuck through the filtering phase
-					// should then use scored.push(match) instead of scored[i] = match
 				}
 
 				if (fullMatch) {
