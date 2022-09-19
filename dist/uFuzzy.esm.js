@@ -58,7 +58,8 @@ const OPTS = {
 					(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
 					(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
 				   )
-				|| span[ia] - span[ib] // highest density of match (least span)
+			//	|| span[ia] - span[ib] // highest density of match (least span)
+				|| inter[ia] - inter[ib] // highest density of match (least term inter-fuzz)
 				|| start[ia] - start[ib] // earliest start of match
 				|| cmp(haystack[idx[ia]], haystack[idx[ib]]) // alphabetic
 			 )),
@@ -162,9 +163,10 @@ function uFuzzy(opts) {
 			// start of match
 			start: field.slice(),
 			// length of match
-			span: field.slice(),
+		//	span: field.slice(),
 
-			// fully matched terms with no fuzz (intra=0, pre0 | pre1 && suf0 | suf1)
+			// contiguous (no fuzz) and bounded terms (intra=0, pre0/1, suf0/1)
+			// excludes terms that are contiguous but have < 2 bounds (substrings)
 			term: field.slice(),
 			// contiguous chars matched (currently, from full terms)
 		//	chars: field.slice(),
@@ -190,7 +192,7 @@ function uFuzzy(opts) {
 			let m = mhstr.match(query);
 
 			let idxAcc = m.index;
-			let span = m[0].length;
+		//	let span = m[0].length;
 
 			for (let j = 0, k = 1; j < parts.length; j++, k+=2) {
 				let group = m[k].toLowerCase();
@@ -208,7 +210,7 @@ function uFuzzy(opts) {
 
 							if (j == 0) {
 								m.index = idxAcc;
-								span -= idxOf;
+							//	span -= idxOf;
 							}
 						}
 					}
@@ -217,23 +219,31 @@ function uFuzzy(opts) {
 				}
 
 				if (fullMatch) {
-					tallies.term[i] += 1;
-
 					// does group's left and/or right land on \b
 					let lftCharIdx = idxAcc - 1;
 					let rgtCharIdx = idxAcc + m[k].length;
+
+					let isPre = true;
+					let isSuf = true;
 
 					// prefix tallies
 					if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
 						tallies.pre0[i]++;
 					else if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
 						tallies.pre1[i]++;
+					else
+						isPre = false;
 
 					// suffix tallies
 					if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
 						tallies.suf0[i]++;
 					else if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
 						tallies.suf1[i]++;
+					else
+						isSuf = false;
+
+					if (isPre && isSuf)
+						tallies.term[i]++;
 				}
 				else
 					tallies.intra[i] += group.length - parts[j].length; // intraFuzz
@@ -246,7 +256,7 @@ function uFuzzy(opts) {
 			}
 
 			tallies.start[i] = m.index;
-			tallies.span[i] = span;
+		//	tallies.span[i] = span;
 
 			if (opts.withRanges) {
 				let m = mhstr.match(queryR);
