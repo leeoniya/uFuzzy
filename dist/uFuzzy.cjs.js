@@ -152,7 +152,7 @@ function uFuzzy(opts) {
 			let span = m[0].length;
 
 			for (let j = 0, k = 1; j < parts.length; j++, k+=2) {
-				let group = m[k];
+				let group = m[k].toLowerCase();
 				let fullMatch = group == parts[j];
 
 				// when intraLimit > 0 'test' query can match 'ttest' in 'fittest'
