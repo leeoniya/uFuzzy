@@ -47,16 +47,22 @@ const OPTS = {
 	*/
 
 	// final sorting fn
-	sort: (scored, haystack, needle) => {
-		let ranked = scored.slice().sort((a, b) => (
-			   b.eSyms - a.eSyms
-			|| b.eBnds - a.eBnds
-			|| a.span - b.span
-			|| a.start - b.start
-			|| cmp(haystack[a.idx], haystack[b.idx])
-	 	));
+	sort: (tallies, haystack, needle) => {
+		let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = tallies;
 
-		return ranked;
+		return {
+			tallies,
+			order: idx.map((v, i) => i).sort((ia, ib) => (
+					intra[ia] - intra[ib] // least char intra-fuzz (most contiguous)
+				|| ( // most prefix/suffix bounds, boosted by full term matches
+					(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
+					(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
+				   )
+				|| span[ia] - span[ib] // highest density of match (least span)
+				|| start[ia] - start[ib] // earliest start of match
+				|| cmp(haystack[idx[ia]], haystack[idx[ib]]) // alphabetic
+			 )),
+		};
 	},
 };
 
@@ -66,6 +72,15 @@ const lazyRepeat = (chars, limit) => (
 	limit == inf ? chars + '*?' :
 	               chars + `{0,${limit}}?`
 );
+
+// const SCORE_FN = (tallies, haystack, needle) => {
+// 	let len = tallies.idx.length;
+// 	let score = tallies.score;
+
+// 	for (let i = 0; i < len; i++) {
+// 		score[i] =
+// 	}
+// };
 
 function uFuzzy(opts) {
 	opts = Object.assign({}, OPTS, opts);
@@ -138,14 +153,42 @@ function uFuzzy(opts) {
 		if (opts.withRanges)
 			[queryR] = prepQuery(needle, 2);
 
-		let scored = Array(idxs.length);
+		let field = Array(idxs.length).fill(0);
+
+		let tallies = {
+			// idx in haystack
+			idx: idxs,
+
+			// start of match
+			start: field.slice(),
+			// length of match
+			span: field.slice(),
+
+			// fully matched terms with no fuzz (intra=0, pre0 | pre1 && suf0 | suf1)
+			term: field.slice(),
+			// contiguous chars matched (currently, from full terms)
+		//	chars: field.slice(),
+
+			// cumulative length of unmatched chars (fuzz) within span
+			inter: field.slice(), // between terms
+			intra: field.slice(), // between chars within terms
+
+			// hard/soft prefix/suffix counts
+			// e.g. MegaMan (pre0: 1, suf0: 1, pre1: 1, suf1: 1), Mega Man (pre0: 2, suf0: 2)
+			// hard boundaries
+			pre0: field.slice(),
+			suf0: field.slice(),
+			// soft boundaries
+			pre1: field.slice(),
+			suf1: field.slice(),
+
+			ranges: opts.withRanges ? Array(idxs.length) : null,
+		};
 
 		for (let i = 0; i < idxs.length; i++) {
 			let mhstr = haystack[idxs[i]];
 			let m = mhstr.match(query);
 
-			let eSyms = 0;	// symbols matched in exact terms matched
-			let eBnds = 0;	// bounds of matched groups
 			let idxAcc = m.index;
 			let span = m[0].length;
 
@@ -153,18 +196,20 @@ function uFuzzy(opts) {
 				let group = m[k].toLowerCase();
 				let fullMatch = group == parts[j];
 
-				// when intraLimit > 0 'test' query can match 'ttest' in 'fittest'
-				// try an exact substring match to improve rank quality
-				if (opts.intraLimit > 0 && !fullMatch) {
-					let idxOf = group.indexOf(parts[j]);
-					if (idxOf > -1) {
-						fullMatch = true;
-						idxAcc += idxOf;
-						m[k] = m[k].slice(idxOf);
+				if (!fullMatch) {
+					// when intraLimit > 0 'test' query can match 'ttest' in 'fittest'
+					// try an exact substring match to improve rank quality
+					if (opts.intraLimit > 0) {
+						let idxOf = group.indexOf(parts[j]);
+						if (idxOf > -1) {
+							fullMatch = true;
+							idxAcc += idxOf;
+							m[k] = m[k].slice(idxOf);
 
-						if (j == 0) {
-							m.index = idxAcc;
-							span -= idxOf;
+							if (j == 0) {
+								m.index = idxAcc;
+								span -= idxOf;
+							}
 						}
 					}
 
@@ -172,45 +217,40 @@ function uFuzzy(opts) {
 				}
 
 				if (fullMatch) {
-					eSyms += parts[j].length;
+					tallies.term[i] += 1;
 
 					// does group's left and/or right land on \b
 					let lftCharIdx = idxAcc - 1;
 					let rgtCharIdx = idxAcc + m[k].length;
 
-					let lftBoost = 0;
-					let rgtBoost = 0;
-
-					// prefix boosts
+					// prefix tallies
 					if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
-						lftBoost += 1;
+						tallies.pre0[i]++;
 					else if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
-						lftBoost += 0.5;
+						tallies.pre1[i]++;
 
-					// suffix boosts
+					// suffix tallies
 					if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
-						rgtBoost += 1;
+						tallies.suf0[i]++;
 					else if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
-						rgtBoost += 0.5;
-
-					eBnds = lftBoost + rgtBoost + (lftBoost > 0 && rgtBoost > 0 ? 1 : 0);
+						tallies.suf1[i]++;
 				}
+				else
+					tallies.intra[i] += group.length - parts[j].length; // intraFuzz
+
+				if (j > 0)
+					tallies.inter[i] += m[k-1].length; // interFuzz
 
 				if (j < parts.length - 1)
 					idxAcc += m[k].length + m[k+1].length;
 			}
 
-			let match  = {
-				eSyms,
-				eBnds,
-				span,
-				start: m.index,
-				idx: idxs[i],
-			};
+			tallies.start[i] = m.index;
+			tallies.span[i] = span;
 
 			if (opts.withRanges) {
 				let m = mhstr.match(queryR);
-				let ranges = match.ranges = [];
+				let ranges = tallies.ranges[i] = [];
 
 				let idxAcc = m.index;
 				let from = idxAcc;
@@ -231,11 +271,9 @@ function uFuzzy(opts) {
 				if (to > from)
 					ranges.push(from, to);
 			}
-
-			scored[i] = match;
 		}
 
-		let ranked = opts.sort(scored, haystack, needle);
+		let ranked = opts.sort(tallies, haystack, needle);
 
 		return ranked;
 	};

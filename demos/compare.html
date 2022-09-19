@@ -19,7 +19,7 @@
 				margin: 0;
 				display: inline-block;
 				vertical-align: top;
-				width: 24%;
+				overflow: auto;
 				/* overflow: auto; */
 				/* box-shadow: 3px 3px 3px rgb(0 0 0 / 20%); */
 				/* height: 600px; */
@@ -28,23 +28,64 @@
 			b {
 				color: red;
 			}
+
+			i {
+				font-style: normal;
+				color: silver;
+			}
+
+			input[type=text].uf {
+				width: 50px;
+			}
+
+			label {
+				margin-left: 30px;
+			}
 		</style>
 	</head>
 	<body>
 		<div>
 			<input id="search" type="text" placeholder="Search...">
-			<input id="maxInterChars" type="text" placeholder="Tolerance..." value="0">
+
+			<label>
+				scoreThresh
+				<input class="uf" id="scoreThresh" type="text" value="1000">
+			</label>
+			<label>
+				intraLimit
+				<input class="uf" id="intraLimit" type="text" value="0">
+			</label>
+			<label>
+				interLimit
+				<input class="uf" id="interLimit" type="text">
+			</label>
+			<label>
+				<input class="uf" id="strictPre" type="checkbox">
+				strictPre
+			</label>
+			<label>
+				<input class="uf" id="strictSuf" type="checkbox">
+				strictSuf
+			</label>
+			<label>
+				<input class="uf" id="outOfOrder" type="checkbox">
+				outOfOrder
+			</label>
+			<label>
+				<input class="uf" id="withRanges" type="checkbox" checked>
+				withRanges
+			</label>
 		</div>
 
 		<script>
-			function fmtResult(libName, found, toStr, haystack, elapsed) {
+			function fmtResult(lib, found, toStr, haystack, elapsed) {
 				let allCount = haystack.length.toLocaleString("en-US");
 				let foundCount = found.length.toLocaleString("en-US");
 
-				found = found.slice(0, 300).map(toStr);
+				found = found.slice(0, 300).map(r => toStr(r).replace(/[\n\r]+/g, ' '));
 
 				return [
-					libName,
+					`${lib.name} <a href="${lib.repo}" target="_blank">repo</a>` + (lib.demo ? ` <a href="${lib.demo}" target="_blank">demo</a>` : ''),
 					'='.repeat(50),
 					`${foundCount} results (out of ${allCount}), ${elapsed.toFixed(1)}ms`,
 					'',
@@ -101,34 +142,76 @@
 				return result;
 			}
 
-			// fuzzysort     https://github.com/farzher/fuzzysort          https://rawgit.com/farzher/fuzzysort/master/test.html
-			// FuzzySearch   https://github.com/wouter2203/fuzzy-search
-
-			// QuickScore    https://github.com/fwextensions/quick-score   https://github.com/fwextensions/quick-score-demo
-			// Fuse.js       https://github.com/krisk/Fuse
-			// match-sorter  https://github.com/kentcdodds/match-sorter
-			// liquidmetal   https://github.com/rmm5t/liquidmetal
-
-			// fulltext:
-			// https://github.com/nextapps-de/flexsearch
-			// https://github.com/LyraSearch/lyra
-
-			let oooPermute = false;
+			let tmpOnlyLib = null;
 
 			let libs = [
 				{
-					name: 'μFuzzy',
+					name: 'uFuzzy',
 					script: '../dist/uFuzzy.iife.js',
+					fulltext: false,
+					repo: 'https://github.com/leeoniya/uFuzzy',
+					demo: 'https://leeoniya.github.io/uFuzzy/demos/compare.html',
 					opts: {
 					//	intraLimit: Infinity,
 					//	intraChars: '.',
-					//	intraLimit: 1,
+						intraLimit: 0,
 						withRanges: true,
 					//	strictPre: true,
 					//	strictSuf: false,
 					},
 					setup: (haystack, opts) => {
 						let u = new uFuzzy(opts);
+
+						let scoreThresh = 1000;
+
+						document.getElementById('scoreThresh').addEventListener('input', e => {
+							scoreThresh = +e.target.value;
+						});
+
+						const ufSearch = e => {
+							tmpOnlyLib = 'uFuzzy';
+							document.getElementById("search").dispatchEvent(new Event('input', {bubbles: true, cancelable: true}));
+							tmpOnlyLib = null;
+						};
+
+						document.getElementById('intraLimit').addEventListener('input', e => {
+							let v = e.target.value;
+							opts.intraLimit = v == '' ? Infinity : +e.target.value;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('interLimit').addEventListener('input', e => {
+							let v = e.target.value;
+							opts.interLimit = v == '' ? Infinity : +e.target.value;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('strictPre').addEventListener('input', e => {
+							opts.strictPre = e.target.checked
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('strictSuf').addEventListener('input', e => {
+							opts.strictSuf = e.target.checked
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						let oooPermute = false;
+
+						document.getElementById('outOfOrder').addEventListener('input', e => {
+							oooPermute = e.target.checked;
+							ufSearch(e);
+						});
+
+						document.getElementById('withRanges').addEventListener('input', e => {
+							opts.withRanges = e.target.checked;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
 
 						let toStr;
 
@@ -140,19 +223,30 @@
 									let needles = permute(needle.split(/[^A-Za-z0-9]+/g)).map(terms => terms.join(' '));
 
 									let allFound = [];
+									let allTallies = {};
 
-									needles.forEach(needle => {
+									needles.forEach((needle, pi) => {
 										let idxs = u.filter(haystack, needle);
 										let found = idxs;
 										toStr = idx => haystack[idx];
 
 										if (idxs.length <= 1e3) {
-											found = u.rank(idxs, haystack, needle);
+											let { tallies, order } = u.rank(idxs, haystack, needle);
+											found = order;
+
+											// offset idxs for concat'ing tallies
+											if (pi > 0) {
+												for (let i = 0; i < found.length; i++)
+													found[i] += allFound.length;
+											}
+
+											for (let k in tallies)
+												allTallies[k] = (allTallies[k] ?? []).concat(tallies[k]);
 
 											if (opts.withRanges)
-												toStr = m => highlightParts(haystack[m.idx], m.ranges);
+												toStr = oi => highlightParts(haystack[allTallies.idx[oi]], allTallies.ranges[oi]);
 											else
-												toStr = m => haystack[m.idx];
+												toStr = oi => haystack[allTallies.idx[oi]];
 										}
 
 										allFound = allFound.concat(found); // re-rank?
@@ -166,12 +260,13 @@
 									toStr = idx => haystack[idx];
 
 									if (idxs.length <= 1e3) {
-										found = u.rank(idxs, haystack, needle);
+										let { tallies, order } = u.rank(idxs, haystack, needle);
+										found = order;
 
 										if (opts.withRanges)
-											toStr = m => highlightParts(haystack[m.idx], m.ranges);
+											toStr = oi => highlightParts(haystack[tallies.idx[oi]], tallies.ranges[oi]);
 										else
-											toStr = m => haystack[m.idx];
+											toStr = oi => haystack[tallies.idx[oi]];
 									}
 
 									return found;
@@ -184,8 +279,80 @@
 					toStr: null,
 				},
 				{
+					name: 'Fuzzyset',
+					script: './lib/fuzzyset.js',
+					fulltext: true,
+					repo: 'https://github.com/Glench/fuzzyset.js',
+					demo: 'http://glench.github.io/fuzzyset.js/',
+					opts: {},
+					setup: (haystack, opts) => {
+						let fuzzySet = FuzzySet();
+
+						for (let i = 0; i < haystack.length; i++)
+							fuzzySet.add(haystack[i]);
+
+						return {
+							search: needle => {
+								return fuzzySet.get(needle);
+							},
+							toStr: m => m[1],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
+					name: 'QuickScore',
+					script: './lib/quick-score.min.js',
+					fulltext: false,
+					repo: 'https://github.com/fwextensions/quick-score',
+					demo: 'https://fwextensions.github.io/quick-score-demo/',
+					opts: {},
+					setup: (haystack, opts) => {
+						const qs = new quickScore.QuickScore(haystack);
+
+						return {
+							search: needle => {
+								return qs.search(needle);
+							},
+							toStr: m => {
+								return `<i>${+m.score.toFixed(3)}</i> ` + highlightParts(m.item, m.matches.flat());
+							},
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
+					name: 'fuzzysort',
+					script: './lib/fuzzysort.min.js',
+					fulltext: true,
+					repo: 'https://github.com/farzher/fuzzysort',
+					demo: 'https://rawgit.com/farzher/fuzzysort/master/test.html',
+					opts: {
+					//	limit: 100, // don't return more results than you need!
+					//	threshold: -10000, // don't return bad results
+					},
+					setup: (haystack, opts) => {
+						haystack = haystack.map(s => fuzzysort.prepare(s));
+
+						return {
+							search: needle => {
+								return fuzzysort.go(needle, haystack, opts);
+							},
+							toStr: m => {
+								return `<i>${+m.score.toFixed(4)}</i> ` + fuzzysort.highlight(m);
+							},
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
 					name: 'FuzzySearch',
 					script: './lib/FuzzySearch.js',
+					fulltext: false,
+					repo: 'https://github.com/wouter2203/fuzzy-search',
 					opts: {
 						caseSensitive: false,
 						sort: true,
@@ -205,8 +372,56 @@
 					toStr: null,
 				},
 				{
+					name: 'FuzzySearch2',
+					fulltext: false,
+					script: './lib/FuzzySearch2.min.js',
+					repo: 'https://github.com/jeancroy/FuzzySearch',
+					demo: 'https://rawgit.com/jeancroy/FuzzySearch/master/demo/autocomplete.html',
+					opts: {},
+					setup: (haystack, opts) => {
+						let searcher = new FuzzySearch2({source: haystack});
+
+						return {
+							search: needle => {
+								return searcher.search(needle);
+							},
+							toStr: m => m,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
+					name: 'fuzzysearch',
+					script: './lib/fuzzysearch.js',
+					fulltext: false,
+					repo: 'https://github.com/bevacqua/fuzzysearch',
+					demo: 'https://bevacqua.github.io/horsey/',
+					opts: {},
+					setup: (haystack, opts) => {
+						return {
+							search: needle => {
+								let matches = [];
+
+								for (let i = 0; i < haystack.length; i++) {
+									if (fuzzysearch(needle, haystack[i]))
+										matches.push(haystack[i]);
+								}
+
+								return matches;
+							},
+							toStr: m => m,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
 					name: 'match-sorter',
 					script: './lib/match-sorter.umd.min.js',
+					fulltext: false,
+					repo: 'https://github.com/kentcdodds/match-sorter',
+					demo: 'https://codesandbox.io/s/wyk856yo48',
 					opts: {keepDiacritics: true},
 					setup: (haystack, opts) => {
 						return {
@@ -220,28 +435,36 @@
 					toStr: null,
 				},
 				{
-					name: 'Fuse.js',
+					name: 'Fuse',
 					script: './lib/fuse.min.js',
+					fulltext: true,
+					repo: 'https://github.com/krisk/Fuse',
+					demo: 'https://fusejs.io/demo.html',
 					opts: {
-					//	includeScore: true
+						includeScore: true,
+						includeMatches: true,
 					},
 					setup: (haystack, opts) => {
-						const fuse = new Fuse(haystack, opts);
+					//	const index = Fuse.createIndex([], haystack);
+						const index = null;
+						const fuse = new Fuse(haystack, opts, index);
 
 						return {
 							search: needle => {
+							//	debugger;
 								return fuse.search(needle);
 							},
-							toStr: m => m.item,
+							toStr: m => `<i>${+m.score.toFixed(4)}</i> ` + highlightParts(m.item, m.matches[0].indices.flat()),
 						};
 					},
 					search: null,
 					toStr: null,
 				},
-			/*
 				{
 					name: 'LiquidMetal',
 					script: './lib/liquidmetal.js',
+					fulltext: false,
+					repo: ' https://github.com/rmm5t/liquidmetal',
 					opts: {},
 					setup: (haystack, opts) => {
 						return {
@@ -263,27 +486,11 @@
 					search: null,
 					toStr: null,
 				},
-			*/
-				{
-					name: 'QuickScore',
-					script: './lib/quick-score.min.js',
-					opts: {},
-					setup: (haystack, opts) => {
-						const qs = new quickScore.QuickScore(haystack);
-
-						return {
-							search: needle => {
-								return qs.search(needle);
-							},
-							toStr: m => m.item,
-						};
-					},
-					search: null,
-					toStr: null,
-				},
 				{
 					name: 'fuzzyMatch',
 					script: './lib/fuzzyMatch.js',
+					fulltext: false,
+					repo: 'https://github.com/grafana/grafana/blob/main/packages/grafana-ui/src/utils/fuzzy.ts',
 					opts: {},
 					setup: (haystack, opts) => {
 						let cmp = new Intl.Collator('en').compare;
@@ -313,26 +520,56 @@
 					toStr: null,
 				},
 				{
-					name: 'fuzzysort',
-					script: './lib/fuzzysort.min.js',
-					opts: {
-					//	limit: 100, // don't return more results than you need!
-					//	threshold: -10000, // don't return bad results
-					},
+					name: 'MiniSearch',
+					script: './lib/minisearch.min.js',
+					fulltext: true,
+					repo: 'https://github.com/lucaong/minisearch',
+					demo: 'https://lucaong.github.io/minisearch/examples/',
+					opts: {},
 					setup: (haystack, opts) => {
-						haystack = haystack.map(s => fuzzysort.prepare(s));
+						let miniSearch = new MiniSearch({
+							fields: ['s'],
+						});
+
+						miniSearch.addAll(haystack.map((s, i) => ({s, id: i})));
 
 						return {
 							search: needle => {
-								let found = fuzzysort.go(needle, haystack, opts);
-								return found;
+								return miniSearch.search(needle);
 							},
-							toStr: m => m.target,
+							toStr: m => haystack[m.id],
 						};
 					},
 					search: null,
 					toStr: null,
 				},
+			/*
+				{
+					name: 'fzy',
+					script: './lib/fzy.js',
+					fulltext: false,
+					repo: 'https://jhawthorn.github.io/fzy-demo/',
+					demo: 'https://github.com/jhawthorn/fzy.js',
+					opts: {},
+					setup: (haystack, opts) => {
+						return {
+							search: needle => {
+							//	list = list.filter((s) => fzy.hasMatch(s));
+
+								// Sort by fzy's scoring, descending (higher scores are better matches)
+								let out = haystack.map(s => -fzy.score(needle, s));
+							},
+							toStr: m => haystack[m.id],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+			*/
+			//  TODO:
+			//	https://github.com/nol13/fuzzball.js
+			//	https://github.com/nextapps-de/flexsearch
+			//	https://github.com/LyraSearch/lyra
 			];
 		</script>
 
@@ -361,31 +598,34 @@
 					data.urls_and_titles,
 				);
 
-				let hash = location.hash;
-				let libIdxs;
+				let urlParams = new URLSearchParams(location.search);
+				let libNames = urlParams.get('libs');
 
-				if (hash.length > 0)
-					libIdxs = hash.split('=')[1].split(',').map(i => +i);
+				if (libNames)
+					libNames = libNames.split(',');
 				else
-					libIdxs = libs.map((l, i) => i);
+					libNames = libs.map(lib => lib.name);
 
 				let proms = [];
 
-				libIdxs.map((i) => libs[i]).forEach(l => {
-					proms.push(new Promise((resolve, reject) => {
-						let sc = document.createElement('script');
-						sc.src = l.script;
-						sc.onload = e => {
-							resolve(l);
-						};
-						document.body.appendChild(sc);
-					}));
+				libNames.forEach(name => {
+					let lib = libs.find(lib => lib.name == name);
+
+					if (lib) {
+						proms.push(new Promise((resolve, reject) => {
+							let sc = document.createElement('script');
+							sc.src = lib.script;
+							sc.onload = e => { resolve(lib); };
+							document.body.appendChild(sc);
+						}));
+					}
 				});
 
 				Promise.all(proms).then(libs => {
 					libs.forEach(l => {
 						let res = document.createElement('pre');
 						document.body.appendChild(res);
+						res.style.width = Math.floor(100 / Math.min(libs.length, 5)) + '%';
 
 						setup(l, haystack);
 
@@ -399,12 +639,14 @@
 								});
 							}
 
-							res.innerHTML = fmtResult(l.name, matches, l.toStr, haystack, elapsed);
+							res.innerHTML = fmtResult(l, matches, l.toStr, haystack, elapsed);
 						};
 
 						document.getElementById("search").addEventListener('input', e => {
 							let needle = e.target.value
-							run(needle);
+
+							if (tmpOnlyLib == null || tmpOnlyLib == l.name)
+								run(needle);
 						});
 
 						run('');
