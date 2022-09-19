@@ -217,13 +217,11 @@
 
 						return {
 							search: needle => {
-								// abc col tow
-								// res to da
 								if (oooPermute) {
 									let needles = permute(needle.split(/[^A-Za-z0-9]+/g)).map(terms => terms.join(' '));
 
 									let allFound = [];
-									let allTallies = {};
+									let allStats = {};
 
 									needles.forEach((needle, pi) => {
 										let idxs = u.filter(haystack, needle);
@@ -231,22 +229,22 @@
 										toStr = idx => haystack[idx];
 
 										if (idxs.length <= 1e3) {
-											let { tallies, order } = u.rank(idxs, haystack, needle);
+											let { stats, order } = u.score(idxs, haystack, needle);
 											found = order;
 
-											// offset idxs for concat'ing tallies
+											// offset idxs for concat'ing stats
 											if (pi > 0) {
 												for (let i = 0; i < found.length; i++)
 													found[i] += allFound.length;
 											}
 
-											for (let k in tallies)
-												allTallies[k] = (allTallies[k] ?? []).concat(tallies[k]);
+											for (let k in stats)
+												allStats[k] = (allStats[k] ?? []).concat(stats[k]);
 
 											if (opts.withRanges)
-												toStr = oi => highlightParts(haystack[allTallies.idx[oi]], allTallies.ranges[oi]);
+												toStr = oi => highlightParts(haystack[allStats.idx[oi]], allStats.ranges[oi]);
 											else
-												toStr = oi => haystack[allTallies.idx[oi]];
+												toStr = oi => haystack[allStats.idx[oi]];
 										}
 
 										allFound = allFound.concat(found); // re-rank?
@@ -260,13 +258,13 @@
 									toStr = idx => haystack[idx];
 
 									if (idxs.length <= 1e3) {
-										let { tallies, order } = u.rank(idxs, haystack, needle);
+										let { stats, order } = u.score(idxs, haystack, needle);
 										found = order;
 
 										if (opts.withRanges)
-											toStr = oi => highlightParts(haystack[tallies.idx[oi]], tallies.ranges[oi]);
+											toStr = oi => highlightParts(haystack[stats.idx[oi]], stats.ranges[oi]);
 										else
-											toStr = oi => haystack[tallies.idx[oi]];
+											toStr = oi => haystack[stats.idx[oi]];
 									}
 
 									return found;
@@ -574,7 +572,9 @@
 		</script>
 
 		<script>
-		//	let query = 'TrackMania12-y2 Uni_ted 17Webisode 1123: Coppers';
+		//	'TrackMania12-y2 Uni_ted 17Webisode 1123: Coppers';
+		//	abc col tow
+		//	res to da
 		//	promremstorfal;
 
 			function setup(lib, haystack) {
