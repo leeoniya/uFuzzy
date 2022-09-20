@@ -255,8 +255,8 @@
 										stats,
 										order: idx.map((v, i) => i).sort((ia, ib) => (
 											   intra[ia] - intra[ib] // least char intra-fuzz (most contiguous)
-											|| haystack[idx[ia]].length - haystack[idx[ib]].length // shortest match first
 											|| start[ia] - start[ib] // earliest start of match
+											|| haystack[idx[ia]].length - haystack[idx[ib]].length // shortest match first
 											|| ( // most prefix/suffix bounds, boosted by full term matches
 												(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
 												(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
