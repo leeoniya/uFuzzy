@@ -75,6 +75,13 @@
 				<input class="uf" id="withRanges" type="checkbox" checked>
 				withRanges
 			</label>
+			<label>
+				sortPreset
+				<select id="sortPreset">
+					<option value="search" selected>Search</option>
+					<option value="typeahead">Typeahead</option>
+				</select>
+			</label>
 		</div>
 
 		<script>
@@ -232,6 +239,38 @@
 
 						document.getElementById('withRanges').addEventListener('input', e => {
 							opts.withRanges = e.target.checked;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('sortPreset').addEventListener('change', e => {
+							if (e.target.value == 'typeahead') {
+								const cmp = new Intl.Collator('en').compare;
+
+								// copy & tweak from core
+								opts.sort = (stats, haystack, needle) => {
+									let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = stats;
+
+									return {
+										stats,
+										order: idx.map((v, i) => i).sort((ia, ib) => (
+											   intra[ia] - intra[ib] // least char intra-fuzz (most contiguous)
+											|| haystack[idx[ia]].length - haystack[idx[ib]].length // shortest match first
+											|| start[ia] - start[ib] // earliest start of match
+											|| ( // most prefix/suffix bounds, boosted by full term matches
+												(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
+												(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
+											)
+										//	|| span[ia] - span[ib] // highest density of match (least span)
+											|| inter[ia] - inter[ib] // highest density of match (least term inter-fuzz)
+											|| cmp(haystack[idx[ia]], haystack[idx[ib]]) // alphabetic
+										)),
+									};
+								};
+							}
+							else
+								delete opts.sort;
+
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
