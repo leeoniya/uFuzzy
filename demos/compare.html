@@ -20,12 +20,13 @@
 				display: inline-block;
 				vertical-align: top;
 				overflow: auto;
+				margin-top: 20px;
 				/* overflow: auto; */
 				/* box-shadow: 3px 3px 3px rgb(0 0 0 / 20%); */
 				/* height: 600px; */
 			}
 
-			b {
+			pre b {
 				color: red;
 			}
 
@@ -39,52 +40,124 @@
 			}
 
 			label {
-				margin-left: 30px;
+				margin-left: 20px;
+			}
+
+			label > * {
+				vertical-align: middle;
+			}
+
+			#search {
+				font-size: 16pt;
+			}
+
+			#opts,
+			input,
+			select {
+				font-family: monospace;
+			}
+
+			#search,
+			#opts {
+				vertical-align: middle;
+			}
+
+			#opts {
+				background: #e0e0e0;
+				padding: 8px 12px;
 			}
 		</style>
 	</head>
 	<body>
 		<div>
-			<input id="search" type="text" placeholder="Search...">
+			<div id="opts">
+				<input id="search" type="text" placeholder="Search...">
 
-			<label>
-				scoreThresh
-				<input class="uf" id="scoreThresh" type="text" value="1000" placeholder="Inf">
-			</label>
-			<label>
-				intraLimit
-				<input class="uf" id="intraLimit" type="text" value="0" placeholder="Inf">
-			</label>
-			<label>
-				interLimit
-				<input class="uf" id="interLimit" type="text" placeholder="Inf">
-			</label>
-			<label>
-				<input class="uf" id="strictPre" type="checkbox" placeholder="Inf">
-				strictPre
-			</label>
-			<label>
-				<input class="uf" id="strictSuf" type="checkbox">
-				strictSuf
-			</label>
-			<label>
-				<input class="uf" id="outOfOrder" type="checkbox">
-				outOfOrder
-			</label>
-			<label>
-				<input class="uf" id="withRanges" type="checkbox" checked>
-				withRanges
-			</label>
-			<label>
-				sortPreset
-				<select id="sortPreset">
-					<option value="search" selected>Search</option>
-					<option value="typeahead">Typeahead</option>
-				</select>
-			</label>
+				<label>
+					Lists
+					<select id="lists" multiple>
+						<option value="urls_and_titles_600">urls_and_titles_600</option>
+						<option value="hearthstone_750">hearthstone_750</option>
+						<option value="metric_name_9000">metric_name_9000</option>
+						<option value="metric_type_9000">metric_type_9000</option>
+						<option value="metric_help_9000">metric_help_9000</option>
+						<option value="ue4_files_13000">ue4_files_13000</option>
+						<option value="mtg_16000">mtg_16000</option>
+						<option value="steam_games_47000">steam_games_47000</option>
+						<option value="wordlist_58000">wordlist_58000</option>
+					</select>
+				</label>
+
+				<label style="font-size: 12pt;"><b>uFuzzy opts:</b></label>
+
+				<label>
+					intraLimit
+					<input class="uf" id="intraLimit" type="text" value="0" placeholder="Inf">
+				</label>
+				<label>
+					interLimit
+					<input class="uf" id="interLimit" type="text" placeholder="Inf">
+				</label>
+				<label>
+					<input class="uf" id="strictPre" type="checkbox" placeholder="Inf">
+					strictPre
+				</label>
+				<label>
+					<input class="uf" id="strictSuf" type="checkbox">
+					strictSuf
+				</label>
+				<label>
+					<input class="uf" id="outOfOrder" type="checkbox">
+					outOfOrder
+				</label>
+				<label>
+					<input class="uf" id="withRanges" type="checkbox" checked>
+					withRanges
+				</label>
+				<label>
+					rankThresh
+					<input class="uf" id="rankThresh" type="text" value="1000" placeholder="Inf">
+				</label>
+				<label>
+					sortPreset
+					<select id="sortPreset">
+						<option value="search">Search</option>
+						<option value="typeahead">Typeahead</option>
+					</select>
+				</label>
+			</div>
 		</div>
 
 		<script>
+			let urlParams = new URLSearchParams(location.search);
+
+			for (let [k, v] of urlParams) {
+				let inp = document.getElementById(k);
+
+				if (inp) {
+					if (inp.matches('input[type=checkbox]'))
+						inp.checked = v != '0' && v != 'false';
+					else if (k == 'lists') {
+						let lists = new Set(v.split(','));
+
+						[...inp.querySelectorAll('option')].forEach(option => {
+							option.selected = lists.has(option.value);
+						});
+					}
+					else
+						inp.value = v == 'inf' ? '' : v;
+
+					if (k == 'search')
+						document.title = 'μFuzzy - ' + v;
+				}
+			}
+
+			if (urlParams.get('lists') == null) {
+				[...document.querySelectorAll('#lists option')].forEach(option => {
+					option.selected = true;
+				});
+			}
+
 			function fmtResult(lib, found, toStr, haystack, elapsed) {
 				let allCount = haystack.length.toLocaleString("en-US");
 				let foundCount = found.length.toLocaleString("en-US");
@@ -117,6 +190,28 @@
 
 				return dst;
 			}
+
+			// copy & tweak from core
+			const cmp = new Intl.Collator('en').compare;
+			const typeAheadSort = (stats, haystack, needle) => {
+				let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = stats;
+
+				return {
+					stats,
+					order: idx.map((v, i) => i).sort((ia, ib) => (
+							intra[ia] - intra[ib] // least char intra-fuzz (most contiguous)
+						|| start[ia] - start[ib] // earliest start of match
+						|| haystack[idx[ia]].length - haystack[idx[ib]].length // shortest match first
+						|| ( // most prefix/suffix bounds, boosted by full term matches
+							(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
+							(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
+						)
+					//	|| span[ia] - span[ib] // highest density of match (least span)
+						|| inter[ia] - inter[ib] // highest density of match (least term inter-fuzz)
+						|| cmp(haystack[idx[ia]], haystack[idx[ib]]) // alphabetic
+					)),
+				};
+			};
 
 			function timeIt(fn) {
 				let start = performance.now();
@@ -188,6 +283,7 @@
 			})();
 
 			let tmpOnlyLib = null;
+			let tmpVar;
 
 			let libs = [
 				{
@@ -197,20 +293,30 @@
 					repo: 'https://github.com/leeoniya/uFuzzy',
 					demo: 'https://leeoniya.github.io/uFuzzy/demos/compare.html',
 					opts: {
-					//	intraLimit: Infinity,
+						intraLimit: (tmpVar = urlParams.get('intraLimit')) == null ? 0 : tmpVar == 'inf' ? Infinity : +tmpVar,
 					//	intraChars: '.',
-						intraLimit: 0,
-						withRanges: true,
-					//	strictPre: true,
-					//	strictSuf: false,
+
+						interLimit: (tmpVar = urlParams.get('interLimit')) == null ? Infinity : tmpVar == 'inf' ? Infinity : +tmpVar,
+					//	interChars: '.',
+
+						strictPre:  (tmpVar = urlParams.get('strictPre'))  != null && (tmpVar == '' || tmpVar == 'true' || tmpVar == '1'),
+						strictSuf:  (tmpVar = urlParams.get('strictSuf'))  != null && (tmpVar == '' || tmpVar == 'true' || tmpVar == '1'),
+
+						withRanges: (tmpVar = urlParams.get('withRanges')) == null ||  tmpVar == '' || tmpVar == 'true' || tmpVar == '1',
+
+						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
 					},
 					setup: (haystack, opts) => {
+						if (opts.sort == null)
+							delete opts.sort;
+
 						let u = new uFuzzy(opts);
 
-						let scoreThresh = 1000;
+						let rankThresh = 1e3;
 
-						document.getElementById('scoreThresh').addEventListener('input', e => {
-							scoreThresh = +e.target.value;
+						document.getElementById('rankThresh').addEventListener('input', e => {
+							rankThresh = +e.target.value;
+							ufSearch(e);
 						});
 
 						const bump = e => {
@@ -282,30 +388,8 @@
 						});
 
 						document.getElementById('sortPreset').addEventListener('change', e => {
-							if (e.target.value == 'typeahead') {
-								const cmp = new Intl.Collator('en').compare;
-
-								// copy & tweak from core
-								opts.sort = (stats, haystack, needle) => {
-									let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = stats;
-
-									return {
-										stats,
-										order: idx.map((v, i) => i).sort((ia, ib) => (
-											   intra[ia] - intra[ib] // least char intra-fuzz (most contiguous)
-											|| start[ia] - start[ib] // earliest start of match
-											|| haystack[idx[ia]].length - haystack[idx[ib]].length // shortest match first
-											|| ( // most prefix/suffix bounds, boosted by full term matches
-												(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
-												(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
-											)
-										//	|| span[ia] - span[ib] // highest density of match (least span)
-											|| inter[ia] - inter[ib] // highest density of match (least term inter-fuzz)
-											|| cmp(haystack[idx[ia]], haystack[idx[ib]]) // alphabetic
-										)),
-									};
-								};
-							}
+							if (e.target.value == 'typeahead')
+								opts.sort = typeAheadSort;
 							else
 								delete opts.sort;
 
@@ -328,7 +412,7 @@
 										let found = idxs;
 										toStr = idx => haystack[idx];
 
-										if (idxs.length <= 1e3) {
+										if (idxs.length <= rankThresh) {
 											let { stats, order } = u.score(idxs, haystack, needle);
 											found = order;
 
@@ -357,7 +441,7 @@
 									let found = idxs;
 									toStr = idx => haystack[idx];
 
-									if (idxs.length <= 1e3) {
+									if (idxs.length <= rankThresh) {
 										let { stats, order } = u.score(idxs, haystack, needle);
 										found = order;
 
@@ -591,8 +675,6 @@
 					repo: 'https://github.com/grafana/grafana/blob/main/packages/grafana-ui/src/utils/fuzzy.ts',
 					opts: {},
 					setup: (haystack, opts) => {
-						let cmp = new Intl.Collator('en').compare;
-
 						return {
 							search: needle => {
 								let found = [];
@@ -683,26 +765,49 @@
 				lib.toStr = toStr;
 			}
 
+			const allListNames = [
+				'urls_and_titles_600',
+				'hearthstone_750',
+				'metric_name_9000',
+				'metric_type_9000',
+				'metric_help_9000',
+				'ue4_files_13000',
+				'mtg_16000',
+				'steam_games_47000',
+				'wordlist_58000',
+			];
+
 			fetch('./testdata.json').then(r => r.json()).then(data => {
 			//	let haystack = data.steam_games;
 			//	let haystack = data.wordlist_58k;
 			//	let haystack = data.test;
 			//	let haystack = data.metric_name;
 
-				let haystack = [].concat(
-					data.steam_games,
-					data.wordlist_58k,
-					data.metric_name,
-					data.metric_help,
-					data.ue4_files,
-					data.urls_and_titles,
-				);
+				let listNames = urlParams.get('lists');
+
+				if (listNames == null)
+					listNames = allListNames;
+				else
+					listNames = listNames.split(',');
+
+				let haystack = listNames.flatMap(k => data[k]);
+
+				let listsEl = document.getElementById('lists');
+
+				listsEl.addEventListener('change', e => {
+					listNames = [...listsEl.querySelectorAll('option')].filter(option => option.selected).map(option => option.value);
+					haystack = listNames.flatMap(k => data[k]);
+					libNames.forEach(name => {
+						let lib = libs.find(lib => lib.name == name);
+						setup(lib, haystack);
+						document.getElementById('search').dispatchEvent(new Event('input', {bubbles: true, cancelable: true}));
+					});
+				});
 
 			//	console.time('diacritics');
 			//	haystack = latinize(haystack);
 			//	console.timeEnd('diacritics');
 
-				let urlParams = new URLSearchParams(location.search);
 				let libNames = urlParams.get('libs');
 
 				if (libNames)
@@ -726,6 +831,8 @@
 				});
 
 				Promise.all(proms).then(libs => {
+					let search = document.getElementById('search').value;
+
 					libs.forEach(l => {
 						let res = document.createElement('pre');
 						document.body.appendChild(res);
@@ -753,7 +860,7 @@
 								run(needle);
 						});
 
-						run('');
+						run(search);
 					});
 				});
 			});

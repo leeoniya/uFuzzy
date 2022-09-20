@@ -17,3 +17,8 @@ This disqualifies uFuzzy from being used as a spellcheck (due to omitted letters
 However, it's easy to perform a separate uFuzzy search for each permutation of terms in the needle to achieve out-of-order matching without appreciable degredation in performance for most cases.
 
 Now that you know what uFuzzy _isn't_, let's see what it can offer over existing solutions.
+
+---
+### Demo
+
+https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,QuickScore,fuzzysort&search=super%20ma
