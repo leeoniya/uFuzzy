@@ -21,4 +21,47 @@ Now that you know what uFuzzy _isn't_, let's see what it can offer over existing
 ---
 ### Demo
 
-https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,QuickScore,fuzzysort&search=super%20ma
+Below are some comparisons using a diverse 162,000 string/phrase dataset derived mostly from concatenating the lists from [fuzzysort's demo](https://rawgit.com/farzher/fuzzysort/master/test.html), plus 9,000 metrics objects split into three lists (`metric_type_9000`, `metric_name_9000`, `metric_help_9000`):
+
+```
+[
+  {
+    "type": "gauge",
+    "name": "coordinator_prometheus_engine_prometheus_engine_queries",
+    "help": "The current number of queries being executed or waiting.",
+  },
+  ...
+]
+```
+
+First, here is uFuzzy in isolation to demonstrate its performance:
+
+https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&search=super%20ma
+
+Now the same comparison page, booted with [fuzzysort](https://github.com/farzher/fuzzysort), [QuickScore](https://fwextensions.github.io/quick-score-demo/), and [Fuse.js](https://fusejs.io/):
+
+https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,fuzzysort,QuickScore,Fuse&search=super%20ma
+
+Here is the full library list but with a reduced dataset (just `hearthstone_750`, `urls_and_titles_600`) to avoid crashing your browser:
+
+https://leeoniya.github.io/uFuzzy/demos/compare.html?lists=hearthstone_750,urls_and_titles_600&search=moo
+
+---
+### Similar work
+
+FuzzySearch
+fuzzylist
+fuzzymatch
+fuzzysort
+match-sorter
+quickscore
+Fuse.js
+FlexSeach
+LyraSearch
+
+
+---
+### FAQ
+
+searching objects
+serching multiple properties

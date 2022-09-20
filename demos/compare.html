@@ -461,23 +461,25 @@
 					toStr: null,
 				},
 				{
-					name: 'Fuzzyset',
-					script: './lib/fuzzyset.js',
+					name: 'fuzzysort',
+					script: './lib/fuzzysort.min.js',
 					fulltext: true,
-					repo: 'https://github.com/Glench/fuzzyset.js',
-					demo: 'http://glench.github.io/fuzzyset.js/',
-					opts: {},
+					repo: 'https://github.com/farzher/fuzzysort',
+					demo: 'https://rawgit.com/farzher/fuzzysort/master/test.html',
+					opts: {
+					//	limit: 100, // don't return more results than you need!
+					//	threshold: -10000, // don't return bad results
+					},
 					setup: (haystack, opts) => {
-						let fuzzySet = FuzzySet();
-
-						for (let i = 0; i < haystack.length; i++)
-							fuzzySet.add(haystack[i]);
+						haystack = haystack.map(s => fuzzysort.prepare(s));
 
 						return {
 							search: needle => {
-								return fuzzySet.get(needle);
+								return fuzzysort.go(needle, haystack, opts);
 							},
-							toStr: m => m[1],
+							toStr: m => {
+								return `<i>${+m.score.toFixed(4)}</i> ` + fuzzysort.highlight(m);
+							},
 						};
 					},
 					search: null,
@@ -506,25 +508,26 @@
 					toStr: null,
 				},
 				{
-					name: 'fuzzysort',
-					script: './lib/fuzzysort.min.js',
+					name: 'Fuse',
+					script: './lib/fuse.min.js',
 					fulltext: true,
-					repo: 'https://github.com/farzher/fuzzysort',
-					demo: 'https://rawgit.com/farzher/fuzzysort/master/test.html',
+					repo: 'https://github.com/krisk/Fuse',
+					demo: 'https://fusejs.io/demo.html',
 					opts: {
-					//	limit: 100, // don't return more results than you need!
-					//	threshold: -10000, // don't return bad results
+						includeScore: true,
+						includeMatches: true,
 					},
 					setup: (haystack, opts) => {
-						haystack = haystack.map(s => fuzzysort.prepare(s));
+					//	const index = Fuse.createIndex([], haystack);
+						const index = null;
+						const fuse = new Fuse(haystack, opts, index);
 
 						return {
 							search: needle => {
-								return fuzzysort.go(needle, haystack, opts);
+							//	debugger;
+								return fuse.search(needle);
 							},
-							toStr: m => {
-								return `<i>${+m.score.toFixed(4)}</i> ` + fuzzysort.highlight(m);
-							},
+							toStr: m => `<i>${+m.score.toFixed(4)}</i> ` + highlightParts(m.item, m.matches[0].indices.flat()),
 						};
 					},
 					search: null,
@@ -574,6 +577,29 @@
 					toStr: null,
 				},
 				{
+					name: 'Fuzzyset',
+					script: './lib/fuzzyset.js',
+					fulltext: true,
+					repo: 'https://github.com/Glench/fuzzyset.js',
+					demo: 'http://glench.github.io/fuzzyset.js/',
+					opts: {},
+					setup: (haystack, opts) => {
+						let fuzzySet = FuzzySet();
+
+						for (let i = 0; i < haystack.length; i++)
+							fuzzySet.add(haystack[i]);
+
+						return {
+							search: needle => {
+								return fuzzySet.get(needle);
+							},
+							toStr: m => m[1],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
 					name: 'fuzzysearch',
 					script: './lib/fuzzysearch.js',
 					fulltext: false,
@@ -611,32 +637,6 @@
 								return matchSorter.matchSorter(haystack, needle, opts);
 							},
 							toStr: m => m,
-						};
-					},
-					search: null,
-					toStr: null,
-				},
-				{
-					name: 'Fuse',
-					script: './lib/fuse.min.js',
-					fulltext: true,
-					repo: 'https://github.com/krisk/Fuse',
-					demo: 'https://fusejs.io/demo.html',
-					opts: {
-						includeScore: true,
-						includeMatches: true,
-					},
-					setup: (haystack, opts) => {
-					//	const index = Fuse.createIndex([], haystack);
-						const index = null;
-						const fuse = new Fuse(haystack, opts, index);
-
-						return {
-							search: needle => {
-							//	debugger;
-								return fuse.search(needle);
-							},
-							toStr: m => `<i>${+m.score.toFixed(4)}</i> ` + highlightParts(m.item, m.matches[0].indices.flat()),
 						};
 					},
 					search: null,
@@ -833,10 +833,16 @@
 				Promise.all(proms).then(libs => {
 					let search = document.getElementById('search').value;
 
-					libs.forEach(l => {
+					libNames.forEach(name => {
+						let l = libs.find(lib => lib.name == name);
+
 						let res = document.createElement('pre');
 						document.body.appendChild(res);
-						res.style.width = Math.floor(100 / Math.min(libs.length, 5)) + '%';
+						let hzQty = Math.min(libs.length, 4);
+						res.style.width = Math.floor(100 / hzQty) + '%';
+
+						if (libs.length > 4)
+							res.style.height = 1200 / (libs.length /  hzQty) + 'px';
 
 						setup(l, haystack);
 
