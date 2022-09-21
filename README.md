@@ -21,6 +21,7 @@ uFuzzy is intolerant of missing terms, and missing or out-of-order characters, s
 - **Junk-free, high quality results** that are _dataset-independent_. No need to fine-tune indexing options or boosting params to attain some arbitrary quality score cut-off.
 - **Straightforward fuzziness control** that can be explained to your grandma in 5min.
 - **Sorting you can reason about** and customize using a simple `Array.sort()` which gets access to each match's stats/counters. There's no composite, black box "score" to understand.
+- **Concise set of options** that don't interact in mysterious ways to drastically alter combined behavior.
 - **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 11ms or 35ms with out-of-order terms.
 - **Micro, with zero dependencies** - currently [< 3KB min](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.iife.min.js)
 
