@@ -34,24 +34,12 @@ Now that you know what uFuzzy _isn't_, let's see what it can offer over existing
 -->
 
 ---
-### Demo
+### Demos
 
-Below are some comparisons using a diverse 162,000 string/phrase dataset derived mostly from concatenating the lists from [fuzzysort's demo](https://rawgit.com/farzher/fuzzysort/master/test.html), plus 9,000 metrics objects split into three lists (`metric_type_9000`, `metric_name_9000`, `metric_help_9000`):
+**NOTE:** The [testdata.json](https://github.com/leeoniya/uFuzzy/blob/main/demos/testdata.json) file is a diverse 162,000 string/phrase dataset 4MB in size, so first load may be slow due to network transfer.
+Try refreshing once it's been cached by your browser.
 
-```
-[
-  {
-    "type": "gauge",
-    "name": "coordinator_prometheus_engine_prometheus_engine_queries",
-    "help": "The current number of queries being executed or waiting.",
-  },
-  ...
-]
-```
-
-First, here is uFuzzy in isolation to demonstrate its performance.
-
-**NOTE:** [testdata.json](https://github.com/leeoniya/uFuzzy/blob/main/demos/testdata.json) is 4MB, so first load may be slow due to network transfer. Try refreshing once it's been cached by your browser.
+First, uFuzzy in isolation to demonstrate its performance.
 
 https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&search=super%20ma
 
