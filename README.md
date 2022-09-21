@@ -58,7 +58,8 @@ https://leeoniya.github.io/uFuzzy/demos/compare.html?lists=hearthstone_750,urls_
 Forget "apples and oranges"; comparing text search engines is more akin to "Cars vs Planes: A Toddler's Perspective".
 However, that doesnt mean we cannot gain _some_ insight into a slice of operational behavior.
 This assessment is extremely narrow and, of course, biased towards my use cases, text corpus, and my complete expertise in operating my own library.
-It is highly probable that I'm not taking full advantage of some feature in other libraries that may significantly change the outcomes, and I welcome any PR contributions from those with deeper library knowledge than my 10min skim over a "Basic usage" example or API docs.
+It is highly probable that I'm not taking full advantage of some feature in other libraries that may significantly improve outcomes along some axis;
+I welcome improvement PRs from anyone with deeper library knowledge than afforded by my hasty 10min skim over any "Basic usage" example and README doc.
 
 #### Search quality
 
@@ -71,14 +72,16 @@ What constitutes a good top match in a "typeahead/auto-suggest" case can be a po
 Some solutions optimize for the latter, some for the former.
 It's common to find knobs that skew the results in either direction, but these are often by-feel and imperfect, being little more than a proxy to producing a single, composite match "score".
 
-Let's take a look at some matches produced by the most popular fuzzy search library, [Fuse.js](https://github.com/krisk/Fuse) and a couple others for which match highlighting is implemented in the demo.
+Let's take a look at some matches produced by the most popular fuzzy search library, [Fuse.js](https://github.com/krisk/Fuse) and a some others for which match highlighting is implemented in the demo.
+
+TODO...
 
 <!--
 twil  0.1683 ok, 0.25+ bad
 chest 0.1959 ok, 0.2+ bad
 train
 nin tur
-puzz, puzl
+puzz, puzl (MiniSearch, {fuzzy: 0.4}, uFuzzy, intraLimit: 1)
 -->
 
 #### Performance
