@@ -216,24 +216,28 @@
 
 			// copy & tweak from core
 			const cmp = new Intl.Collator('en').compare;
-			const typeAheadSort = (stats, haystack, needle) => {
-				let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = stats;
+			const typeAheadSort = (info, haystack, needle) => {
+				let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = info;
 
-				return {
-					stats,
-					order: idx.map((v, i) => i).sort((ia, ib) => (
-						   intra[ia] - intra[ib] // least char intra-fuzz (most contiguous)
-						|| start[ia] - start[ib] // earliest start of match
-						|| haystack[idx[ia]].length - haystack[idx[ib]].length // shortest match first
-						|| ( // most prefix/suffix bounds, boosted by full term matches
-							(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
-							(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
-						)
-					//	|| span[ia] - span[ib] // highest density of match (least span)
-						|| inter[ia] - inter[ib] // highest density of match (least term inter-fuzz)
-						|| cmp(haystack[idx[ia]], haystack[idx[ib]]) // alphabetic
-					)),
-				};
+				return idx.map((v, i) => i).sort((ia, ib) => (
+					// least char intra-fuzz (most contiguous)
+					intra[ia] - intra[ib] ||
+					// earliest start of match
+					start[ia] - start[ib] ||
+					// shortest match first
+					haystack[idx[ia]].length - haystack[idx[ib]].length ||
+					// most prefix/suffix bounds, boosted by full term matches
+					(
+						(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
+						(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
+					) ||
+					// highest density of match (least span)
+				//	span[ia] - span[ib] ||
+					// highest density of match (least term inter-fuzz)
+					inter[ia] - inter[ib] ||
+					// alphabetic
+					cmp(haystack[idx[ia]], haystack[idx[ib]])
+				))
 			};
 
 			function timeIt(fn) {
@@ -440,7 +444,7 @@
 									let needles = permute(needle.split(/[^A-Za-z0-9]+/g)).map(terms => terms.join(' '));
 
 									let allFound = [];
-									let allStats = {};
+									let allInfos = {};
 
 									needles.forEach((needle, pi) => {
 										let idxs = u.filter(haystack, needle);
@@ -448,25 +452,27 @@
 										toStr = idx => haystack[idx];
 
 										if (idxs.length <= rankThresh) {
-											let { stats, order } = u.rank(idxs, haystack, needle);
+											let info = u.info(idxs, haystack, needle);
+											let order = u.sort(info, haystack, needle);
+
 											found = order;
 
-											// offset idxs for concat'ing stats
+											// offset idxs for concat'ing infos
 											if (pi > 0) {
 												for (let i = 0; i < found.length; i++)
 													found[i] += allFound.length;
 											}
 
-											for (let k in stats)
-												allStats[k] = (allStats[k] ?? []).concat(stats[k]);
+											for (let k in info)
+												allInfos[k] = (allInfos[k] ?? []).concat(info[k]);
 
 											if (opts.withRanges)
-												toStr = oi => highlightParts(haystack[allStats.idx[oi]], allStats.ranges[oi]);
+												toStr = oi => highlightParts(haystack[allInfos.idx[oi]], allInfos.ranges[oi]);
 											else
-												toStr = oi => haystack[allStats.idx[oi]];
+												toStr = oi => haystack[allInfos.idx[oi]];
 										}
 
-										allFound = allFound.concat(found); // re-rank?
+										allFound = allFound.concat(found); // dedupe/combine/weight/re-sort?
 									});
 
 									return allFound;
@@ -477,13 +483,15 @@
 									toStr = idx => haystack[idx];
 
 									if (idxs.length <= rankThresh) {
-										let { stats, order } = u.rank(idxs, haystack, needle);
+										let info = u.info(idxs, haystack, needle);
+										let order = u.sort(info, haystack, needle);
+
 										found = order;
 
 										if (opts.withRanges)
-											toStr = oi => highlightParts(haystack[stats.idx[oi]], stats.ranges[oi]);
+											toStr = oi => highlightParts(haystack[info.idx[oi]], info.ranges[oi]);
 										else
-											toStr = oi => haystack[stats.idx[oi]];
+											toStr = oi => haystack[info.idx[oi]];
 									}
 
 									return found;

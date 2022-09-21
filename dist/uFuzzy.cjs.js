@@ -49,23 +49,26 @@ const OPTS = {
 	*/
 
 	// final sorting fn
-	sort: (stats, haystack, needle) => {
-		let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = stats;
+	sort: (info, haystack, needle) => {
+		let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = info;
 
-		return {
-			stats,
-			order: idx.map((v, i) => i).sort((ia, ib) => (
-					intra[ia] - intra[ib] // least char intra-fuzz (most contiguous)
-				|| ( // most prefix/suffix bounds, boosted by full term matches
-					(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
-					(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
-				   )
-			//	|| span[ia] - span[ib] // highest density of match (least span)
-				|| inter[ia] - inter[ib] // highest density of match (least term inter-fuzz)
-				|| start[ia] - start[ib] // earliest start of match
-				|| cmp(haystack[idx[ia]], haystack[idx[ib]]) // alphabetic
-			 )),
-		};
+		return idx.map((v, i) => i).sort((ia, ib) => (
+			// least char intra-fuzz (most contiguous)
+			intra[ia] - intra[ib] ||
+			// most prefix/suffix bounds, boosted by full term matches
+			(
+				(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
+				(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
+			) ||
+			// highest density of match (least span)
+		//	span[ia] - span[ib] ||
+			// highest density of match (least term inter-fuzz)
+			inter[ia] - inter[ib] ||
+			// earliest start of match
+			start[ia] - start[ib] ||
+			// alphabetic
+			cmp(haystack[idx[ia]], haystack[idx[ib]])
+		));
 	},
 };
 
@@ -138,7 +141,7 @@ function uFuzzy(opts) {
 	let interBound = new RegExp(opts.interSplit);
 	let intraBound = new RegExp(opts.intraSplit);
 
-	const rank = (idxs, haystack, needle) => {
+	const info = (idxs, haystack, needle) => {
 
 		let [query, parts] = prepQuery(needle, 1);
 
@@ -149,7 +152,7 @@ function uFuzzy(opts) {
 
 		let field = Array(idxs.length).fill(0);
 
-		let stats = {
+		let info = {
 			// idx in haystack
 			idx: idxs,
 
@@ -219,41 +222,41 @@ function uFuzzy(opts) {
 					let isPre = true;
 					let isSuf = true;
 
-					// prefix stats
+					// prefix info
 					if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
-						stats.pre0[i]++;
+						info.pre0[i]++;
 					else if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
-						stats.pre1[i]++;
+						info.pre1[i]++;
 					else
 						isPre = false;
 
-					// suffix stats
+					// suffix info
 					if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
-						stats.suf0[i]++;
+						info.suf0[i]++;
 					else if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
-						stats.suf1[i]++;
+						info.suf1[i]++;
 					else
 						isSuf = false;
 
 					if (isPre && isSuf)
-						stats.term[i]++;
+						info.term[i]++;
 				}
 				else
-					stats.intra[i] += group.length - parts[j].length; // intraFuzz
+					info.intra[i] += group.length - parts[j].length; // intraFuzz
 
 				if (j > 0)
-					stats.inter[i] += m[k-1].length; // interFuzz
+					info.inter[i] += m[k-1].length; // interFuzz
 
 				if (j < parts.length - 1)
 					idxAcc += m[k].length + m[k+1].length;
 			}
 
-			stats.start[i] = m.index;
-		//	stats.span[i] = span;
+			info.start[i] = m.index;
+		//	info.span[i] = span;
 
 			if (opts.withRanges) {
 				let m = mhstr.match(queryR);
-				let ranges = stats.ranges[i] = [];
+				let ranges = info.ranges[i] = [];
 
 				let idxAcc = m.index;
 				let from = idxAcc;
@@ -276,14 +279,13 @@ function uFuzzy(opts) {
 			}
 		}
 
-		let ranked = opts.sort(stats, haystack, needle);
-
-		return ranked;
+		return info;
 	};
 
 	return {
 		filter,
-		rank,
+		info,
+		sort: opts.sort,
 	};
 }
 

@@ -61,8 +61,8 @@ https://leeoniya.github.io/uFuzzy/demos/compare.html?lists=hearthstone_750,urls_
 uFuzzy works in 3 phases:
 
 1. **Filter** - This filters the full `haystack` with a fast RegExp compiled from your `needle` without doing any extra ops. It returns an array of matched indices in original order.
-2. **Rank** - This tallies more detailed `stats` about the filtered matches, such as start offsets, density, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. To do all this it re-compiles the `needle` into two additional, more-expensive RegExps that can partition the filtered matches. Therefore, it should be run on a reduced subset of the haystack, usually returned by the filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead this ranking/stats phase.
-3. **Sort** - This runs as part of, and at end of the Rank phase. It does a final `Array.sort()` that actually puts the items in desired order by utilizing the `stats` object gathered in the Rank phase. A custom sorting function can be provided via an option: `{sort: (stats, haystack, needle) => {stats, order: [...idxs]}}`.
+2. **Info** - This collects more detailed stats about the filtered matches, such as start offsets, fuzz level, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. To do all this it re-compiles the `needle` into two more-expensive RegExps that can partition each of the filtered matches. Therefore, it should be run on a reduced subset of the haystack, usually returned by the filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead this Info phase.
+3. **Sort** - This does a final `Array.sort()` that determines the desired order by utilizing the `info` object returned from the previous phase. A custom sorting function can be provided via an option: `{sort: (info, haystack, needle) => {stats, order: [...idxs]}}`.
 
 ```js
 let haystack = [
@@ -83,11 +83,13 @@ let idxs = uf.filter(haystack, needle);
 
 // rank only when <= 1,000 items
 if (idxs.length <= 1e3) {
-  // order is a double-indirection array (a re-order of the passed-in idxs)
-  // this allows corresponding stats to be grabbed directly by idx, if needed
-  let { stats, order } = u.rank(idxs, haystack, needle);
+  let info = u.info(idxs, haystack, needle);
 
-  // render filtered & ranked matches
+  // order is a double-indirection array (a re-order of the passed-in idxs)
+  // this allows corresponding info to be grabbed directly by idx, if needed
+  let order = u.sort(info, haystack, needle);
+
+  // render filtered & ordered matches
   for (let i = 0; i < order.length; i++) {
     console.log(haystack[idxs[order[i]]]);
   }
