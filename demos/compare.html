@@ -839,7 +839,30 @@
 					search: null,
 					toStr: null,
 				},
+				{
+					name: 'Lunr',
+					script: './lib/lunr.js',
+					fulltext: false,
+					repo: 'https://github.com/olivernn/lunr.js',
+					opts: {},
+					setup: (haystack, opts) => {
+						let index = lunr(function() {
+							this.field('s');
 
+							for (let i = 0; i < haystack.length; i++)
+								this.add({id: i, s: haystack[i]})
+						});
+
+						return {
+							search: needle => {
+								return index.search(needle);
+							},
+							toStr: m => haystack[+m.ref],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//  TODO:
 			//	https://github.com/nol13/fuzzball.js
 			//	https://github.com/LyraSearch/lyra

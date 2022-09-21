@@ -122,9 +122,14 @@ https://bestofjs.org/projects?tags=search
         <tr>
             <td>
                 <a href="https://github.com/olivernn/lunr.js">Lunr.js</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Lunr&search=super%20ma">try</a>)
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Lunr&search=super~1%20ma~1">try</a>)
             </td>
             <td>★ 8.2k</td>
+            <td>29.4KB</td>
+            <td>1700ms</td>
+            <td>8.7ms</td>
+            <td>128MB</td>
+            <td>127MB</td>
         </tr>
         <tr>
             <td>
