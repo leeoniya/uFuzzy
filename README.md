@@ -71,9 +71,30 @@ However, that doesnt mean we cannot gain _some_ insight into a slice of operatio
 This assessment is extremely narrow and, of course, biased towards my use cases, text corpus, and my complete expertise in operating my own library.
 It is highly probable that I'm not taking full advantage of some feature in other libraries that may significantly change the outcomes, and I welcome any PR contributions from those with deeper library knowledge than my 10min skim over a "Basic usage" example or API docs.
 
-#### Performance
+#### Search quality
 
 Can-of-worms #1.
+
+Before we discuss [performance](#performance) let's talk about search quality, because speed is irrelevant when your results are a strange medly of "Oh yeah!" and "WTF?".
+
+Search quality is very subjective.
+What constitutes a good top match in a "typeahead/auto-suggest" case can be a poor match in a "search/find-all" scenario.
+Some solutions optimize for the latter, some for the former.
+It's common to find knobs that skew the results in either direction, but these are often by-feel and imperfect, being little more than a proxy to producing a single, composite match "score".
+
+Let's take a look at some matches produced by the most popular fuzzy search library, [Fuse.js](https://github.com/krisk/Fuse) and a couple others for which match highlighting is implemented in the demo.
+
+<!--
+twil  0.1683 ok, 0.25+ bad
+chest 0.1959 ok, 0.2+ bad
+train
+nin tur
+puzz, puzl
+-->
+
+#### Performance
+
+Can-of-worms #2.
 
 I've tried to follow any "best performance" advice when I could find it in each library's docs, but it's a certainty that some stones were left unturned when implementing ~20 different search engines.
 
@@ -288,7 +309,3 @@ https://bestofjs.org/projects?tags=search
         </tr>
     </tbody>
 </table>
-
-#### Match and Sort Quality
-
-Can-of-worms #2.
