@@ -36,7 +36,7 @@ Below are some comparisons using a diverse 162,000 string/phrase dataset derived
 
 First, here is uFuzzy in isolation to demonstrate its performance.
 
-**NOTE:** [testdata.json](https://github.com/leeoniya/uFuzzy/blob/main/demos/testdata.json) 4MB, so first load may be slow due to network transfer. Try refreshing once it's been cached by your browser.
+**NOTE:** [testdata.json](https://github.com/leeoniya/uFuzzy/blob/main/demos/testdata.json) is 4MB, so first load may be slow due to network transfer. Try refreshing once it's been cached by your browser.
 
 https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&search=super%20ma
 
