@@ -157,6 +157,11 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=MiniSearch&search=super%20ma">try</a>)
             </td>
             <td>★ 1.5k</td>
+            <td>22.4KB</td>
+            <td>575ms</td>
+            <td>0.7ms</td>
+            <td>70.2MB</td>
+            <td>70MB</td>
         </tr>
         <tr>
             <td>
@@ -164,6 +169,11 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuzzyset&search=super%20ma">try</a>)
             </td>
             <td>★ 1.3k</td>
+            <td>2.8KB</td>
+            <td>2900ms</td>
+            <td>31ms</td>
+            <td>246MB</td>
+            <td>244MB</td>
         </tr>
         <tr>
             <td>
