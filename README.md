@@ -55,15 +55,20 @@ Forget "apples and oranges"; comparing text search engines is more akin to "Cars
 However, that doesnt mean we cannot gain _some_ insight into a slice of operational behavior.
 This assessment is extremely narrow and, of course, biased towards my use cases, text corpus, and my complete expertise in operating my own library.
 It is highly probable that I'm not taking full advantage of some feature in other libraries that may significantly change the outcomes, and I welcome any PR contributions from those with deeper library knowledge than my 10min skim over a "Basic usage" example or API docs.
-I've tried to follow any type of "best performance" advice when I could find it in the docs, but it's a certainty that some stones were left unturned when implementing ~20 different search engines.
 
-Thankfully, the task simple enough:
+#### Performance
 
-1. Given a diverse list of 162,000 strings (words and phrases), assume a Latin/Western European charset (can skip any diacritics/accents normalization)
+Can-of-worms #1.
+
+I've tried to follow any "best performance" advice when I could find it in each library's docs, but it's a certainty that some stones were left unturned when implementing ~20 different search engines.
+
+The task:
+
+1. Given a diverse list of 162,000 words and phrases, assume a Latin/Western European charset (can skip any diacritics/accents normalization)
 2. Do a case-insensitive, partial/fuzzy match of the search string "super ma"
-3. Order the results in the most sensible way, following the [Principle of least astonishment](https://en.wikipedia.org/wiki/Principle_of_least_astonishment)
+3. Sort the results in the most sensible way, following the [Principle of least astonishment](https://en.wikipedia.org/wiki/Principle_of_least_astonishment)
 4. Optionally highlight the matched substrings in each result
-5. Bonus points for out-of-order term matches
+5. Bonus points for matches with out-of-order terms
 6. Do it with the fewest resources (CPU and RAM)
 
 <!--
@@ -175,6 +180,11 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Elasticlunr&search=super%20ma">try</a>)
             </td>
             <td>★ 1.9k</td>
+            <td>18.1KB</td>
+            <td>1000ms</td>
+            <td>1.5ms</td>
+            <td>73.6MB</td>
+            <td>73.4MB</td>
         </tr>
         <tr>
             <td>
@@ -263,3 +273,7 @@ https://bestofjs.org/projects?tags=search
         </tr>
     </tbody>
 </table>
+
+#### Match and Sort Quality
+
+Can-of-worms #2.
