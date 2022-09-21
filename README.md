@@ -191,6 +191,13 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
+                <a href="https://github.com/itemsapi/itemsjs">ItemJS</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=ItemJS&search=super%20ma">try</a>)
+            </td>
+            <td>★ 260</td>
+        </tr>
+        <tr>
+            <td>
                 <a href="https://github.com/wouter2203/fuzzy-search">FuzzySearch</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy-search&search=super%20ma">try</a>)
             </td>
@@ -209,6 +216,11 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=QuickScore&search=super%20ma">try</a>)
             </td>
             <td>★ 131</td>
+            <td>9.1KB</td>
+            <td>26ms</td>
+            <td>155ms</td>
+            <td>26.1MB</td>
+            <td>18.7MB</td>
         </tr>
         <tr>
             <td>

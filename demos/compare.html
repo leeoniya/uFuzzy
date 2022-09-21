@@ -781,6 +781,39 @@
 					search: null,
 					toStr: null,
 				},
+			/*
+				{
+					name: 'search-index',
+					script: './lib/search-index.js',
+					fulltext: false,
+					repo: 'https://github.com/fergiemcdowall/search-index',
+					demo: 'https://fergiemcdowall.github.io/search-index/demo/index.html',
+					opts: {},
+					setup: (haystack, opts) => {
+						haystack = haystack.map(s => ({s}));
+
+						let db;
+
+						console.time('search-index');
+						SearchIndex({ name: 'index' }).then(_db => {
+							db = _db;
+
+							db.PUT(haystack).then(_ => {
+								console.timeEnd('search-index');
+							});
+						});
+
+						return {
+							search: needle => {
+								db.QUERY('s:' + meedle);
+							},
+							toStr: m => haystack[m.id],
+						};
+					},
+					search: null,
+					toStr: null,
+				}
+			*/
 			//  TODO:
 			//	https://github.com/nol13/fuzzball.js
 			//	https://github.com/nextapps-de/flexsearch
