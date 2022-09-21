@@ -812,11 +812,36 @@
 					},
 					search: null,
 					toStr: null,
-				}
+				},
 			*/
+				{
+					name: 'FlexSearch',
+					script: './lib/flexsearch.light.js',
+					fulltext: false,
+					repo: 'https://github.com/nextapps-de/flexsearch',
+					opts: {
+					//	preset: "match",
+						tokenize: "full",
+					},
+					setup: (haystack, opts) => {
+						const index = new FlexSearch.Index(opts);
+
+						for (let i = 0; i < haystack.length; i++)
+							index.add(i, haystack[i]);
+
+						return {
+							search: needle => {
+								return index.search(needle);
+							},
+							toStr: id => haystack[id],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+
 			//  TODO:
 			//	https://github.com/nol13/fuzzball.js
-			//	https://github.com/nextapps-de/flexsearch
 			//	https://github.com/LyraSearch/lyra
 			];
 

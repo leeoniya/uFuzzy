@@ -94,10 +94,15 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
-                <a href="https://github.com/nextapps-de/flexsearch">FlexSearch</a>
+                <a href="https://github.com/nextapps-de/flexsearch">FlexSearch (Light)</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=FlexSearch&search=super%20ma">try</a>)
             </td>
             <td>★ 8.9k</td>
+            <td>5.9KB</td>
+            <td>3500ms</td>
+            <td>8.1ms</td>
+            <td>322MB</td>
+            <td>323MB</td>
         </tr>
         <tr>
             <td>
