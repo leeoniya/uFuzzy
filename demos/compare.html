@@ -90,41 +90,63 @@
 
 				<label style="font-size: 12pt;"><b>uFuzzy opts:</b></label>
 
-				<label>
-					intraLimit
-					<input class="uf" id="intraLimit" type="text" value="0" placeholder="Inf">
-				</label>
-				<label>
-					interLimit
-					<input class="uf" id="interLimit" type="text" placeholder="Inf">
-				</label>
-				<label>
-					<input class="uf" id="strictPre" type="checkbox" placeholder="Inf">
-					strictPre
-				</label>
-				<label>
-					<input class="uf" id="strictSuf" type="checkbox">
-					strictSuf
-				</label>
-				<label>
-					<input class="uf" id="outOfOrder" type="checkbox">
-					outOfOrder
-				</label>
-				<label>
-					<input class="uf" id="withRanges" type="checkbox" checked>
-					withRanges
-				</label>
-				<label>
-					rankThresh
-					<input class="uf" id="rankThresh" type="text" value="1000" placeholder="Inf">
-				</label>
-				<label>
-					sortPreset
-					<select id="sortPreset">
-						<option value="search">Search</option>
-						<option value="typeahead">Typeahead</option>
-					</select>
-				</label>
+				<div style="display: inline-block; width: 160px; vertical-align: middle;">
+					<label>
+						intraLimit
+						<input class="uf" id="intraLimit" type="text" value="0" placeholder="Inf">
+					</label>
+					<label>
+						interLimit
+						<input class="uf" id="interLimit" type="text" placeholder="Inf">
+					</label>
+				</div>
+
+				<div style="display: inline-block; width: 160px; vertical-align: middle;">
+					<label>
+						intraChars
+						<input class="uf" id="intraChars" type="text" value="[\w-]" placeholder="[\w-]">
+					</label>
+					<label>
+						interChars
+						<input class="uf" id="interChars" type="text" value="." placeholder=".">
+					</label>
+				</div>
+
+				<div style="display: inline-block; width: 160px; vertical-align: middle;">
+					<label>
+						<input class="uf" id="strictPre" type="checkbox" placeholder="Inf">
+						strictPre
+					</label>
+					<label>
+						<input class="uf" id="strictSuf" type="checkbox">
+						strictSuf
+					</label>
+				</div>
+
+				<div style="display: inline-block; width: 160px; vertical-align: middle;">
+					<label>
+						<input class="uf" id="outOfOrder" type="checkbox">
+						outOfOrder
+					</label>
+					<label>
+						<input class="uf" id="withRanges" type="checkbox" checked>
+						withRanges
+					</label>
+				</div>
+
+				<div style="display: inline-block; width: 205px; vertical-align: middle;">
+					<label>
+						rankThresh
+						<input class="uf" id="rankThresh" type="text" value="1000" placeholder="Inf">
+					</label>
+					<label>
+						sortPreset
+						<select id="sortPreset">
+							<option value="search">Search</option>
+							<option value="typeahead">Typeahead</option>
+						</select>
+					</label>
+				</div>
 			</div>
 		</div>
 
@@ -162,7 +184,8 @@
 				let allCount = haystack.length.toLocaleString("en-US");
 				let foundCount = found.length.toLocaleString("en-US");
 
-				found = found.slice(0, 300).map(r => toStr(r).replace(/[\n\r]+/g, ' '));
+				found = found.slice(0, 1000).map(r => toStr(r).replace(/[\n\r]+/g, ' '));
+			//	found = [];
 
 				return [
 					`${lib.name} <a href="${lib.repo}" target="_blank">repo</a>` + (lib.demo ? ` <a href="${lib.demo}" target="_blank">demo</a>` : ''),
@@ -358,6 +381,18 @@
 						document.getElementById('interLimit').addEventListener('input', e => {
 							let v = e.target.value;
 							opts.interLimit = v == '' ? Infinity : +e.target.value;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('intraChars').addEventListener('input', e => {
+							opts.intraChars = e.target.value
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('interChars').addEventListener('input', e => {
+							opts.interChars = e.target.value
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
