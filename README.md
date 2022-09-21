@@ -49,7 +49,22 @@ Here is the full library list but with a reduced dataset (just `hearthstone_750`
 https://leeoniya.github.io/uFuzzy/demos/compare.html?lists=hearthstone_750,urls_and_titles_600&search=moo
 
 ---
-### Similar work
+### A biased appraisal of similar work
+
+Forget "apples and oranges"; comparing text search engines is more akin to "Cars vs Planes: A Toddler's Perspective".
+However, that doesnt mean we cannot gain _some_ insight into a slice of operational behavior.
+This assessment is extremely narrow and, of course, biased towards my use cases, text corpus, and my complete expertise in operating my own library.
+It is highly probable that I'm not taking full advantage of some feature in other libraries that may significantly change the outcomes, and I welcome any PR contributions from those with deeper library knowledge than my 10min skim over a "Basic usage" example or API docs.
+I've tried to follow any type of "best performance" advice when I could find it in the docs, but it's a certainty that some stones were left unturned when implementing ~20 different search engines.
+
+Thankfully, the task quite simple enough:
+
+1. Given a diverse list of 162,000 strings (words and phrases), assume a Latin/Western European charset (can skip any diacritics/accents normalization)
+2. Do a case-insensitive, partial/fuzzy match of the search string "super ma"
+3. Order the results in the most sensible way, following the [Principle of least astonishment](https://en.wikipedia.org/wiki/Principle_of_least_astonishment)
+4. Optionally highlight the matched substrings in each result
+5. Bonus points for out-of-order term matches
+6. Do it with the fewest resources (CPU and RAM)
 
 <!--
 https://bestofjs.org/projects?tags=search
