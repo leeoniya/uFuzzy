@@ -53,6 +53,54 @@ Here is the full library list but with a reduced dataset (just `hearthstone_750`
 https://leeoniya.github.io/uFuzzy/demos/compare.html?lists=hearthstone_750,urls_and_titles_600&search=moo
 
 ---
+### Installation
+
+---
+### Usage
+
+uFuzzy works in 3 phases:
+
+1. **Filter** - This filters the full `haystack` with a fast RegExp compiled from your `needle` without doing any extra ops. It returns an array of matched indices in original order.
+2. **Rank** - This tallies more detailed `stats` about the filtered matches, such as start offsets, density, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. To do all this it re-compiles the `needle` into two additional, more-expensive RegExps that can partition the filtered matches. Therefore, it should be run on a reduced subset of the haystack, usually returned by the filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead this ranking/stats phase.
+3. **Sort** - This runs as part of, and at end of the Rank phase. It does a final `Array.sort()` that actually puts the items in desired order by utilizing the `stats` object gathered in the Rank phase. A custom sorting function can be provided via an option: `{sort: (stats, haystack, needle) => {stats, order: [...idxs]}}`.
+
+```js
+let haystack = [
+    'puzzle',
+    'Super Awesome Thing (now with stuff!)',
+    'FileName.js',
+    '/feeding/the/catPic.jpg',
+];
+
+let opts = {};
+
+let uf = new uFuzzy(opts);
+
+let needle = 'feed cat';
+
+// pre-filter
+let idxs = uf.filter(haystack, needle);
+
+// rank only when <= 1,000 items
+if (idxs.length <= 1e3) {
+  // order is a double-indirection array (a re-order of the passed-in idxs)
+  // this allows corresponding stats to be grabbed directly by idx, if needed
+  let { stats, order } = u.rank(idxs, haystack, needle);
+
+  // render filtered & ranked matches
+  for (let i = 0; i < order.length; i++) {
+    console.log(haystack[idxs[order[i]]]);
+  }
+}
+else {
+  // render filtered but unordered matches
+  for (let i = 0; i < idxs.length; i++) {
+    console.log(haystack[i]);
+  }
+}
+```
+
+---
 ### A biased appraisal of similar work
 
 Forget "apples and oranges"; comparing text search engines is more akin to "Cars vs Planes: A Toddler's Perspective".

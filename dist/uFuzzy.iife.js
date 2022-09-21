@@ -36,8 +36,8 @@ var uFuzzy = (function () {
 		intraLimit: 0,
 
 		// max filtered matches before scoring kicks in
-	//	scoreLimit: 1000,
-		// should scoring compute matched substr ranges for highlighting
+	//	rankLimit: 1000,
+		// should ranking compute matched substr ranges for highlighting
 		withRanges: false,
 
 		/*
@@ -139,7 +139,7 @@ var uFuzzy = (function () {
 		let interBound = new RegExp(opts.interSplit);
 		let intraBound = new RegExp(opts.intraSplit);
 
-		const score = (idxs, haystack, needle) => {
+		const rank = (idxs, haystack, needle) => {
 
 			let [query, parts] = prepQuery(needle, 1);
 
@@ -277,14 +277,14 @@ var uFuzzy = (function () {
 				}
 			}
 
-			let scored = opts.sort(stats, haystack, needle);
+			let ranked = opts.sort(stats, haystack, needle);
 
-			return scored;
+			return ranked;
 		};
 
 		return {
 			filter,
-			score,
+			rank,
 		};
 	}
 
