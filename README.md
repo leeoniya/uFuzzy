@@ -60,10 +60,11 @@ https://bestofjs.org/projects?tags=search
         <tr>
             <th>Lib</th>
             <th>Stars</th>
-            <th>Size</th>
+            <th>Size (min)</th>
             <th>Init</th>
-            <th>Heap</th>
             <th>Search</th>
+            <th>Heap (peak)</th>
+            <th>Retained</th>
         </tr>
     </thead>
     <tbody>
@@ -73,9 +74,12 @@ https://bestofjs.org/projects?tags=search
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&search=super%20ma">isolate</a>
             </td>
-            <td>
-                ★ 0
-            </td>
+            <td>★ 0</td>
+            <td>2.5KB</td>
+            <td>0.3ms</td>
+            <td>11.7ms</td>
+            <td>7.7MB</td>
+            <td>7.5MB</td>
         </tr>
         <tr>
             <td>
@@ -83,9 +87,12 @@ https://bestofjs.org/projects?tags=search
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuse&search=super%20ma">isolate</a>
             </td>
-            <td>
-                ★ 14.8k
-            </td>
+            <td>★ 14.8k</td>
+            <td>23.5KB</td>
+            <td>34ms</td>
+            <td>600ms</td>
+            <td>20.6MB</td>
+            <td>14.2MB</td>
         </tr>
         <tr>
             <td>
@@ -93,9 +100,7 @@ https://bestofjs.org/projects?tags=search
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=FlexSearch&search=super%20ma">isolate</a>
             </td>
-            <td>
-                ★ 8.9k
-            </td>
+            <td>★ 8.9k</td>
         </tr>
         <tr>
             <td>
@@ -103,9 +108,7 @@ https://bestofjs.org/projects?tags=search
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Lunr&search=super%20ma">isolate</a>
             </td>
-            <td>
-                ★ 8.2k
-            </td>
+            <td>★ 8.2k</td>
         </tr>
         <tr>
             <td>
@@ -113,99 +116,7 @@ https://bestofjs.org/projects?tags=search
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=LyraSearch&search=super%20ma">isolate</a>
             </td>
-            <td>
-                ★ 3.3k
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/weixsong/elasticlunr.js">Elasticlunr.js</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Elasticlunr&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 1.9k
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/lucaong/minisearch">MiniSearch</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=MiniSearch&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 1.5k
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/fergiemcdowall/search-index">search-index</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=search-index&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 1.3k
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/farzher/fuzzysort">fuzzysort</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzysort&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 0
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/fwextensions/quick-score">QuickScore</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=QuickScore&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 0
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/wouter2203/fuzzy-search">FuzzySearch</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy-search&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 0
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/jeancroy/FuzzySearch">FuzzySearch2</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=FuzzySearch2&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 0
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/Glench/fuzzyset.js">Fuzzyset</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuzzyset&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 0
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/bevacqua/fuzzysearch">fuzzysearch</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzysearch&search=super%20ma">isolate</a>
-            </td>
-            <td>
-                ★ 0
-            </td>
+            <td>★ 3.3k</td>
         </tr>
         <tr>
             <td>
@@ -213,9 +124,60 @@ https://bestofjs.org/projects?tags=search
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=match-sorter&search=super%20ma">isolate</a>
             </td>
+            <td>★ 3.1k</td>
+            <td>7.3KB</td>
+            <td>0.03ms</td>
+            <td>125ms</td>
+            <td>13.1MB</td>
+            <td>12.9MB</td>
+        </tr>
+        <tr>
             <td>
-                ★ 0
+                <a href="https://github.com/farzher/fuzzysort">fuzzysort</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzysort&search=super%20ma">isolate</a>
             </td>
+            <td>★ 3k</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/bevacqua/fuzzysearch">fuzzysearch</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzysearch&search=super%20ma">isolate</a>
+            </td>
+            <td>★ 2.6k</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/weixsong/elasticlunr.js">Elasticlunr.js</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Elasticlunr&search=super%20ma">isolate</a>
+            </td>
+            <td>★ 1.9k</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/Glench/fuzzyset.js">Fuzzyset</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuzzyset&search=super%20ma">isolate</a>
+            </td>
+            <td>★ 1.3k</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/lucaong/minisearch">MiniSearch</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=MiniSearch&search=super%20ma">isolate</a>
+            </td>
+            <td>★ 1.5k</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/fergiemcdowall/search-index">search-index</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=search-index&search=super%20ma">isolate</a>
+            </td>
+            <td>★ 1.3k</td>
         </tr>
         <tr>
             <td>
@@ -223,9 +185,31 @@ https://bestofjs.org/projects?tags=search
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=LiquidMetal&search=super%20ma">isolate</a>
             </td>
+            <td>★ 285</td>
+        </tr>
+        <tr>
             <td>
-                ★ 0
+                <a href="https://github.com/wouter2203/fuzzy-search">FuzzySearch</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy-search&search=super%20ma">isolate</a>
             </td>
+            <td>★ 184</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/jeancroy/FuzzySearch">FuzzySearch2</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=FuzzySearch2&search=super%20ma">isolate</a>
+            </td>
+            <td>★ 173</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/fwextensions/quick-score">QuickScore</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=QuickScore&search=super%20ma">isolate</a>
+            </td>
+            <td>★ 131</td>
         </tr>
         <tr>
             <td>
@@ -233,9 +217,7 @@ https://bestofjs.org/projects?tags=search
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fzy&search=super%20ma">isolate</a>
             </td>
-            <td>
-                ★ 0
-            </td>
+            <td>★ 115</td>
         </tr>
         <tr>
             <td>
