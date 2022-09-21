@@ -646,7 +646,7 @@
 					name: 'LiquidMetal',
 					script: './lib/liquidmetal.js',
 					fulltext: false,
-					repo: ' https://github.com/rmm5t/liquidmetal',
+					repo: 'https://github.com/rmm5t/liquidmetal',
 					opts: {},
 					setup: (haystack, opts) => {
 						return {
@@ -723,13 +723,12 @@
 					search: null,
 					toStr: null,
 				},
-			/*
 				{
 					name: 'fzy',
 					script: './lib/fzy.js',
 					fulltext: false,
-					repo: 'https://jhawthorn.github.io/fzy-demo/',
-					demo: 'https://github.com/jhawthorn/fzy.js',
+					repo: 'https://github.com/jhawthorn/fzy.js/',
+					demo: 'https://jhawthorn.github.io/fzy-demo/',
 					opts: {},
 					setup: (haystack, opts) => {
 						return {
@@ -745,12 +744,14 @@
 					search: null,
 					toStr: null,
 				},
-			*/
 			//  TODO:
 			//	https://github.com/nol13/fuzzball.js
 			//	https://github.com/nextapps-de/flexsearch
 			//	https://github.com/LyraSearch/lyra
 			];
+
+		//	let liblist = libs.map(lib => `<a href="${lib.repo}">${lib.name}</a>`).join("\n");
+		//	console.log(liblist);
 		</script>
 
 		<script>
