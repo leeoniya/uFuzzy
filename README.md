@@ -157,19 +157,19 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
-                <a href="https://github.com/Glench/fuzzyset.js">Fuzzyset</a>
-                <br>
-                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuzzyset&search=super%20ma">isolate</a>
-            </td>
-            <td>★ 1.3k</td>
-        </tr>
-        <tr>
-            <td>
                 <a href="https://github.com/lucaong/minisearch">MiniSearch</a>
                 <br>
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=MiniSearch&search=super%20ma">isolate</a>
             </td>
             <td>★ 1.5k</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/Glench/fuzzyset.js">Fuzzyset</a>
+                <br>
+                <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuzzyset&search=super%20ma">isolate</a>
+            </td>
+            <td>★ 1.3k</td>
         </tr>
         <tr>
             <td>
