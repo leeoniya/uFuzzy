@@ -551,18 +551,44 @@
 					opts: {
 						includeScore: true,
 						includeMatches: true,
+						ignoreLocation: true,
+					//	distance: 50,
+					//	threshold: 0.8,
 					},
 					setup: (haystack, opts) => {
 					//	const index = Fuse.createIndex([], haystack);
 						const index = null;
 						const fuse = new Fuse(haystack, opts, index);
 
+						// https://github.com/krisk/Fuse/issues/6#issuecomment-455813098
+						const highlightFuse = (inputText, regions = []) => {
+							let content = '';
+							let nextUnhighlightedRegionStartingIndex = 0;
+
+							regions.forEach(region => {
+								const lastRegionNextIndex = region[1] + 1;
+
+								content += [
+									inputText.substring(nextUnhighlightedRegionStartingIndex, region[0]),
+									`<b>`,
+									inputText.substring(region[0], lastRegionNextIndex),
+									'</b>',
+								].join('');
+
+								nextUnhighlightedRegionStartingIndex = lastRegionNextIndex;
+							});
+
+							content += inputText.substring(nextUnhighlightedRegionStartingIndex);
+
+							return content;
+						};
+
 						return {
 							search: needle => {
 							//	debugger;
 								return fuse.search(needle);
 							},
-							toStr: m => `<i>${+m.score.toFixed(4)}</i> ` + highlightParts(m.item, m.matches[0].indices.flat()),
+							toStr: m => `<i>${+m.score.toFixed(4)}</i> ` + highlightFuse(m.item, m.matches[0].indices),
 						};
 					},
 					search: null,
