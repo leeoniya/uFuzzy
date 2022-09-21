@@ -7,16 +7,31 @@ A tiny, efficient, fuzzy search that doesn't suck
 
 This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-work), but this one is mine.
 
-uFuzzy is a fuzzy search lib designed to match a relatively short search string (needle) against a large list of short-to-medium strings (haystack).
+uFuzzy is a fuzzy search lib designed to match a relatively short search phrase (needle) against a large list of short-to-medium phrases (haystack).
 It might be best described as a more forgiving [String.prototype.indexOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf).
+Its performance leaves significant headroom for matching out-of-order fuzzy terms by merging matches from all permutations of the needle.
+When held just right, it can efficiently match against multiple properties.
+Common use cases are list filtering, auto-complete/suggest, and title/name/description/filename/function searches.
 
-Common use cases are list filtering, auto-complete/suggest, title/name or description search, filenames or functions.
+uFuzzy is intolerant of missing terms, and missing or out-of-order characters, so is a poor fit for applications like spellcheck or fulltext/document search.
+
+---
+### Features
+
+- **Junk-free, high quality results** that are _dataset-independent_. No need to fine-tune indexing options or boosting params to attain some arbitrary quality score cut-off.
+- **Straightforward fuzziness control** that can be explained to your grandma in 5min.
+- **Sorting you can reason about** and customize using a simple `Array.sort()` which gets access to each match's stats/counters. There's no composite, black box "score" to understand.
+- **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 11ms or 35ms with out-of-order terms.
+- **Micro, with zero dependencies** - currently [< 3KB min](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.iife.min.js)
+
+<!--
 uFuzzy is case insensitive and expects all alpha-numeric characters in the needle to occur in the same order, with an adjustable tolerance for additionally inserted characters;
 `horse cart` will not match `cart horse`, but would be matched for either `cart` or `horse`.
 This disqualifies uFuzzy from being used as a spellcheck (due to omitted letters), or a fulltext/document search, where terms can be out of order.
 However, it's easy to perform a separate uFuzzy search for each permutation of terms in the needle to achieve out-of-order matching without appreciable degredation in performance for most cases.
 
 Now that you know what uFuzzy _isn't_, let's see what it can offer over existing solutions.
+-->
 
 ---
 ### Demo
