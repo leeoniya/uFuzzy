@@ -138,6 +138,11 @@ https://bestofjs.org/projects?tags=search
                 <a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzysort&search=super%20ma">isolate</a>
             </td>
             <td>★ 3k</td>
+            <td>5.5KB</td>
+            <td>50ms</td>
+            <td>12ms</td>
+            <td>54.7MB</td>
+            <td>54.4MB</td>
         </tr>
         <tr>
             <td>
