@@ -772,6 +772,10 @@
 					setup: (haystack, opts) => {
 						let miniSearch = new MiniSearch({
 							fields: ['s'],
+							searchOptions: {
+								prefix: true,
+							//	fuzzy: 0.4, // needed to match puzl instead of puzz for "puzzle" stuff
+							}
 						});
 
 						miniSearch.addAll(haystack.map((s, i) => ({s, id: i})));

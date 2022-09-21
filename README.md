@@ -218,7 +218,7 @@ https://bestofjs.org/projects?tags=search
             <td>★ 1.5k</td>
             <td>22.4KB</td>
             <td>575ms</td>
-            <td>0.7ms</td>
+            <td>1ms</td>
             <td>70.2MB</td>
             <td>70MB</td>
         </tr>
