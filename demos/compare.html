@@ -1018,8 +1018,9 @@
 					getLibNames().forEach(name => {
 						let lib = libs.find(lib => lib.name == name);
 						setup(lib, haystack);
-						document.getElementById('search').dispatchEvent(new Event('input', {bubbles: true, cancelable: true}));
 					});
+
+					document.getElementById('search').dispatchEvent(new Event('input', {bubbles: true, cancelable: true}));
 				}
 
 				listsEl.addEventListener('change', e => {
@@ -1037,6 +1038,7 @@
 				fileDropEl.ondragover = noop;
 				fileDropEl.ondrop = e => {
 					noop(e);
+					document.getElementById('clippy').style.display = 'none';
 					e.dataTransfer.files[0].text().then(txt => {
 						let d;
 
