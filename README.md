@@ -1,11 +1,10 @@
 ## ▒ μFuzzy
 
-A tiny, efficient, fuzzy search that doesn't suck
+A tiny, efficient, fuzzy search that doesn't suck.
+This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-work), but this one is mine.
 
 ---
 ### Introduction
-
-This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-work), but this one is mine.
 
 uFuzzy is a [fuzzy search](https://en.wikipedia.org/wiki/Approximate_string_matching) library designed to match a relatively short search phrase (needle) against a large list of short-to-medium phrases (haystack).
 It might be best described as a more forgiving [String.prototype.indexOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf).
