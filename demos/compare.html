@@ -164,8 +164,9 @@
 				</label>
 				<b style="margin: 10px;">OR</b>
 				<div id="filedrop">
-					Drop an array-of-strings JSON or<br>
-					a list-of-strings text file here
+					<span id="droptip">Drop an array-of-strings JSON or<br>
+					a list-of-strings text file here</span>
+					<span id="dropfilename"></span>
 					<img id="clippy" src="clippy.png" title="So you're *not*&#10;writing a letter?">
 		  	 	</div>
 			</div>
@@ -1026,6 +1027,8 @@
 				listsEl.addEventListener('change', e => {
 					listNames = [...listsEl.querySelectorAll('option')].filter(option => option.selected).map(option => option.value);
 					setHaystack(listNames.flatMap(k => data[k]));
+					document.querySelector('#droptip').style.display = 'block';
+					document.querySelector('#dropfilename').textContent = '';
 				});
 
 				let noop = e => {
@@ -1039,7 +1042,12 @@
 				fileDropEl.ondrop = e => {
 					noop(e);
 					document.getElementById('clippy').style.display = 'none';
-					e.dataTransfer.files[0].text().then(txt => {
+					let file = e.dataTransfer.files[0];
+
+					document.querySelector('#droptip').style.display = 'none';
+					document.querySelector('#dropfilename').textContent = file.name;
+
+					file.text().then(txt => {
 						let d;
 
 						try {
@@ -1049,6 +1057,9 @@
 						}
 
 						setHaystack(d);
+
+						for (let opt of listsEl.querySelectorAll('option'))
+							opt.selected = false;
 					});
 				};
 
