@@ -61,8 +61,8 @@ https://leeoniya.github.io/uFuzzy/demos/compare.html?lists=hearthstone_750,urls_
 uFuzzy works in 3 phases:
 
 1. **Filter** - This filters the full `haystack` with a fast RegExp compiled from your `needle` without doing any extra ops. It returns an array of matched indices in original order.
-2. **Info** - This collects more detailed stats about the filtered matches, such as start offsets, fuzz level, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. To do all this it re-compiles the `needle` into two more-expensive RegExps that can partition each of the filtered matches. Therefore, it should be run on a reduced subset of the haystack, usually returned by the filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead this Info phase.
-3. **Sort** - This does a final `Array.sort()` that determines the desired order by utilizing the `info` object returned from the previous phase. A custom sorting function can be provided via an option: `{sort: (info, haystack, needle) => {stats, order: [...idxs]}}`.
+2. **Info** - This collects more detailed stats about the filtered matches, such as start offsets, fuzz level, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. To do all this it re-compiles the `needle` into two more-expensive RegExps that can partition each of the filtered matches. Therefore, it should be run on a reduced subset of the haystack, usually returned by the filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead with this Info phase.
+3. **Sort** - This does an `Array.sort()` to determine final result order, probing the `info` object returned from the previous phase. A custom sort function can be provided via a uFuzzy option: `{sort: (info, haystack, needle) => {stats, order: [...idxs]}}`.
 
 ```js
 let haystack = [
@@ -81,7 +81,7 @@ let needle = 'feed cat';
 // pre-filter
 let idxs = uf.filter(haystack, needle);
 
-// rank only when <= 1,000 items
+// sort/rank only when <= 1,000 items
 if (idxs.length <= 1e3) {
   let info = u.info(idxs, haystack, needle);
 
