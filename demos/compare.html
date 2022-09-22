@@ -66,6 +66,13 @@
 				background: #e0e0e0;
 				padding: 8px 12px;
 			}
+
+			#filedrop {
+				display: inline-block;
+				vertical-align: middle;
+				padding: 20px 30px;
+				background: #fff9c4;
+			}
 		</style>
 	</head>
 	<body>
@@ -147,6 +154,11 @@
 						</select>
 					</label>
 				</div>
+
+				<div id="filedrop">
+					Drop array-of-strings JSON file here<br>
+					e.g. ["abc", "def", "ghi"]
+		  	 	</div>
 			</div>
 		</div>
 
@@ -947,6 +959,17 @@
 				lib.toStr = toStr;
 			}
 
+			function getLibNames() {
+				let libNames = urlParams.get('libs');
+
+				if (libNames)
+					libNames = libNames.split(',');
+				else
+					libNames = libs.map(lib => lib.name);
+
+				return libNames;
+			}
+
 			const allListNames = [
 				'urls_and_titles_600',
 				'hearthstone_750',
@@ -976,26 +999,42 @@
 
 				let listsEl = document.getElementById('lists');
 
-				listsEl.addEventListener('change', e => {
-					listNames = [...listsEl.querySelectorAll('option')].filter(option => option.selected).map(option => option.value);
-					haystack = listNames.flatMap(k => data[k]);
-					libNames.forEach(name => {
+				function setHaystack(_haystack) {
+					haystack = _haystack;
+
+					getLibNames().forEach(name => {
 						let lib = libs.find(lib => lib.name == name);
 						setup(lib, haystack);
 						document.getElementById('search').dispatchEvent(new Event('input', {bubbles: true, cancelable: true}));
 					});
+				}
+
+				listsEl.addEventListener('change', e => {
+					listNames = [...listsEl.querySelectorAll('option')].filter(option => option.selected).map(option => option.value);
+					setHaystack(listNames.flatMap(k => data[k]));
 				});
+
+				let noop = e => {
+					e.stopPropagation();
+					e.preventDefault();
+				};
+
+				let fileDropEl = document.getElementById('filedrop');
+				fileDropEl.ondragenter = noop;
+				fileDropEl.ondragover = noop;
+				fileDropEl.ondrop = e => {
+					noop(e);
+					e.dataTransfer.files[0].text().then(txt => {
+
+						setHaystack(JSON.parse(txt));
+					});
+				};
 
 			//	console.time('diacritics');
 			//	haystack = latinize(haystack);
 			//	console.timeEnd('diacritics');
 
-				let libNames = urlParams.get('libs');
-
-				if (libNames)
-					libNames = libNames.split(',');
-				else
-					libNames = libs.map(lib => lib.name);
+				let libNames = getLibNames();
 
 				let proms = [];
 
