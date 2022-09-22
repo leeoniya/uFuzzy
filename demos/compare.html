@@ -68,10 +68,18 @@
 			}
 
 			#filedrop {
+				position: relative;
 				display: inline-block;
 				vertical-align: middle;
 				padding: 20px 30px;
 				background: #fff9c4;
+			}
+
+			#clippy {
+				position: absolute;
+				width: 100px;
+				bottom: -60px;
+				cursor: pointer;
 			}
 		</style>
 	</head>
@@ -79,21 +87,6 @@
 		<div>
 			<div id="opts">
 				<input id="search" type="text" placeholder="Search...">
-
-				<label>
-					Lists
-					<select id="lists" multiple>
-						<option value="urls_and_titles_600">urls_and_titles_600</option>
-						<option value="hearthstone_750">hearthstone_750</option>
-						<option value="metric_name_9000">metric_name_9000</option>
-						<option value="metric_type_9000">metric_type_9000</option>
-						<option value="metric_help_9000">metric_help_9000</option>
-						<option value="ue4_files_13000">ue4_files_13000</option>
-						<option value="mtg_16000">mtg_16000</option>
-						<option value="steam_games_47000">steam_games_47000</option>
-						<option value="wordlist_58000">wordlist_58000</option>
-					</select>
-				</label>
 
 				<label style="font-size: 12pt;"><b>uFuzzy opts:</b></label>
 
@@ -155,9 +148,25 @@
 					</label>
 				</div>
 
+				<label>
+					Lists
+					<select id="lists" multiple>
+						<option value="urls_and_titles_600">urls_and_titles_600</option>
+						<option value="hearthstone_750">hearthstone_750</option>
+						<option value="metric_name_9000">metric_name_9000</option>
+						<option value="metric_type_9000">metric_type_9000</option>
+						<option value="metric_help_9000">metric_help_9000</option>
+						<option value="ue4_files_13000">ue4_files_13000</option>
+						<option value="mtg_16000">mtg_16000</option>
+						<option value="steam_games_47000">steam_games_47000</option>
+						<option value="wordlist_58000">wordlist_58000</option>
+					</select>
+				</label>
+				<b style="margin: 10px;">OR</b>
 				<div id="filedrop">
-					Drop array-of-strings JSON file here<br>
-					e.g. ["abc", "def", "ghi"]
+					Drop an array-of-strings JSON or<br>
+					a list-of-strings text file here
+					<img id="clippy" src="clippy.png" title="So you're *not*&#10;writing a letter?">
 		  	 	</div>
 			</div>
 		</div>
@@ -191,6 +200,10 @@
 					option.selected = true;
 				});
 			}
+
+			document.getElementById('clippy').addEventListener('click', e => {
+				e.target.style.display = 'none';
+			});
 
 			function fmtResult(lib, found, toStr, haystack, elapsed) {
 				let allCount = haystack.length.toLocaleString("en-US");
@@ -1025,8 +1038,15 @@
 				fileDropEl.ondrop = e => {
 					noop(e);
 					e.dataTransfer.files[0].text().then(txt => {
+						let d;
 
-						setHaystack(JSON.parse(txt));
+						try {
+							d = JSON.parse(txt);
+						} catch (e) {
+							d = txt.trim().split(/[\r\n]+/gm);
+						}
+
+						setHaystack(d);
 					});
 				};
 
