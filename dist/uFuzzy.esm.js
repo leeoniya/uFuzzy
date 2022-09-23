@@ -13,6 +13,10 @@ const inf = Infinity;
 
 const isInt = /\d/;
 
+const ua = navigator.userAgent.toLowerCase();
+const isSafari = ua.indexOf('safari') != -1 && ua.indexOf('chrome') == -1;
+const canLookBehind = !isSafari;
+
 const OPTS = {
 	// term segmentation & punct/whitespace merging
 	interSplit: '[^A-Za-z0-9]+',
@@ -103,8 +107,19 @@ function uFuzzy(opts) {
 		// array of regexp tpls for each term
 		let reTpl = parts.map(p => p.split('').join(intraCharsTpl));
 
-		if (opts.strictPre)
-			reTpl = reTpl.map(term => '(?<!' + typeClassOf(term[0]) + ')' + term);
+		if (opts.strictPre) {
+			// Safari sucks and doesn't support RegExp lookbehinds: https://caniuse.com/js-regexp-lookbehind
+			// https://bugs.webkit.org/show_bug.cgi?id=174931
+			// so we just use a normal \b word boundary, instead of the fancier solution which can infer
+			// word boundaries at alpha-num or upper-lower transitions, WebKit, 007james, __ABC
+			//
+			// this can be worked around by using a non-capturing group ahead of each term, like (?:[^opts.upperChars])
+			// and then shifting/trimming the match props in the .info() phase before collecting stats and ranges
+			if (!canLookBehind)
+				reTpl = reTpl.map(term => '\\b' + term);
+			else
+				reTpl = reTpl.map(term => '(?<!' + typeClassOf(term[0]) + ')' + term);
+		}
 
 		if (opts.strictSuf)
 			reTpl = reTpl.map(term => term + '(?!' + typeClassOf(term.at(-1)) + ')');
