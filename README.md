@@ -111,7 +111,7 @@ else {
 ---
 ### A biased appraisal of similar work
 
-Forget "apples and oranges"; comparing text search engines is more akin to "Cars vs Planes: A Toddler's Perspective".
+Forget "apples and oranges"; comparing text search engines is closer to "planes, trains, and cars".
 However, that doesnt mean we cannot gain _some_ insight into a slice of operational behavior.
 This assessment is extremely narrow and, of course, biased towards my use cases, text corpus, and my complete expertise in operating my own library.
 It is highly probable that I'm not taking full advantage of some feature in other libraries that may significantly improve outcomes along some axis;

@@ -6,20 +6,13 @@ const inf = Infinity;
 
 const isInt = /\d/;
 
-const ua = navigator.userAgent.toLowerCase();
-const isSafari = ua.indexOf('safari') != -1 && ua.indexOf('chrome') == -1;
-const canLookBehind = !isSafari;
-
 const OPTS = {
 	// term segmentation & punct/whitespace merging
 	interSplit: '[^A-Za-z0-9]+',
 	intraSplit: '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]',
 
-	strictPre: false,
-	strictSuf: false,
-
-	upperChars: '[A-Z]',
-	lowerChars: '[a-z]',
+	strictPre: 0,
+	strictSuf: 0,
 
 	// allowance between terms
 	interChars: '.',
@@ -47,7 +40,7 @@ const OPTS = {
 	sort: (info, haystack, needle) => {
 		let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = info;
 
-		return idx.map((v, i) => i).sort((ia, ib) => (
+		return idx.map((v, i) => i).filter(i => idx[i] != -1).sort((ia, ib) => (
 			// least char intra-fuzz (most contiguous)
 			intra[ia] - intra[ib] ||
 			// most prefix/suffix bounds, boosted by full term matches
@@ -80,10 +73,6 @@ export default function uFuzzy(opts) {
 	let intraSplit = new RegExp(opts.intraSplit, 'g');
 	let interSplit = new RegExp(opts.interSplit, 'g');
 
-	const isUpper = new RegExp(opts.upperChars);
-
-	const typeClassOf = char => isInt.test(char) ? '\\d' : isUpper.test(char) ? opts.upperChars : opts.lowerChars;
-
 	const prepQuery = (query, capt = 0) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
 		let parts = query.trim().replace(intraSplit, m => m[0] + ' ' + m[1]).split(interSplit);
@@ -100,24 +89,12 @@ export default function uFuzzy(opts) {
 		// array of regexp tpls for each term
 		let reTpl = parts.map(p => p.split('').join(intraCharsTpl));
 
-		if (opts.strictPre) {
-			// Safari sucks and doesn't support RegExp lookbehinds: https://caniuse.com/js-regexp-lookbehind
-			// https://bugs.webkit.org/show_bug.cgi?id=174931
-			// so we just use a normal \b word boundary, instead of the fancier solution which can infer
-			// word boundaries at alpha-num or upper-lower transitions, WebKit, 007james, __ABC
-			//
-			// this can be worked around by using a non-capturing group ahead of each term, like (?:[^opts.upperChars])
-			// and then shifting/trimming the match props in the .info() phase before collecting stats and ranges
-			if (!canLookBehind)
-				reTpl = reTpl.map(term => '\\b' + term);
-			else
-				reTpl = reTpl.map(term => '(?<!' + typeClassOf(term[0]) + ')' + term);
-		}
+		// this only helps to reduce initial matches early when they can be detected
+		// TODO: might want a mode 3 that excludes _
+		let preTpl = opts.strictPre == 2 ? '(?:\\b|_)' : '';
+		let sufTpl = opts.strictSuf == 2 ? '(?:\\b|_)' : '';
 
-		if (opts.strictSuf)
-			reTpl = reTpl.map(term => term + '(?!' + typeClassOf(term.at(-1)) + ')');
-
-		let interCharsTpl = lazyRepeat(opts.interChars, opts.interLimit);
+		let interCharsTpl = sufTpl + lazyRepeat(opts.interChars, opts.interLimit) + preTpl;
 
 		// capture at word level
 		if (capt > 0) {
@@ -127,6 +104,17 @@ export default function uFuzzy(opts) {
 		}
 		else
 			reTpl = reTpl.join(interCharsTpl);
+
+		if (capt > 0) {
+			if (opts.strictPre == 2)
+				reTpl = '(' + preTpl + ')' + reTpl + '(' + sufTpl + ')';
+			else
+				reTpl = '(.?)' + reTpl + '(.?)';
+		}
+		else
+			reTpl = preTpl + reTpl + sufTpl;
+
+	//	console.log(reTpl);
 
 		return [new RegExp(reTpl, 'i'), parts];
 	};
@@ -164,7 +152,7 @@ export default function uFuzzy(opts) {
 
 		let info = {
 			// idx in haystack
-			idx: idxs,
+			idx: idxs.slice(),
 
 			// start of match
 			start: field.slice(),
@@ -184,23 +172,29 @@ export default function uFuzzy(opts) {
 			// hard/soft prefix/suffix counts
 			// e.g. MegaMan (pre0: 1, suf0: 1, pre1: 1, suf1: 1), Mega Man (pre0: 2, suf0: 2)
 			// hard boundaries
-			pre0: field.slice(),
+			pre0: field.slice(), // lftH, rgtH, or lft1 (match lftMode number)
 			suf0: field.slice(),
 			// soft boundaries
-			pre1: field.slice(),
+			pre1: field.slice(), // lftS, rgtS
 			suf1: field.slice(),
 
 			ranges: opts.withRanges ? Array(idxs.length) : null,
 		};
 
+		// might discard idxs based on bounds checks
+		let mayDiscard = opts.strictPre == 1 || opts.strictSuf == 1;
+
 		for (let i = 0; i < idxs.length; i++) {
 			let mhstr = haystack[idxs[i]];
 			let m = mhstr.match(query);
 
+			// leading junk
+			m.index += m[1].length;
+
 			let idxAcc = m.index;
 		//	let span = m[0].length;
 
-			for (let j = 0, k = 1; j < parts.length; j++, k+=2) {
+			for (let j = 0, k = 2; j < parts.length; j++, k+=2) {
 				let group = m[k].toLowerCase();
 				let fullMatch = group == parts[j];
 
@@ -224,7 +218,7 @@ export default function uFuzzy(opts) {
 					// TODO: use difference in group/part length to boost eSyms? or iSyms (inexact)
 				}
 
-				if (fullMatch) {
+				if (mayDiscard || fullMatch) {
 					// does group's left and/or right land on \b
 					let lftCharIdx = idxAcc - 1;
 					let rgtCharIdx = idxAcc + m[k].length;
@@ -234,21 +228,47 @@ export default function uFuzzy(opts) {
 
 					// prefix info
 					if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
-						info.pre0[i]++;
-					else if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
-						info.pre1[i]++;
-					else
-						isPre = false;
+						fullMatch && info.pre0[i]++;
+					else {
+						if (opts.strictPre == 2) {
+							info.idx[i] = -1;
+							break;
+						}
+
+						if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
+							fullMatch && info.pre1[i]++;
+						else {
+							if (opts.strictPre == 1) {
+								info.idx[i] = -1;
+								break;
+							}
+
+							isPre = false;
+						}
+					}
 
 					// suffix info
 					if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
-						info.suf0[i]++;
-					else if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
-						info.suf1[i]++;
-					else
-						isSuf = false;
+						fullMatch && info.suf0[i]++;
+					else {
+						if (opts.strictSuf == 2) {
+							info.idx[i] = -1;
+							break;
+						}
 
-					if (isPre && isSuf)
+						if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
+							fullMatch && info.suf1[i]++;
+						else {
+							if (opts.strictSuf == 1) {
+								info.idx[i] = -1;
+								break;
+							}
+
+							isSuf = false;
+						}
+					}
+
+					if (fullMatch && isPre && isSuf)
 						info.term[i]++;
 				}
 				else
@@ -261,31 +281,36 @@ export default function uFuzzy(opts) {
 					idxAcc += m[k].length + m[k+1].length;
 			}
 
-			info.start[i] = m.index;
-		//	info.span[i] = span;
+			if (info.idx[i] != -1) {
+				info.start[i] = m.index;
+			//	info.span[i] = span;
 
-			if (opts.withRanges) {
-				let m = mhstr.match(queryR);
-				let ranges = info.ranges[i] = [];
+				if (opts.withRanges) {
+					let m = mhstr.match(queryR);
+					let ranges = info.ranges[i] = [];
 
-				let idxAcc = m.index;
-				let from = idxAcc;
-				let to = idxAcc;
-				for (let i = 1; i < m.length; i++) {
-					let len = m[i].length;
+					// leading junk
+					m.index += m[1].length;
 
-					idxAcc += len;
+					let idxAcc = m.index;
+					let from = idxAcc;
+					let to = idxAcc;
+					for (let i = 2; i < m.length; i++) {
+						let len = m[i].length;
 
-					if (i % 2)
-						to = idxAcc;
-					else if (len > 0) {
-						ranges.push(from, to);
-						from = to = idxAcc;
+						idxAcc += len;
+
+						if (i % 2 == 0)
+							to = idxAcc;
+						else if (len > 0) {
+							ranges.push(from, to);
+							from = to = idxAcc;
+						}
 					}
-				}
 
-				if (to > from)
-					ranges.push(from, to);
+					if (to > from)
+						ranges.push(from, to);
+				}
 			}
 		}
 
