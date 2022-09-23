@@ -368,19 +368,23 @@
 					demo: 'https://leeoniya.github.io/uFuzzy/demos/compare.html',
 					opts: {
 						intraLimit: (tmpVar = urlParams.get('intraLimit')) == null ? 0 : tmpVar == 'inf' ? Infinity : +tmpVar,
-					//	intraChars: '.',
-
 						interLimit: (tmpVar = urlParams.get('interLimit')) == null ? Infinity : tmpVar == 'inf' ? Infinity : +tmpVar,
-					//	interChars: '.',
 
-						lftMode:  (tmpVar = urlParams.get('lftMode'))  != null ? +tmpVar : 0,
-						rgtMode:  (tmpVar = urlParams.get('rgtMode'))  != null ? +tmpVar : 0,
+						intraChars: (tmpVar = urlParams.get('intraChars')),
+						interChars: (tmpVar = urlParams.get('interChars')),
+
+						lftMode:  (tmpVar = urlParams.get('lftMode')) != null ? +tmpVar : 0,
+						rgtMode:  (tmpVar = urlParams.get('rgtMode')) != null ? +tmpVar : 0,
 
 						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
 					},
 					setup: (haystack, opts) => {
 						if (opts.sort == null)
 							delete opts.sort;
+						if (opts.intraChars == null)
+							delete opts.intraChars;
+						if (opts.interChars == null)
+							delete opts.interChars;
 
 						let u = new uFuzzy(opts);
 
@@ -458,7 +462,7 @@
 							ufSearch(e);
 						});
 
-						let oooPermute = false;
+						let oooPermute = urlParams.get('outOfOrder') != null;
 
 						document.getElementById('outOfOrder').addEventListener('input', e => {
 							oooPermute = e.target.checked;

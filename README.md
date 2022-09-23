@@ -8,11 +8,11 @@ This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-w
 
 uFuzzy is a [fuzzy search](https://en.wikipedia.org/wiki/Approximate_string_matching) library designed to match a relatively short search phrase (needle) against a large list of short-to-medium phrases (haystack).
 It might be best described as a more forgiving [String.prototype.indexOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf).
-Its performance leaves significant headroom for matching fuzzy terms out-of-order by combining matches from all permutations of the needle.
-When held _just right_, it can efficiently match against multiple properties, too.
 Common use cases are list filtering, auto-complete/suggest, and title/name/description/filename/function searches.
 
-uFuzzy is intolerant of missing terms, and missing or out-of-order characters, so is a poor fit for applications like spellcheck or fulltext/document search.
+Each uFuzzy match must contain all alpha-numeric characters from the needle in the same sequence, so is likely a poor fit for applications like spellcheck or fulltext/document search.
+However, its speed leaves ample headroom to [match out-of-order terms](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca) by combining results from all permutations of the needle.
+When held _just right_, it can efficiently match against multiple object properties, too.
 
 ---
 ### Features
@@ -23,6 +23,8 @@ uFuzzy is intolerant of missing terms, and missing or out-of-order characters, s
 - **Concise set of options** that don't interact in mysterious ways to drastically alter combined behavior.
 - **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 11ms or 35ms with out-of-order terms.
 - **Micro, with zero dependencies** - currently [< 3KB min](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.iife.min.js)
+
+[![uFuzzy demo](uFuzzy.png)](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca)
 
 ---
 ### Demos
@@ -111,7 +113,7 @@ else {
 ---
 ### A biased appraisal of similar work
 
-Forget "apples and oranges"; comparing text search engines is closer to "planes, trains, and cars".
+Forget "apples and oranges"; me comparing text search engines is closer to "planes, trains, and cars".
 However, that doesnt mean we cannot gain _some_ insight into a slice of operational behavior.
 This assessment is extremely narrow and, of course, biased towards my use cases, text corpus, and my complete expertise in operating my own library.
 It is highly probable that I'm not taking full advantage of some feature in other libraries that may significantly improve outcomes along some axis;
@@ -124,7 +126,7 @@ Can-of-worms #1.
 Before we discuss [performance](#performance) let's talk about search quality, because speed is irrelevant when your results are a strange medly of "Oh yeah!" and "WTF?".
 
 Search quality is very subjective.
-What constitutes a good top match in a "typeahead/auto-suggest" case can be a poor match in a "search/find-all" scenario.
+What constitutes a good top match in a "typeahead / auto-suggest" case can be a poor match in a "search / find-all" scenario.
 Some solutions optimize for the latter, some for the former.
 It's common to find knobs that skew the results in either direction, but these are often by-feel and imperfect, being little more than a proxy to producing a single, composite match "score".
 
