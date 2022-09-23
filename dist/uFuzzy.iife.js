@@ -48,7 +48,7 @@ var uFuzzy = (function () {
 		sort: (info, haystack, needle) => {
 			let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = info;
 
-			return idx.map((v, i) => i).filter(i => idx[i] != -1).sort((ia, ib) => (
+			return idx.map((v, i) => i).sort((ia, ib) => (
 				// least char intra-fuzz (most contiguous)
 				intra[ia] - intra[ib] ||
 				// most prefix/suffix bounds, boosted by full term matches
@@ -156,7 +156,7 @@ var uFuzzy = (function () {
 
 			let info = {
 				// idx in haystack
-				idx: idxs.slice(),
+				idx: Array(idxs.length),
 
 				// start of match
 				start: field.slice(),
@@ -188,6 +188,8 @@ var uFuzzy = (function () {
 			// might discard idxs based on bounds checks
 			let mayDiscard = opts.strictPre == 1 || opts.strictSuf == 1;
 
+			let ii = 0;
+
 			for (let i = 0; i < idxs.length; i++) {
 				let mhstr = haystack[idxs[i]];
 				let m = mhstr.match(query);
@@ -197,6 +199,13 @@ var uFuzzy = (function () {
 
 				let idxAcc = m.index;
 			//	let span = m[0].length;
+
+				let disc = false;
+				let pre0 = 0;
+				let pre1 = 0;
+				let suf0 = 0;
+				let suf1 = 0;
+				let term = 0;
 
 				for (let j = 0, k = 2; j < parts.length; j++, k+=2) {
 					let group = m[k].toLowerCase();
@@ -232,18 +241,18 @@ var uFuzzy = (function () {
 
 						// prefix info
 						if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
-							fullMatch && info.pre0[i]++;
+							fullMatch && pre0++;
 						else {
 							if (opts.strictPre == 2) {
-								info.idx[i] = -1;
+								disc = true;
 								break;
 							}
 
 							if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
-								fullMatch && info.pre1[i]++;
+								fullMatch && pre1++;
 							else {
 								if (opts.strictPre == 1) {
-									info.idx[i] = -1;
+									disc = true;
 									break;
 								}
 
@@ -253,18 +262,18 @@ var uFuzzy = (function () {
 
 						// suffix info
 						if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
-							fullMatch && info.suf0[i]++;
+							fullMatch && suf0++;
 						else {
 							if (opts.strictSuf == 2) {
-								info.idx[i] = -1;
+								disc = true;
 								break;
 							}
 
 							if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
-								fullMatch && info.suf1[i]++;
+								fullMatch && suf1++;
 							else {
 								if (opts.strictSuf == 1) {
-									info.idx[i] = -1;
+									disc = true;
 									break;
 								}
 
@@ -273,7 +282,7 @@ var uFuzzy = (function () {
 						}
 
 						if (fullMatch && isPre && isSuf)
-							info.term[i]++;
+							term++;
 					}
 					else
 						info.intra[i] += group.length - parts[j].length; // intraFuzz
@@ -285,13 +294,20 @@ var uFuzzy = (function () {
 						idxAcc += m[k].length + m[k+1].length;
 				}
 
-				if (info.idx[i] != -1) {
-					info.start[i] = m.index;
-				//	info.span[i] = span;
+				if (!disc) {
+					info.idx[ii]  = idxs[i];
+					info.pre0[ii] = pre0;
+					info.pre1[ii] = pre1;
+					info.suf0[ii] = suf0;
+					info.suf1[ii] = suf1;
+					info.term[ii] = term;
+
+					info.start[ii] = m.index + m[1].length;
+				//	info.span[ii] = span;
 
 					if (opts.withRanges) {
 						let m = mhstr.match(queryR);
-						let ranges = info.ranges[i] = [];
+						let ranges = info.ranges[ii] = [];
 
 						// leading junk
 						m.index += m[1].length;
@@ -315,7 +331,15 @@ var uFuzzy = (function () {
 						if (to > from)
 							ranges.push(from, to);
 					}
+
+					ii++;
 				}
+			}
+
+			// trim arrays
+			if (ii < idxs.length) {
+				for (let k in info)
+					info[k] = info[k].slice(0, ii);
 			}
 
 			return info;

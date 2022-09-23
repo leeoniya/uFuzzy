@@ -253,7 +253,7 @@
 			const typeAheadSort = (info, haystack, needle) => {
 				let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = info;
 
-				return idx.map((v, i) => i).filter(i => idx[i] != -1).sort((ia, ib) => (
+				return idx.map((v, i) => i).sort((ia, ib) => (
 					// least char intra-fuzz (most contiguous)
 					intra[ia] - intra[ib] ||
 					// earliest start of match
