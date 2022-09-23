@@ -129,7 +129,7 @@
 					<label>
 						lftMode
 						<select id="lftMode">
-							<option value="0"></option>
+							<option value="0">substr</option>
 							<option value="1">loose</option>
 							<option value="2">strict</option>
 						</select>
@@ -138,7 +138,7 @@
 					<label>
 						rgtMode
 						<select id="rgtMode">
-							<option value="0"></option>
+							<option value="0">substr</option>
 							<option value="1">loose</option>
 							<option value="2">strict</option>
 						</select>
@@ -149,11 +149,6 @@
 					<label>
 						<input class="uf" id="outOfOrder" type="checkbox">
 						outOfOrder
-					</label>
-					<br>
-					<label>
-						<input class="uf" id="withRanges" type="checkbox" checked>
-						withRanges
 					</label>
 				</div>
 
@@ -378,8 +373,6 @@
 						lftMode:  (tmpVar = urlParams.get('lftMode'))  != null ? +tmpVar : 0,
 						rgtMode:  (tmpVar = urlParams.get('rgtMode'))  != null ? +tmpVar : 0,
 
-						withRanges: (tmpVar = urlParams.get('withRanges')) == null ||  tmpVar == '' || tmpVar == 'true' || tmpVar == '1',
-
 						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
 					},
 					setup: (haystack, opts) => {
@@ -469,12 +462,6 @@
 							ufSearch(e);
 						});
 
-						document.getElementById('withRanges').addEventListener('input', e => {
-							opts.withRanges = e.target.checked;
-							u = new uFuzzy(opts);
-							ufSearch(e);
-						});
-
 						document.getElementById('sortPreset').addEventListener('change', e => {
 							if (e.target.value == 'typeahead')
 								opts.sort = typeAheadSort;
@@ -515,10 +502,7 @@
 											for (let k in info)
 												allInfos[k] = (allInfos[k] ?? []).concat(info[k]);
 
-											if (opts.withRanges)
-												toStr = oi => highlightParts(haystack[allInfos.idx[oi]], allInfos.ranges[oi]);
-											else
-												toStr = oi => haystack[allInfos.idx[oi]];
+											toStr = oi => highlightParts(haystack[allInfos.idx[oi]], allInfos.ranges[oi]);
 										}
 
 										allFound = allFound.concat(found); // dedupe/combine/weight/re-sort?
@@ -537,10 +521,7 @@
 
 										found = order;
 
-										if (opts.withRanges)
-											toStr = oi => highlightParts(haystack[info.idx[oi]], info.ranges[oi]);
-										else
-											toStr = oi => haystack[info.idx[oi]];
+										toStr = oi => highlightParts(haystack[info.idx[oi]], info.ranges[oi]);
 									}
 
 									return found;

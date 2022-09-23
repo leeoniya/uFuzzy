@@ -35,8 +35,6 @@ const OPTS = {
 
 	// max filtered matches before scoring kicks in
 //	rankLimit: 1000,
-	// should ranking compute matched substr ranges for highlighting
-	withRanges: false,
 
 	/*
 	// term permutations for out-of-order
@@ -153,17 +151,15 @@ function uFuzzy(opts) {
 	const info = (idxs, haystack, needle) => {
 
 		let [query, parts] = prepQuery(needle, 1);
+		let [queryR] = prepQuery(needle, 2);
 
-		let queryR;
+		let len = idxs.length;
 
-		if (opts.withRanges)
-			[queryR] = prepQuery(needle, 2);
-
-		let field = Array(idxs.length).fill(0);
+		let field = Array(len).fill(0);
 
 		let info = {
 			// idx in haystack
-			idx: Array(idxs.length),
+			idx: Array(len),
 
 			// start of match
 			start: field.slice(),
@@ -183,13 +179,13 @@ function uFuzzy(opts) {
 			// hard/soft prefix/suffix counts
 			// e.g. MegaMan (lft2: 1, rgt2: 1, lft1: 1, rgt1: 1), Mega Man (lft2: 2, rgt2: 2)
 			// hard boundaries
-			lft2: field.slice(), // lftH, rgtH, or lft1 (match lftMode number)
+			lft2: field.slice(),
 			rgt2: field.slice(),
 			// soft boundaries
-			lft1: field.slice(), // lftS, rgtS
+			lft1: field.slice(),
 			rgt1: field.slice(),
 
-			ranges: opts.withRanges ? Array(idxs.length) : null,
+			ranges: Array(len),
 		};
 
 		// might discard idxs based on bounds checks
@@ -312,29 +308,28 @@ function uFuzzy(opts) {
 				info.start[ii] = start;
 			//	info.span[ii] = span;
 
-				if (opts.withRanges) {
-					let m = mhstr.match(queryR);
-					let ranges = info.ranges[ii] = [];
+				// ranges
+				let m = mhstr.match(queryR);
+				let ranges = info.ranges[ii] = [];
 
-					let idxAcc = m.index + m[1].length;
-					let from = idxAcc;
-					let to = idxAcc;
-					for (let i = 2; i < m.length; i++) {
-						let len = m[i].length;
+				let idxAcc = m.index + m[1].length;
+				let from = idxAcc;
+				let to = idxAcc;
+				for (let i = 2; i < m.length; i++) {
+					let len = m[i].length;
 
-						idxAcc += len;
+					idxAcc += len;
 
-						if (i % 2 == 0)
-							to = idxAcc;
-						else if (len > 0) {
-							ranges.push(from, to);
-							from = to = idxAcc;
-						}
-					}
-
-					if (to > from)
+					if (i % 2 == 0)
+						to = idxAcc;
+					else if (len > 0) {
 						ranges.push(from, to);
+						from = to = idxAcc;
+					}
 				}
+
+				if (to > from)
+					ranges.push(from, to);
 
 				ii++;
 			}
