@@ -28,7 +28,7 @@ const OPTS = {
 	interLimit: inf,
 
 	// allowance between chars in terms
-	intraChars: '[\\w-]',
+	intraChars: '[a-z\\d]', // internally case-insensitive
 	intraLimit: 0,
 
 	// max filtered matches before scoring kicks in
