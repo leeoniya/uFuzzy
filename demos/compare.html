@@ -63,7 +63,7 @@
 			}
 
 			#opts {
-				background: #e0e0e0;
+				background: #eee;
 				padding: 8px 12px;
 			}
 
@@ -99,9 +99,7 @@
 			<div id="opts">
 				<input id="search" type="text" placeholder="Search...">
 
-				<label style="font-size: 12pt;"><b>uFuzzy opts:</b></label>
-
-				<div class="group">
+				<div class="group" style="color: #8e24aa;">
 					<label>
 						intraLimit
 						<input class="uf" id="intraLimit" type="text" value="0" placeholder="Inf">
@@ -113,7 +111,7 @@
 					</label>
 				</div>
 
-				<div class="group">
+				<div class="group" style="color: #8e24aa;">
 					<label>
 						intraChars
 						<input class="uf" id="intraChars" type="text" value="[a-z\d]" style="width: 70px;">
@@ -125,7 +123,7 @@
 					</label>
 				</div>
 
-				<div class="group">
+				<div class="group" style="color: #8e24aa;">
 					<label>
 						lftMode
 						<select id="lftMode">
@@ -145,14 +143,19 @@
 					</label>
 				</div>
 
-				<div class="group" style="color: #1e88e5;">
+				<div class="group" style="color: #1976d2;">
 					<label>
 						<input class="uf" id="outOfOrder" type="checkbox">
 						outOfOrder
 					</label>
+					<br>
+					<label>
+						<input class="uf" id="diacritics" type="checkbox">
+						diacritics
+					</label>
 				</div>
 
-				<div class="group" style="color: #1e88e5;">
+				<div class="group" style="color: #1976d2;">
 					<label>
 						rankThresh
 						<input class="uf" id="rankThresh" type="text" value="1000" placeholder="Inf" style="width: 94px;">
@@ -161,13 +164,13 @@
 					<label>
 						sortPreset
 						<select id="sortPreset">
-							<option value="search">Search</option>
-							<option value="typeahead">Typeahead</option>
+							<option value="search">search</option>
+							<option value="typeahead">typeahead</option>
 						</select>
 					</label>
 				</div>
 
-				<label>
+				<label style="color: #1976d2;">
 					Lists
 					<select id="lists" multiple>
 						<option value="urls_and_titles_600">urls_and_titles_600</option>
@@ -234,7 +237,7 @@
 				return [
 					`${lib.name} <a href="${lib.repo}" target="_blank">repo</a>` + (lib.demo ? ` <a href="${lib.demo}" target="_blank">demo</a>` : ''),
 					'='.repeat(50),
-					`${foundCount} results (out of ${allCount}), ${elapsed.toFixed(1)}ms`,
+					`${foundCount} results (of ${allCount}), ${elapsed.toFixed(1)}ms`,
 					'',
 					found.join('\n'),
 				].join('\n');
