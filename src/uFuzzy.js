@@ -191,9 +191,9 @@ export default function uFuzzy(opts) {
 			let m = mhstr.match(query);
 
 			// leading junk
-			m.index += m[1].length;
+			let start = m.index + m[1].length;
 
-			let idxAcc = m.index;
+			let idxAcc = start;
 		//	let span = m[0].length;
 
 			let disc = false;
@@ -218,7 +218,7 @@ export default function uFuzzy(opts) {
 							m[k] = m[k].slice(idxOf);
 
 							if (j == 0) {
-								m.index = idxAcc;
+								start = idxAcc;
 							//	span -= idxOf;
 							}
 						}
@@ -298,17 +298,14 @@ export default function uFuzzy(opts) {
 				info.suf1[ii] = suf1;
 				info.term[ii] = term;
 
-				info.start[ii] = m.index + m[1].length;
+				info.start[ii] = start;
 			//	info.span[ii] = span;
 
 				if (opts.withRanges) {
 					let m = mhstr.match(queryR);
 					let ranges = info.ranges[ii] = [];
 
-					// leading junk
-					m.index += m[1].length;
-
-					let idxAcc = m.index;
+					let idxAcc = m.index + m[1].length;
 					let from = idxAcc;
 					let to = idxAcc;
 					for (let i = 2; i < m.length; i++) {
