@@ -114,19 +114,19 @@
 
 				<div style="display: inline-block; width: 170px; vertical-align: middle;">
 					<label>
-						strictPre
-						<select id="strictPre">
+						lftMode
+						<select id="lftMode">
 							<option value="0"></option>
-							<option value="1">Loose</option>
-							<option value="2">Strict</option>
+							<option value="1">loose</option>
+							<option value="2">strict</option>
 						</select>
 					</label>
 					<label>
-						strictSuf
-						<select id="strictSuf">
+						rgtMode
+						<select id="rgtMode">
 							<option value="0"></option>
-							<option value="1">Loose</option>
-							<option value="2">Strict</option>
+							<option value="1">loose</option>
+							<option value="2">strict</option>
 						</select>
 					</label>
 				</div>
@@ -251,7 +251,7 @@
 			// copy & tweak from core
 			const cmp = new Intl.Collator('en').compare;
 			const typeAheadSort = (info, haystack, needle) => {
-				let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = info;
+				let { idx, term, lft2, lft1, rgt2, rgt1, span, start, intra, inter } = info;
 
 				return idx.map((v, i) => i).sort((ia, ib) => (
 					// least char intra-fuzz (most contiguous)
@@ -262,8 +262,8 @@
 					haystack[idx[ia]].length - haystack[idx[ib]].length ||
 					// most prefix/suffix bounds, boosted by full term matches
 					(
-						(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
-						(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
+						(term[ib] + lft2[ib] + 0.5 * lft1[ib] + rgt2[ib] + 0.5 * rgt1[ib]) -
+						(term[ia] + lft2[ia] + 0.5 * lft1[ia] + rgt2[ia] + 0.5 * rgt1[ia])
 					) ||
 					// highest density of match (least span)
 				//	span[ia] - span[ib] ||
@@ -360,8 +360,8 @@
 						interLimit: (tmpVar = urlParams.get('interLimit')) == null ? Infinity : tmpVar == 'inf' ? Infinity : +tmpVar,
 					//	interChars: '.',
 
-						strictPre:  (tmpVar = urlParams.get('strictPre'))  != null ? +tmpVar : 0,
-						strictSuf:  (tmpVar = urlParams.get('strictSuf'))  != null ? +tmpVar : 0,
+						lftMode:  (tmpVar = urlParams.get('lftMode'))  != null ? +tmpVar : 0,
+						rgtMode:  (tmpVar = urlParams.get('rgtMode'))  != null ? +tmpVar : 0,
 
 						withRanges: (tmpVar = urlParams.get('withRanges')) == null ||  tmpVar == '' || tmpVar == 'true' || tmpVar == '1',
 
@@ -435,14 +435,14 @@
 							ufSearch(e);
 						});
 
-						document.getElementById('strictPre').addEventListener('change', e => {
-							opts.strictPre = +e.target.value;
+						document.getElementById('lftMode').addEventListener('change', e => {
+							opts.lftMode = +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
 
-						document.getElementById('strictSuf').addEventListener('change', e => {
-							opts.strictSuf = +e.target.value;
+						document.getElementById('rgtMode').addEventListener('change', e => {
+							opts.rgtMode = +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});

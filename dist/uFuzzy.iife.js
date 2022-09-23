@@ -19,8 +19,12 @@ var uFuzzy = (function () {
 		interSplit: '[^A-Za-z0-9]+',
 		intraSplit: '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]',
 
-		strictPre: 0,
-		strictSuf: 0,
+		// inter-bounds mode
+		// 2 = strict (will only match 'man' on whitepace and punct boundaries: Mega Man, Mega_Man, mega.man)
+		// 1 = loose  (plus allowance for alpha-num and case-change boundaries: MegaMan, 0007man)
+		// 0 = none   (will match 'man' as any substring: megamaniac)
+		lftMode: 0,
+		rgtMode: 0,
 
 		// allowance between terms
 		interChars: '.',
@@ -46,15 +50,15 @@ var uFuzzy = (function () {
 
 		// final sorting fn
 		sort: (info, haystack, needle) => {
-			let { idx, term, pre0, pre1, suf0, suf1, span, start, intra, inter } = info;
+			let { idx, term, lft2, lft1, rgt2, rgt1, span, start, intra, inter } = info;
 
 			return idx.map((v, i) => i).sort((ia, ib) => (
 				// least char intra-fuzz (most contiguous)
 				intra[ia] - intra[ib] ||
 				// most prefix/suffix bounds, boosted by full term matches
 				(
-					(term[ib] + pre0[ib] + 0.5 * pre1[ib] + suf0[ib] + 0.5 * suf1[ib]) -
-					(term[ia] + pre0[ia] + 0.5 * pre1[ia] + suf0[ia] + 0.5 * suf1[ia])
+					(term[ib] + lft2[ib] + 0.5 * lft1[ib] + rgt2[ib] + 0.5 * rgt1[ib]) -
+					(term[ia] + lft2[ia] + 0.5 * lft1[ia] + rgt2[ia] + 0.5 * rgt1[ia])
 				) ||
 				// highest density of match (least span)
 			//	span[ia] - span[ib] ||
@@ -75,11 +79,15 @@ var uFuzzy = (function () {
 		               chars + `{0,${limit}}?`
 	);
 
+	const mode2Tpl = '(?:\\b|_)';
+
 	function uFuzzy(opts) {
 		opts = Object.assign({}, OPTS, opts);
 
 		let intraSplit = new RegExp(opts.intraSplit, 'g');
 		let interSplit = new RegExp(opts.interSplit, 'g');
+
+		const { lftMode, rgtMode } = opts;
 
 		const prepQuery = (query, capt = 0) => {
 			// split on punct, whitespace, num-alpha, and upper-lower boundaries
@@ -99,8 +107,8 @@ var uFuzzy = (function () {
 
 			// this only helps to reduce initial matches early when they can be detected
 			// TODO: might want a mode 3 that excludes _
-			let preTpl = opts.strictPre == 2 ? '(?:\\b|_)' : '';
-			let sufTpl = opts.strictSuf == 2 ? '(?:\\b|_)' : '';
+			let preTpl = lftMode == 2 ? mode2Tpl : '';
+			let sufTpl = rgtMode == 2 ? mode2Tpl : '';
 
 			let interCharsTpl = sufTpl + lazyRepeat(opts.interChars, opts.interLimit) + preTpl;
 
@@ -114,7 +122,7 @@ var uFuzzy = (function () {
 				reTpl = reTpl.join(interCharsTpl);
 
 			if (capt > 0) {
-				if (opts.strictPre == 2)
+				if (lftMode == 2)
 					reTpl = '(' + preTpl + ')' + reTpl + '(' + sufTpl + ')';
 				else
 					reTpl = '(.?)' + reTpl + '(.?)';
@@ -163,7 +171,7 @@ var uFuzzy = (function () {
 				// length of match
 			//	span: field.slice(),
 
-				// contiguous (no fuzz) and bounded terms (intra=0, pre0/1, suf0/1)
+				// contiguous (no fuzz) and bounded terms (intra=0, lft2/1, rgt2/1)
 				// excludes terms that are contiguous but have < 2 bounds (substrings)
 				term: field.slice(),
 				// contiguous chars matched (currently, from full terms)
@@ -174,19 +182,19 @@ var uFuzzy = (function () {
 				intra: field.slice(), // between chars within terms
 
 				// hard/soft prefix/suffix counts
-				// e.g. MegaMan (pre0: 1, suf0: 1, pre1: 1, suf1: 1), Mega Man (pre0: 2, suf0: 2)
+				// e.g. MegaMan (lft2: 1, rgt2: 1, lft1: 1, rgt1: 1), Mega Man (lft2: 2, rgt2: 2)
 				// hard boundaries
-				pre0: field.slice(), // lftH, rgtH, or lft1 (match lftMode number)
-				suf0: field.slice(),
+				lft2: field.slice(), // lftH, rgtH, or lft1 (match lftMode number)
+				rgt2: field.slice(),
 				// soft boundaries
-				pre1: field.slice(), // lftS, rgtS
-				suf1: field.slice(),
+				lft1: field.slice(), // lftS, rgtS
+				rgt1: field.slice(),
 
 				ranges: opts.withRanges ? Array(idxs.length) : null,
 			};
 
 			// might discard idxs based on bounds checks
-			let mayDiscard = opts.strictPre == 1 || opts.strictSuf == 1;
+			let mayDiscard = lftMode == 1 || rgtMode == 1;
 
 			let ii = 0;
 
@@ -201,10 +209,10 @@ var uFuzzy = (function () {
 			//	let span = m[0].length;
 
 				let disc = false;
-				let pre0 = 0;
-				let pre1 = 0;
-				let suf0 = 0;
-				let suf1 = 0;
+				let lft2 = 0;
+				let lft1 = 0;
+				let rgt2 = 0;
+				let rgt1 = 0;
 				let term = 0;
 
 				for (let j = 0, k = 2; j < parts.length; j++, k+=2) {
@@ -241,17 +249,17 @@ var uFuzzy = (function () {
 
 						// prefix info
 						if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
-							fullMatch && pre0++;
+							fullMatch && lft2++;
 						else {
-							if (opts.strictPre == 2) {
+							if (lftMode == 2) {
 								disc = true;
 								break;
 							}
 
 							if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
-								fullMatch && pre1++;
+								fullMatch && lft1++;
 							else {
-								if (opts.strictPre == 1) {
+								if (lftMode == 1) {
 									disc = true;
 									break;
 								}
@@ -262,17 +270,17 @@ var uFuzzy = (function () {
 
 						// suffix info
 						if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
-							fullMatch && suf0++;
+							fullMatch && rgt2++;
 						else {
-							if (opts.strictSuf == 2) {
+							if (rgtMode == 2) {
 								disc = true;
 								break;
 							}
 
 							if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
-								fullMatch && suf1++;
+								fullMatch && rgt1++;
 							else {
-								if (opts.strictSuf == 1) {
+								if (rgtMode == 1) {
 									disc = true;
 									break;
 								}
@@ -296,10 +304,10 @@ var uFuzzy = (function () {
 
 				if (!disc) {
 					info.idx[ii]  = idxs[i];
-					info.pre0[ii] = pre0;
-					info.pre1[ii] = pre1;
-					info.suf0[ii] = suf0;
-					info.suf1[ii] = suf1;
+					info.lft2[ii] = lft2;
+					info.lft1[ii] = lft1;
+					info.rgt2[ii] = rgt2;
+					info.rgt1[ii] = rgt1;
 					info.term[ii] = term;
 
 					info.start[ii] = start;
