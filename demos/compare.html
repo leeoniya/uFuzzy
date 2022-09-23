@@ -39,8 +39,8 @@
 				width: 50px;
 			}
 
-			label {
-				margin-left: 20px;
+			select:not([multiple]) {
+				padding: 1px 0;
 			}
 
 			label > * {
@@ -67,11 +67,22 @@
 				padding: 8px 12px;
 			}
 
+			#opts > div,
+			#opts > label {
+				padding: 0 10px;
+				display: inline-block;
+			}
+
+			#opts .group {
+				display: inline-block;
+				vertical-align: middle;
+			}
+
 			#filedrop {
 				position: relative;
 				display: inline-block;
 				vertical-align: middle;
-				padding: 20px 30px;
+				padding: 20px 30px !important;
 				background: #fff9c4;
 			}
 
@@ -90,29 +101,31 @@
 
 				<label style="font-size: 12pt;"><b>uFuzzy opts:</b></label>
 
-				<div style="display: inline-block; width: 160px; vertical-align: middle;">
+				<div class="group">
 					<label>
 						intraLimit
 						<input class="uf" id="intraLimit" type="text" value="0" placeholder="Inf">
 					</label>
+					<br>
 					<label>
 						interLimit
 						<input class="uf" id="interLimit" type="text" placeholder="Inf">
 					</label>
 				</div>
 
-				<div style="display: inline-block; width: 180px; vertical-align: middle;">
+				<div class="group">
 					<label>
 						intraChars
 						<input class="uf" id="intraChars" type="text" value="[a-z\d]" style="width: 70px;">
 					</label>
+					<br>
 					<label>
 						interChars
 						<input class="uf" id="interChars" type="text" value="." style="width: 70px;">
 					</label>
 				</div>
 
-				<div style="display: inline-block; width: 170px; vertical-align: middle;">
+				<div class="group">
 					<label>
 						lftMode
 						<select id="lftMode">
@@ -121,6 +134,7 @@
 							<option value="2">strict</option>
 						</select>
 					</label>
+					<br>
 					<label>
 						rgtMode
 						<select id="rgtMode">
@@ -131,22 +145,24 @@
 					</label>
 				</div>
 
-				<div style="display: inline-block; width: 160px; vertical-align: middle;">
+				<div class="group">
 					<label>
 						<input class="uf" id="outOfOrder" type="checkbox">
 						outOfOrder
 					</label>
+					<br>
 					<label>
 						<input class="uf" id="withRanges" type="checkbox" checked>
 						withRanges
 					</label>
 				</div>
 
-				<div style="display: inline-block; width: 205px; vertical-align: middle;">
+				<div class="group">
 					<label>
 						rankThresh
-						<input class="uf" id="rankThresh" type="text" value="1000" placeholder="Inf">
+						<input class="uf" id="rankThresh" type="text" value="1000" placeholder="Inf" style="width: 94px;">
 					</label>
+					<br>
 					<label>
 						sortPreset
 						<select id="sortPreset">
@@ -170,7 +186,6 @@
 						<option value="wordlist_58000">wordlist_58000</option>
 					</select>
 				</label>
-				<b style="margin: 10px;">OR</b>
 				<div id="filedrop">
 					<span id="droptip">Drop an array-of-strings JSON or<br>
 					a list-of-strings text file here</span>
