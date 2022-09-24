@@ -123,13 +123,13 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             <th>Option</th>
             <th>Description</th>
             <th>Default</th>
-            <th style="width: 350px;">Examples</th>
+            <th>Examples</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td><pre><code>intraMax</code></pre></td>
-            <td>Max number of additional chars allowed between each char in every term.</td>
+            <td>Max number of additional chars allowed<br>between each char in every term.</td>
             <td>0</td>
             <td>
                 When searching "cat"...<br>
