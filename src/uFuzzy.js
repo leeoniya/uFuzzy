@@ -4,8 +4,6 @@ const cmp = new Intl.Collator('en').compare;
 
 const inf = Infinity;
 
-const isInt = /\d/;
-
 const OPTS = {
 	// term segmentation & punct/whitespace merging
 	interSplit: '[^A-Za-z0-9]+',
@@ -20,23 +18,15 @@ const OPTS = {
 
 	// allowance between terms
 	interChars: '.',
-	interLimit: inf,
+	interMax: inf,
 
 	// allowance between chars in terms
 	intraChars: '[a-z\\d]', // internally case-insensitive
-	intraLimit: 0,
+	intraMax: 0,
 
-	// max filtered matches before scoring kicks in
-//	rankLimit: 1000,
-
-	/*
-	// term permutations for out-of-order
-	oooLimit: 0,
-
-	// diacritics list for needle/query prep, e.g. [/oóö/, /aá/]
-	// https://github.com/motss/normalize-diacritics/blob/main/src/index.ts
-	diacritics: [],
-	*/
+	// can post-filter matches that are too far apart in distance or length
+	// (since intraMax is between each char, it can accum to nonsense matches)
+	intraFilt: (term, match, index) => true, // should this also accept WIP info?
 
 	// final sorting fn
 	sort: (info, haystack, needle) => {
@@ -83,10 +73,10 @@ export default function uFuzzy(opts) {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
 		let parts = query.trim().replace(intraSplit, m => m[0] + ' ' + m[1]).split(interSplit);
 
-		let intraCharsTpl = lazyRepeat(opts.intraChars, opts.intraLimit);
+		let intraCharsTpl = lazyRepeat(opts.intraChars, opts.intraMax);
 
 		// capture at char level
-		if (capt == 2 && opts.intraLimit > 0) {
+		if (capt == 2 && opts.intraMax > 0) {
 			// sadly, we also have to capture the inter-term junk via parenth-wrapping .*?
 			// to accum other capture groups' indices for \b boosting during scoring
 			intraCharsTpl = ')(' + intraCharsTpl + ')(';
@@ -100,7 +90,7 @@ export default function uFuzzy(opts) {
 		let preTpl = lftMode == 2 ? mode2Tpl : '';
 		let sufTpl = rgtMode == 2 ? mode2Tpl : '';
 
-		let interCharsTpl = sufTpl + lazyRepeat(opts.interChars, opts.interLimit) + preTpl;
+		let interCharsTpl = sufTpl + lazyRepeat(opts.interChars, opts.interMax) + preTpl;
 
 		// capture at word level
 		if (capt > 0) {
@@ -206,15 +196,17 @@ export default function uFuzzy(opts) {
 			let rgt2 = 0;
 			let rgt1 = 0;
 			let term = 0;
+			let inter = 0;
+			let intra = 0;
 
 			for (let j = 0, k = 2; j < parts.length; j++, k+=2) {
 				let group = m[k].toLowerCase();
 				let fullMatch = group == parts[j];
 
 				if (!fullMatch) {
-					// when intraLimit > 0 'test' query can match 'ttest' in 'fittest'
+					// when intraMax > 0 'test' query can match 'ttest' in 'fittest'
 					// try an exact substring match to improve rank quality
-					if (opts.intraLimit > 0) {
+					if (opts.intraMax > 0) {
 						let idxOf = group.indexOf(parts[j]);
 						if (idxOf > -1) {
 							fullMatch = true;
@@ -285,10 +277,15 @@ export default function uFuzzy(opts) {
 						term++;
 				}
 				else
-					info.intra[i] += group.length - parts[j].length; // intraFuzz
+					intra += group.length - parts[j].length; // intraFuzz
 
 				if (j > 0)
-					info.inter[i] += m[k-1].length; // interFuzz
+					inter += m[k-1].length; // interFuzz
+
+				if (!opts.intraFilt(parts[j], group, idxAcc)) {
+					disc = true;
+					break;
+				}
 
 				if (j < parts.length - 1)
 					idxAcc += m[k].length + m[k+1].length;
@@ -301,6 +298,8 @@ export default function uFuzzy(opts) {
 				info.rgt2[ii] = rgt2;
 				info.rgt1[ii] = rgt1;
 				info.term[ii] = term;
+				info.inter[ii] = inter;
+				info.intra[ii] = intra;
 
 				info.start[ii] = start;
 			//	info.span[ii] = span;

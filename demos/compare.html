@@ -101,13 +101,13 @@
 
 				<div class="group" style="color: #8e24aa;">
 					<label>
-						intraLimit
-						<input class="uf" id="intraLimit" type="text" value="0" placeholder="Inf">
+						intraMax
+						<input class="uf" id="intraMax" type="text" value="0" placeholder="Inf">
 					</label>
 					<br>
 					<label>
-						interLimit
-						<input class="uf" id="interLimit" type="text" placeholder="Inf">
+						interMax
+						<input class="uf" id="interMax" type="text" placeholder="Inf">
 					</label>
 				</div>
 
@@ -367,16 +367,18 @@
 					repo: 'https://github.com/leeoniya/uFuzzy',
 					demo: 'https://leeoniya.github.io/uFuzzy/demos/compare.html',
 					opts: {
-						intraLimit: (tmpVar = urlParams.get('intraLimit')) == null ? 0 : tmpVar == 'inf' ? Infinity : +tmpVar,
-						interLimit: (tmpVar = urlParams.get('interLimit')) == null ? Infinity : tmpVar == 'inf' ? Infinity : +tmpVar,
+						intraMax:   (tmpVar = urlParams.get('intraMax')) == null ? 0        : tmpVar == 'inf' ? Infinity : +tmpVar,
+						interMax:   (tmpVar = urlParams.get('interMax')) == null ? Infinity : tmpVar == 'inf' ? Infinity : +tmpVar,
 
 						intraChars: (tmpVar = urlParams.get('intraChars')),
 						interChars: (tmpVar = urlParams.get('interChars')),
 
-						lftMode:  (tmpVar = urlParams.get('lftMode')) != null ? +tmpVar : 0,
-						rgtMode:  (tmpVar = urlParams.get('rgtMode')) != null ? +tmpVar : 0,
+						lftMode:    (tmpVar = urlParams.get('lftMode')) != null ? +tmpVar : 0,
+						rgtMode:    (tmpVar = urlParams.get('rgtMode')) != null ? +tmpVar : 0,
 
 						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
+
+						intraFilt: (term, match, index) => match.length - term.length < 3,
 					},
 					setup: (haystack, opts) => {
 						if (opts.sort == null)
@@ -422,18 +424,18 @@
 							tmpOnlyLib = null;
 						};
 
-						document.getElementById('intraLimit').addEventListener('keyup', bump);
-						document.getElementById('intraLimit').addEventListener('input', e => {
+						document.getElementById('intraMax').addEventListener('keyup', bump);
+						document.getElementById('intraMax').addEventListener('input', e => {
 							let v = e.target.value;
-							opts.intraLimit = v == '' ? Infinity : +e.target.value;
+							opts.intraMax = v == '' ? Infinity : +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
 
-						document.getElementById('interLimit').addEventListener('keyup', bump);
-						document.getElementById('interLimit').addEventListener('input', e => {
+						document.getElementById('interMax').addEventListener('keyup', bump);
+						document.getElementById('interMax').addEventListener('input', e => {
 							let v = e.target.value;
-							opts.interLimit = v == '' ? Infinity : +e.target.value;
+							opts.interMax = v == '' ? Infinity : +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
