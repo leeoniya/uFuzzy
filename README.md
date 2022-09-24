@@ -128,13 +128,82 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
     </thead>
     <tbody>
         <tr>
-            <td><pre><code>intraMax</code></pre></td>
-            <td>Max number of additional chars allowed<br>between each char in every term.</td>
-            <td>0</td>
+            <td><code>intraMax</code></td>
+            <td>Max number of extra chars allowed<br>between each char within a term</td>
+            <td><code>0</code></td>
             <td>
-                When searching "cat"...<br>
-                <code>0</code> will match <b>cat</b>, s<b>cat</b>, <b>cat</b>ch, va<b>cat</b>e<br>
-                <code>1</code> will also match <b>ca</b>r<b>t</b>, <b>c</b>h<b>a</b>p<b>t</b>er, out<b>ca</b>s<b>t</b><br>
+                Searching "cat"...<br>
+                <code>0</code> can match: <b>cat</b>, s<b>cat</b>, <b>cat</b>ch, va<b>cat</b>e<br>
+                <code>1</code> also matches: <b>ca</b>r<b>t</b>, <b>c</b>h<b>a</b>p<b>t</b>er, out<b>ca</b>s<b>t</b><br>
+            </td>
+        </tr>
+        <tr>
+            <td><code>interMax</code></td>
+            <td>Max number of extra chars allowed between terms</td>
+            <td><code>Infinity</code></td>
+            <td>
+                Searching "where is"...<br>
+                <code>Infinity</code> can match: <b>where is</b>, <b>where</b> have blah w<b>is</b>dom<br>
+                <code>5</code> cannot match: where have blah wisdom<br>
+            </td>
+        </tr>
+        <tr>
+            <td><code>intraChars</code></td>
+            <td>Partial regexp for allowed extra<br>chars between each char within a term</td>
+            <td><code>[a-z\d]</code></td>
+            <td>
+                <code>[a-z\d]</code> matches only alpha-numeric (case-insensitive)<br>
+                <code>[\w-]</code> would match alpha-numeric, undercore, and hyphen<br>
+            </td>
+        </tr>
+        <tr>
+            <td><code>intraFilt</code></td>
+            <td>Callback for excluding results based on term &amp; match</td>
+            <td><code>(term, match, index) => true</code></td>
+            <td>
+                Length difference threshold<br>
+                Levenshtein distance<br>
+                Term offset or content<br>
+            </td>
+        </tr>
+        <tr>
+            <td><code>interChars</code></td>
+            <td>Partial regexp for allowed chars between terms</td>
+            <td><code>.</code></td>
+            <td>
+                <code>.</code> matches all chars<br>
+                <code>[^a-z\d]</code> would only match whitespace and punctuation<br>
+            </td>
+        </tr>
+        <tr>
+            <td><code>lftMode</code></td>
+            <td>Determines allowable term start boundary</td>
+            <td><code>0</code></td>
+            <td>
+                Searching "mania"...<br>
+                <code>0</code> substr - anywhere: ro<b>mania</b>n<br>
+                <code>1</code> loose - whitespace, punctuation, alpha-num, case-change transitions: Track<b>Mania</b>, <b>mania</b>c<br>
+                <code>2</code> strict - whitespace, punctuation: <b>mania</b>cally<br>
+            </td>
+        </tr>
+        <tr>
+            <td><code>rgtMode</code></td>
+            <td>Determines allowable term end boundary</td>
+            <td><code>0</code></td>
+            <td>
+                Searching "mania"...<br>
+                <code>0</code> substr - anywhere: ro<b>mania</b>n<br>
+                <code>1</code> loose - whitespace, punctuation, alpha-num, case-change transitions: <b>Mania</b>Star<br>
+                <code>2</code> strict - whitespace, punctuation: <b>mania</b>_foo<br>
+            </td>
+        </tr>
+        <tr>
+            <td><code>sort</code></td>
+            <td>Custom result sorting function</td>
+            <td><code>(info, haystack, needle) => idxsOrder</code></td>
+            <td>
+                Default: <a href="https://github.com/leeoniya/uFuzzy/blob/bba02537334ae9d02440b86262fbfa40d86daa54/src/uFuzzy.js#L32-L52">Search sort</a>, prioritizes full term matches and char density<br>
+                Demo: <a href="https://github.com/leeoniya/uFuzzy/blob/bba02537334ae9d02440b86262fbfa40d86daa54/demos/compare.html#L264-L288">Typeahead sort</a>, prioritizes start offset and match length<br>
             </td>
         </tr>
     </tbody>
