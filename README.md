@@ -176,7 +176,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             </td>
         </tr>
         <tr>
-            <td><code>lftMode</code></td>
+            <td><code>interLft</code></td>
             <td>Determines allowable term start boundary</td>
             <td><code>0</code></td>
             <td>
@@ -187,7 +187,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             </td>
         </tr>
         <tr>
-            <td><code>rgtMode</code></td>
+            <td><code>interRgt</code></td>
             <td>Determines allowable term end boundary</td>
             <td><code>0</code></td>
             <td>

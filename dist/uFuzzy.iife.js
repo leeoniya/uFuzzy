@@ -23,8 +23,8 @@ var uFuzzy = (function () {
 		// 2 = strict (will only match 'man' on whitepace and punct boundaries: Mega Man, Mega_Man, mega.man)
 		// 1 = loose  (plus allowance for alpha-num and case-change boundaries: MegaMan, 0007man)
 		// 0 = none   (will match 'man' as any substring: megamaniac)
-		lftMode: 0,
-		rgtMode: 0,
+		interLft: 0,
+		interRgt: 0,
 
 		// allowance between terms
 		interChars: '.',
@@ -77,7 +77,7 @@ var uFuzzy = (function () {
 		let intraSplit = new RegExp(opts.intraSplit, 'g');
 		let interSplit = new RegExp(opts.interSplit, 'g');
 
-		const { lftMode, rgtMode } = opts;
+		const { interLft, interRgt } = opts;
 
 		const prepQuery = (query, capt = 0) => {
 			// split on punct, whitespace, num-alpha, and upper-lower boundaries
@@ -97,8 +97,8 @@ var uFuzzy = (function () {
 
 			// this only helps to reduce initial matches early when they can be detected
 			// TODO: might want a mode 3 that excludes _
-			let preTpl = lftMode == 2 ? mode2Tpl : '';
-			let sufTpl = rgtMode == 2 ? mode2Tpl : '';
+			let preTpl = interLft == 2 ? mode2Tpl : '';
+			let sufTpl = interRgt == 2 ? mode2Tpl : '';
 
 			let interCharsTpl = sufTpl + lazyRepeat(opts.interChars, opts.interMax) + preTpl;
 
@@ -112,7 +112,7 @@ var uFuzzy = (function () {
 				reTpl = reTpl.join(interCharsTpl);
 
 			if (capt > 0) {
-				if (lftMode == 2)
+				if (interLft == 2)
 					reTpl = '(' + preTpl + ')' + reTpl + '(' + sufTpl + ')';
 				else
 					reTpl = '(.?)' + reTpl + '(.?)';
@@ -182,7 +182,7 @@ var uFuzzy = (function () {
 			};
 
 			// might discard idxs based on bounds checks
-			let mayDiscard = lftMode == 1 || rgtMode == 1;
+			let mayDiscard = interLft == 1 || interRgt == 1;
 
 			let ii = 0;
 
@@ -241,7 +241,7 @@ var uFuzzy = (function () {
 						if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
 							fullMatch && lft2++;
 						else {
-							if (lftMode == 2) {
+							if (interLft == 2) {
 								disc = true;
 								break;
 							}
@@ -249,7 +249,7 @@ var uFuzzy = (function () {
 							if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
 								fullMatch && lft1++;
 							else {
-								if (lftMode == 1) {
+								if (interLft == 1) {
 									disc = true;
 									break;
 								}
@@ -262,7 +262,7 @@ var uFuzzy = (function () {
 						if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
 							fullMatch && rgt2++;
 						else {
-							if (rgtMode == 2) {
+							if (interRgt == 2) {
 								disc = true;
 								break;
 							}
@@ -270,7 +270,7 @@ var uFuzzy = (function () {
 							if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
 								fullMatch && rgt1++;
 							else {
-								if (rgtMode == 1) {
+								if (interRgt == 1) {
 									disc = true;
 									break;
 								}

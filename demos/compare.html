@@ -125,8 +125,8 @@
 
 				<div class="group" style="color: #8e24aa;">
 					<label>
-						lftMode
-						<select id="lftMode">
+						interLft
+						<select id="interLft">
 							<option value="0">substr</option>
 							<option value="1">loose</option>
 							<option value="2">strict</option>
@@ -134,8 +134,8 @@
 					</label>
 					<br>
 					<label>
-						rgtMode
-						<select id="rgtMode">
+						interRgt
+						<select id="interRgt">
 							<option value="0">substr</option>
 							<option value="1">loose</option>
 							<option value="2">strict</option>
@@ -373,8 +373,8 @@
 						intraChars: (tmpVar = urlParams.get('intraChars')),
 						interChars: (tmpVar = urlParams.get('interChars')),
 
-						lftMode:    (tmpVar = urlParams.get('lftMode')) != null ? +tmpVar : 0,
-						rgtMode:    (tmpVar = urlParams.get('rgtMode')) != null ? +tmpVar : 0,
+						interLft:    (tmpVar = urlParams.get('interLft')) != null ? +tmpVar : 0,
+						interRgt:    (tmpVar = urlParams.get('interRgt')) != null ? +tmpVar : 0,
 
 						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
 
@@ -452,14 +452,14 @@
 							ufSearch(e);
 						});
 
-						document.getElementById('lftMode').addEventListener('change', e => {
-							opts.lftMode = +e.target.value;
+						document.getElementById('interLft').addEventListener('change', e => {
+							opts.interLft = +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
 
-						document.getElementById('rgtMode').addEventListener('change', e => {
-							opts.rgtMode = +e.target.value;
+						document.getElementById('interRgt').addEventListener('change', e => {
+							opts.interRgt = +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
