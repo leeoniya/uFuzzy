@@ -378,7 +378,7 @@
 
 						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
 
-						intraFilt: (term, match, index) => match.length - term.length < 3,
+					//	intraFilt: (term, match, index) => match.length - term.length < 3,
 					},
 					setup: (haystack, opts) => {
 						if (opts.sort == null)
