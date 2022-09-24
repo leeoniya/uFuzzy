@@ -123,7 +123,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             <th>Option</th>
             <th>Description</th>
             <th>Default</th>
-            <th>Examples</th>
+            <th style="width: 350px;">Examples</th>
         </tr>
     </thead>
     <tbody>
