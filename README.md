@@ -161,9 +161,10 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             <td>Callback for excluding results based on term &amp; match</td>
             <td><code>(term, match, index) => true</code></td>
             <td>
-                Length difference threshold<br>
-                Levenshtein distance<br>
-                Term offset or content<br>
+                Do your own thing, maybe...
+                - Length diff threshold<br>
+                - Levenshtein distance<br>
+                - Term offset or content<br>
             </td>
         </tr>
         <tr>
@@ -177,22 +178,22 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
         </tr>
         <tr>
             <td><code>interLft</code></td>
-            <td>Determines allowable term start boundary</td>
+            <td>Determines allowable term left boundary</td>
             <td><code>0</code></td>
             <td>
                 Searching "mania"...<br>
-                <code>0</code> substr - anywhere: ro<b>mania</b>n<br>
+                <code>0</code> any - anywhere: ro<b>mania</b>n<br>
                 <code>1</code> loose - whitespace, punctuation, alpha-num, case-change transitions: Track<b>Mania</b>, <b>mania</b>c<br>
                 <code>2</code> strict - whitespace, punctuation: <b>mania</b>cally<br>
             </td>
         </tr>
         <tr>
             <td><code>interRgt</code></td>
-            <td>Determines allowable term end boundary</td>
+            <td>Determines allowable term right boundary</td>
             <td><code>0</code></td>
             <td>
                 Searching "mania"...<br>
-                <code>0</code> substr - anywhere: ro<b>mania</b>n<br>
+                <code>0</code> any - anywhere: ro<b>mania</b>n<br>
                 <code>1</code> loose - whitespace, punctuation, alpha-num, case-change transitions: <b>Mania</b>Star<br>
                 <code>2</code> strict - whitespace, punctuation: <b>mania</b>_foo<br>
             </td>

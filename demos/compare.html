@@ -127,7 +127,7 @@
 					<label>
 						interLft
 						<select id="interLft">
-							<option value="0">substr</option>
+							<option value="0">any</option>
 							<option value="1">loose</option>
 							<option value="2">strict</option>
 						</select>
@@ -136,7 +136,7 @@
 					<label>
 						interRgt
 						<select id="interRgt">
-							<option value="0">substr</option>
+							<option value="0">any</option>
 							<option value="1">loose</option>
 							<option value="2">strict</option>
 						</select>
@@ -373,8 +373,8 @@
 						intraChars: (tmpVar = urlParams.get('intraChars')),
 						interChars: (tmpVar = urlParams.get('interChars')),
 
-						interLft:    (tmpVar = urlParams.get('interLft')) != null ? +tmpVar : 0,
-						interRgt:    (tmpVar = urlParams.get('interRgt')) != null ? +tmpVar : 0,
+						interLft:   (tmpVar = urlParams.get('interLft')) != null ? +tmpVar : 0,
+						interRgt:   (tmpVar = urlParams.get('interRgt')) != null ? +tmpVar : 0,
 
 						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
 
