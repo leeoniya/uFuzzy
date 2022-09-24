@@ -4,7 +4,7 @@ A tiny, efficient, fuzzy search that doesn't suck.
 This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-work), but this one is mine.
 
 ---
-### Introduction
+### Overview
 
 uFuzzy is a [fuzzy search](https://en.wikipedia.org/wiki/Approximate_string_matching) library designed to match a relatively short search phrase (needle) against a large list of short-to-medium phrases (haystack).
 It might be best described as a more forgiving [String.prototype.indexOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf).
@@ -69,8 +69,8 @@ const uFuzzy = require('ufuzzy');
 uFuzzy works in 3 phases:
 
 1. **Filter** - This filters the full `haystack` with a fast RegExp compiled from your `needle` without doing any extra ops. It returns an array of matched indices in original order.
-2. **Info** - This collects more detailed stats about the filtered matches, such as start offsets, fuzz level, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. To do all this it re-compiles the `needle` into two more-expensive RegExps that can partition each of the filtered matches. Therefore, it should be run on a reduced subset of the haystack, usually returned by the Filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead with this Info phase.
-3. **Sort** - This does an `Array.sort()` to determine final result order, probing the `info` object returned from the previous phase. A custom sort function can be provided via a uFuzzy option: `{sort: (info, haystack, needle) => idxsOrder}`.
+2. **Info** - This collects more detailed stats about the filtered matches, such as start offsets, fuzz level, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. Finally, it filters out any matches that don't conform to the desired prefix/suffix rules. To do all this it re-compiles the `needle` into two more-expensive RegExps that can partition each match. Therefore, it should be run on a reduced subset of the haystack, usually returned by the Filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead with this phase.
+3. **Sort** - This does an `Array.sort()` to determine final result order, utilizing the `info` object returned from the previous phase. A custom sort function can be provided via a uFuzzy option: `{sort: (info, haystack, needle) => idxsOrder}`.
 
 ```js
 let haystack = [
@@ -80,11 +80,11 @@ let haystack = [
     '/feeding/the/catPic.jpg',
 ];
 
+let needle = 'feed cat';
+
 let opts = {};
 
 let uf = new uFuzzy(opts);
-
-let needle = 'feed cat';
 
 // pre-filter
 let idxs = uf.filter(haystack, needle);
@@ -97,18 +97,48 @@ if (idxs.length <= 1e3) {
   // this allows corresponding info to be grabbed directly by idx, if needed
   let order = uf.sort(info, haystack, needle);
 
-  // render filtered & ordered matches
+  // render post-filtered & ordered matches
   for (let i = 0; i < order.length; i++) {
-    console.log(haystack[idxs[order[i]]]);
+    // using info.idx here instead of idxs because uf.info() may have
+    // further reduced the initial idxs based on prefix/suffix rules
+    console.log(haystack[info.idx[order[i]]]);
   }
 }
 else {
-  // render filtered but unordered matches
+  // render pre-filtered but unordered matches
   for (let i = 0; i < idxs.length; i++) {
     console.log(haystack[i]);
   }
 }
 ```
+
+---
+### Options
+
+Options with an **inter** prefix apply to allowances _in between_ search terms, while those with an **intra** prefix apply to allowances _within_ each search term.
+
+<table>
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Description</th>
+            <th>Default</th>
+            <th>Examples</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><pre><code>intraMax</code></pre></td>
+            <td>Max number of additional chars allowed between each char in every term.</td>
+            <td>0</td>
+            <td>
+                When searching "cat"...<br>
+                <code>0</code> will match <b>cat</b>, s<b>cat</b>, <b>cat</b>ch, va<b>cat</b>e<br>
+                <code>1</code> will also match <b>ca</b>r<b>t</b>, <b>c</b>h<b>a</b>p<b>t</b>er, out<b>ca</b>s<b>t</b><br>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 ---
 ### A biased appraisal of similar work
