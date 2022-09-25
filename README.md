@@ -21,7 +21,7 @@ When held _just right_, it can efficiently match against multiple object propert
 - **Straightforward fuzziness control** that can be explained to your grandma in 5min.
 - **Sorting you can reason about** and customize using a simple `Array.sort()` which gets access to each match's stats/counters. There's no composite, black box "score" to understand.
 - **Concise set of options** that don't interact in mysterious ways to drastically alter combined behavior.
-- **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 11ms or 35ms with out-of-order terms.
+- **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 12ms with in-order terms or 50ms with out-of-order terms.
 - **Micro, with zero dependencies** - currently [< 3KB min](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.iife.min.js)
 
 [![uFuzzy demo](uFuzzy.png)](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca)

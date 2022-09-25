@@ -39,15 +39,15 @@ const OPTS = {
 
 	// final sorting fn
 	sort: (info, haystack, needle) => {
-		let { idx, term, lft2, lft1, rgt2, rgt1, span, start, intra, inter } = info;
+		let { idx, terms, lft2, lft1, rgt2, rgt1, span, start, intra, inter } = info;
 
 		return idx.map((v, i) => i).sort((ia, ib) => (
 			// least char intra-fuzz (most contiguous)
 			intra[ia] - intra[ib] ||
 			// most prefix/suffix bounds, boosted by full term matches
 			(
-				(term[ib] + lft2[ib] + 0.5 * lft1[ib] + rgt2[ib] + 0.5 * rgt1[ib]) -
-				(term[ia] + lft2[ia] + 0.5 * lft1[ia] + rgt2[ia] + 0.5 * rgt1[ia])
+				(terms[ib] + lft2[ib] + 0.5 * lft1[ib] + rgt2[ib] + 0.5 * rgt1[ib]) -
+				(terms[ia] + lft2[ia] + 0.5 * lft1[ia] + rgt2[ia] + 0.5 * rgt1[ia])
 			) ||
 			// highest density of match (least span)
 		//	span[ia] - span[ib] ||
@@ -160,20 +160,17 @@ function uFuzzy(opts) {
 
 			// contiguous (no fuzz) and bounded terms (intra=0, lft2/1, rgt2/1)
 			// excludes terms that are contiguous but have < 2 bounds (substrings)
-			term: field.slice(),
+			terms: field.slice(),
 			// contiguous chars matched (currently, from full terms)
 		//	chars: field.slice(),
 
 			// cumulative length of unmatched chars (fuzz) within span
 			inter: field.slice(), // between terms
-			intra: field.slice(), // between chars within terms
+			intra: field.slice(), // within terms
 
-			// hard/soft prefix/suffix counts
-			// e.g. MegaMan (lft2: 1, rgt2: 1, lft1: 1, rgt1: 1), Mega Man (lft2: 2, rgt2: 2)
-			// hard boundaries
+			// interLft/interRgt counters
 			lft2: field.slice(),
 			rgt2: field.slice(),
-			// soft boundaries
 			lft1: field.slice(),
 			rgt1: field.slice(),
 
@@ -200,7 +197,7 @@ function uFuzzy(opts) {
 			let lft1 = 0;
 			let rgt2 = 0;
 			let rgt1 = 0;
-			let term = 0;
+			let terms = 0;
 			let inter = 0;
 			let intra = 0;
 
@@ -279,7 +276,7 @@ function uFuzzy(opts) {
 					}
 
 					if (fullMatch && isPre && isSuf)
-						term++;
+						terms++;
 				}
 				else
 					intra += group.length - parts[j].length; // intraFuzz
@@ -302,7 +299,7 @@ function uFuzzy(opts) {
 				info.lft1[ii] = lft1;
 				info.rgt2[ii] = rgt2;
 				info.rgt1[ii] = rgt1;
-				info.term[ii] = term;
+				info.terms[ii] = terms;
 				info.inter[ii] = inter;
 				info.intra[ii] = intra;
 

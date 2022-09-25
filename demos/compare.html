@@ -264,7 +264,7 @@
 			// copy & tweak from core
 			const cmp = new Intl.Collator('en').compare;
 			const typeAheadSort = (info, haystack, needle) => {
-				let { idx, term, lft2, lft1, rgt2, rgt1, span, start, intra, inter } = info;
+				let { idx, terms, lft2, lft1, rgt2, rgt1, span, start, intra, inter } = info;
 
 				return idx.map((v, i) => i).sort((ia, ib) => (
 					// least char intra-fuzz (most contiguous)
@@ -275,8 +275,8 @@
 					haystack[idx[ia]].length - haystack[idx[ib]].length ||
 					// most prefix/suffix bounds, boosted by full term matches
 					(
-						(term[ib] + lft2[ib] + 0.5 * lft1[ib] + rgt2[ib] + 0.5 * rgt1[ib]) -
-						(term[ia] + lft2[ia] + 0.5 * lft1[ia] + rgt2[ia] + 0.5 * rgt1[ia])
+						(terms[ib] + lft2[ib] + 0.5 * lft1[ib] + rgt2[ib] + 0.5 * rgt1[ib]) -
+						(terms[ia] + lft2[ia] + 0.5 * lft1[ia] + rgt2[ia] + 0.5 * rgt1[ia])
 					) ||
 					// highest density of match (least span)
 				//	span[ia] - span[ib] ||
