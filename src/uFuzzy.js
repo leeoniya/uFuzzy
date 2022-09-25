@@ -12,7 +12,7 @@ const OPTS = {
 	// inter-bounds mode
 	// 2 = strict (will only match 'man' on whitepace and punct boundaries: Mega Man, Mega_Man, mega.man)
 	// 1 = loose  (plus allowance for alpha-num and case-change boundaries: MegaMan, 0007man)
-	// 0 = none   (will match 'man' as any substring: megamaniac)
+	// 0 = any    (will match 'man' as any substring: megamaniac)
 	interLft: 0,
 	interRgt: 0,
 
@@ -115,15 +115,23 @@ export default function uFuzzy(opts) {
 		return [new RegExp(reTpl, 'i'), parts];
 	};
 
-	const filter = (haystack, needle) => {
+	const filter = (haystack, needle, idxs) => {
 		DEBUG && console.time('filter');
 
 		let out = [];
 		let [query] = prepQuery(needle);
 
-		for (let i = 0; i < haystack.length; i++) {
-			let item = haystack[i];
-			query.test(item) && out.push(i);
+		if (idxs != null) {
+			for (let i = 0; i < idxs.length; i++) {
+				let item = haystack[idxs[i]];
+				query.test(item) && out.push(i);
+			}
+		}
+		else {
+			for (let i = 0; i < haystack.length; i++) {
+				let item = haystack[i];
+				query.test(item) && out.push(i);
+			}
 		}
 
 		DEBUG && console.timeEnd('filter');
