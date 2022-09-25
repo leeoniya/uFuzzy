@@ -902,13 +902,17 @@
 					},
 					setup: (haystack, opts) => {
 						const index = new FlexSearch.Index(opts);
+						const searchOpts = {
+							limit: Infinity,
+							suggest: true,
+						};
 
 						for (let i = 0; i < haystack.length; i++)
 							index.add(i, haystack[i]);
 
 						return {
 							search: needle => {
-								return index.search(needle);
+								return index.search(needle, searchOpts);
 							},
 							toStr: id => haystack[id],
 						};
