@@ -1,6 +1,6 @@
 {
   "name": "ufuzzy",
-  "version": "0.0.1",
+  "version": "0.5.0",
   "description": "A fuzzy matcher that doesn't suck",
   "main": "./dist/uFuzzy.cjs.js",
   "module": "./dist/uFuzzy.esm.js",
