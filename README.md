@@ -50,11 +50,11 @@ https://leeoniya.github.io/uFuzzy/demos/compare.html?lists=hearthstone_750,urls_
 ### Node
 
 ```
-npm i ufuzzy
+npm i @leeoniya/ufuzzy
 ```
 
 ```js
-const uFuzzy = require('ufuzzy');
+const uFuzzy = require('@leeoniya/ufuzzy');
 ```
 
 ### Browser
