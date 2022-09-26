@@ -282,8 +282,8 @@ https://bestofjs.org/projects?tags=search
             <td>★ 0</td>
             <td>2.5KB</td>
             <td>0.3ms</td>
-            <td>11.7ms</td>
-            <td>7.7MB</td>
+            <td>620ms</td>
+            <td>25.5MB</td>
             <td>7.5MB</td>
         </tr>
         <tr>
@@ -293,10 +293,10 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 14.8k</td>
             <td>23.5KB</td>
-            <td>34ms</td>
-            <td>600ms</td>
-            <td>20.6MB</td>
-            <td>14.2MB</td>
+            <td>40ms</td>
+            <td>35432ms</td>
+            <td>306MB</td>
+            <td>14MB</td>
         </tr>
         <tr>
             <td>
@@ -305,22 +305,22 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 8.9k</td>
             <td>5.9KB</td>
-            <td>3500ms</td>
-            <td>8.1ms</td>
-            <td>322MB</td>
-            <td>323MB</td>
+            <td>3600ms</td>
+            <td>130ms</td>
+            <td>673MB</td>
+            <td>316MB</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/olivernn/lunr.js">Lunr.js</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Lunr&search=super~1%20ma~1">try</a>)
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Lunr&search=%2bsuper~1%20%2bma~1">try</a>)
             </td>
             <td>★ 8.2k</td>
             <td>29.4KB</td>
             <td>1700ms</td>
             <td>8.7ms</td>
-            <td>128MB</td>
-            <td>127MB</td>
+            <td>295MB</td>
+            <td>120MB</td>
         </tr>
         <tr>
             <td>
@@ -338,8 +338,8 @@ https://bestofjs.org/projects?tags=search
             <td>7.3KB</td>
             <td>0.03ms</td>
             <td>125ms</td>
-            <td>13.1MB</td>
-            <td>12.9MB</td>
+            <td>145MB</td>
+            <td>7.6MB</td>
         </tr>
         <tr>
             <td>
@@ -350,8 +350,20 @@ https://bestofjs.org/projects?tags=search
             <td>5.5KB</td>
             <td>50ms</td>
             <td>12ms</td>
-            <td>54.7MB</td>
-            <td>54.4MB</td>
+            <td>132MB</td>
+            <td>81MB</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/kbrsh/wade">Wade</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Wade&search=super%20ma">try</a>)
+            </td>
+            <td>★ 3k</td>
+            <td>4KB</td>
+            <td>920ms</td>
+            <td>3.2ms</td>
+            <td>464MB</td>
+            <td>42MB</td>
         </tr>
         <tr>
             <td>
@@ -369,8 +381,8 @@ https://bestofjs.org/projects?tags=search
             <td>18.1KB</td>
             <td>1000ms</td>
             <td>1.5ms</td>
-            <td>73.6MB</td>
-            <td>73.4MB</td>
+            <td>330MB</td>
+            <td>67MB</td>
         </tr>
         <tr>
             <td>
@@ -380,9 +392,9 @@ https://bestofjs.org/projects?tags=search
             <td>★ 1.5k</td>
             <td>22.4KB</td>
             <td>575ms</td>
-            <td>1ms</td>
-            <td>70.2MB</td>
-            <td>70MB</td>
+            <td>36ms</td>
+            <td>209MB</td>
+            <td>64MB</td>
         </tr>
         <tr>
             <td>
@@ -393,8 +405,8 @@ https://bestofjs.org/projects?tags=search
             <td>2.8KB</td>
             <td>2900ms</td>
             <td>31ms</td>
-            <td>246MB</td>
-            <td>244MB</td>
+            <td>800MB</td>
+            <td>238MB</td>
         </tr>
         <tr>
             <td>
@@ -439,9 +451,9 @@ https://bestofjs.org/projects?tags=search
             <td>★ 131</td>
             <td>9.1KB</td>
             <td>26ms</td>
-            <td>155ms</td>
-            <td>26.1MB</td>
-            <td>18.7MB</td>
+            <td>489ms</td>
+            <td>260MB</td>
+            <td>12.5MB</td>
         </tr>
         <tr>
             <td>

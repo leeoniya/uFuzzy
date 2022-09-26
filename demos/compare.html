@@ -194,7 +194,11 @@
 		</div>
 
 		<script>
+			const delay = async (ms = 1000) => new Promise(resolve => setTimeout(resolve, ms));
+
 			let urlParams = new URLSearchParams(location.search);
+
+			const BENCH = urlParams.get('bench') != null;
 
 			for (let [k, v] of urlParams) {
 				let inp = document.getElementById(k);
@@ -231,8 +235,11 @@
 				let allCount = haystack.length.toLocaleString("en-US");
 				let foundCount = found.length.toLocaleString("en-US");
 
-				found = found.slice(0, 1000).map(r => toStr(r).replace(/[\n\r]+/g, ' '));
-			//	found = [];
+				if (BENCH)
+					found = [];
+				else
+					found = found.slice(0, 1000).map(r => toStr(r).replace(/[\n\r]+/g, ' '));
+
 
 				return [
 					`${lib.name} <a href="${lib.repo}" target="_blank">repo</a>` + (lib.demo ? ` <a href="${lib.demo}" target="_blank">demo</a>` : ''),
@@ -921,6 +928,27 @@
 					toStr: null,
 				},
 				{
+					name: 'Wade',
+					script: './lib/wade.js',
+					fulltext: false,
+					repo: 'https://github.com/kbrsh/wade',
+					opts: {},
+					setup: (haystack, opts) => {
+						Wade.config.stopWords = [];
+
+						const search = Wade(haystack.slice());
+
+						return {
+							search: needle => {
+								return search(needle);
+							},
+							toStr: m => haystack[m.index],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
 					name: 'Lunr',
 					script: './lib/lunr.js',
 					fulltext: false,
@@ -961,7 +989,10 @@
 
 						return {
 							search: needle => {
-								return index.search(needle);
+								return index.search(needle, {
+									expand: true,
+									bool: "AND"
+								});
 							},
 							toStr: m => haystack[+m.ref],
 						};
@@ -1140,6 +1171,30 @@
 						});
 
 						run(search);
+
+						if (BENCH) {
+							async function typeAndDel(str) {
+								for (let i = 0; i < str.length; i++) {
+									run(str.slice(0, i+1));
+									await delay(100);
+								}
+
+								for (let i = str.length - 1; i >= -1; i--) {
+									run(str.slice(0, i+1));
+									await delay(100);
+								}
+							}
+
+							setTimeout(() => {
+								typeAndDel('test');
+								typeAndDel('chest');
+								typeAndDel('super ma');
+								typeAndDel('mania');
+								typeAndDel('puzz');
+								typeAndDel('prom rem stor');
+								typeAndDel('twil');
+							}, 1000);
+						}
 					});
 				});
 			});
