@@ -123,15 +123,13 @@ export default function uFuzzy(opts) {
 
 		if (idxs != null) {
 			for (let i = 0; i < idxs.length; i++) {
-				let item = haystack[idxs[i]];
-				query.test(item) && out.push(i);
+				let idx = idxs[i];
+				query.test(haystack[idx]) && out.push(idx);
 			}
 		}
 		else {
-			for (let i = 0; i < haystack.length; i++) {
-				let item = haystack[i];
-				query.test(item) && out.push(i);
-			}
+			for (let i = 0; i < haystack.length; i++)
+				query.test(haystack[i]) && out.push(i);
 		}
 
 		DEBUG && console.timeEnd('filter');

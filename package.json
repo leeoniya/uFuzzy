@@ -4,6 +4,7 @@
   "description": "A fuzzy matcher that doesn't suck",
   "main": "./dist/uFuzzy.cjs.js",
   "module": "./dist/uFuzzy.esm.js",
+  "types": "./dist/uFuzzy.d.ts",
   "scripts": {
     "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
