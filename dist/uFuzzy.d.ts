@@ -8,7 +8,7 @@ declare class uFuzzy {
 	info(idxs: uFuzzy.HaystackIdxs, haystack: string[], needle: string): uFuzzy.Info;
 
 	/** performs final result sorting via Array.sort(), relying on Info */
-	order(info: uFuzzy.Info, haystack: string[], needle: string): uFuzzy.InfoIdxOrder;
+	sort(info: uFuzzy.Info, haystack: string[], needle: string): uFuzzy.InfoIdxOrder;
 }
 
 export = uFuzzy;
@@ -35,25 +35,25 @@ declare namespace uFuzzy {
 
 	export interface Options {
 		/** term segmentation & punct/whitespace merging */
-		interSplit?: PartialRegExp; // '[^A-Za-z0-9]+'
-		intraSplit?: PartialRegExp; // '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]'
+		interSplit?: PartialRegExp;  // '[^A-Za-z0-9]+'
+		intraSplit?: PartialRegExp;  // '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]'
 
 		/** inter-term modes, during .info() can discard matches when bounds conditions are not met */
-		interLft: BoundMode;        // 0
-		interRgt: BoundMode;        // 0
+		interLft?: BoundMode;        // 0
+		interRgt?: BoundMode;        // 0
 
 		/** allowance between terms */
-		interChars: PartialRegExp;  // '.'
-		interMax: number;           // Infinity
+		interChars?: PartialRegExp;  // '.'
+		interMax?: number;           // Infinity
 
 		/** allowance between chars within terms */
-		intraChars: PartialRegExp;  // '[a-z\\d]'
-		intraMax: number;           // 0
+		intraChars?: PartialRegExp;  // '[a-z\\d]'
+		intraMax?: number;           // 0
 
 		/** post-filters matches during .info() based on cmp of term in needle vs partial match */
-		intraFilt: (term, match, index) => boolean; // should this also accept WIP info?
+		intraFilt?: (term: string, match: string, index: number) => boolean; // should this also accept WIP info?
 
-		sort: (info: Info, haystack: string[], needle: string) => InfoIdxOrder;
+		sort?: (info: Info, haystack: string[], needle: string) => InfoIdxOrder;
 	}
 
 	export interface Info {
