@@ -300,69 +300,6 @@
 				return performance.now() - start;
 			}
 
-			// https://stackoverflow.com/questions/9960908/permutations-in-javascript/37580979#37580979
-			function permute(arr) {
-				let length = arr.length,
-					result = [arr.slice()],
-					c = new Array(length).fill(0),
-					i = 1, k, p;
-
-				while (i < length) {
-					if (c[i] < i) {
-						k = i % 2 && c[i];
-						p = arr[i];
-						arr[i] = arr[k];
-						arr[k] = p;
-						++c[i];
-						i = 1;
-						result.push(arr.slice());
-					} else {
-						c[i] = 0;
-						++i;
-					}
-				}
-
-				return result;
-			}
-
-			const latinize = (() => {
-				let accents = {
-					A: 'ÁÀÃÂÄ',
-					a: 'áàãâä',
-					E: 'ÉÈÊË',
-					e: 'éèêë',
-					I: 'ÍÌÎÏ',
-					i: 'íìîï',
-					O: 'ÓÒÔÕÖ',
-					o: 'óòôõö',
-					U: 'ÚÙÛÜ',
-					u: 'úùûü',
-					C: 'Ç',
-					c: 'ç',
-					N: 'Ñ',
-					n: 'ñ'
-				};
-
-				let accentsMap = new Map();
-				let accentsTpl = '';
-
-				for (let r in accents) {
-					accents[r].split('').forEach(a => {
-						accentsTpl += a;
-						accentsMap.set(a, r);
-					});
-				}
-
-				let accentsRe = new RegExp(`[${accentsTpl}]`, 'g');
-
-				return strings => {
-					let out = Array(strings.length);
-					for (let i = 0; i < strings.length; i++)
-						out[i] = strings[i].replace(accentsRe, m => accentsMap.get(m));
-					return out;
-				};
-			})();
-
 			let tmpOnlyLib = null;
 			let tmpVar;
 
@@ -493,7 +430,7 @@
 						return {
 							search: needle => {
 								if (oooPermute) {
-									let needles = permute(needle.split(/[^A-Za-z0-9]+/g)).map(terms => terms.join(' '));
+									let needles = uFuzzy.permute(u.split(needle)).map(terms => terms.join(' '));
 
 									let allFound = [];
 									let allInfos = {};

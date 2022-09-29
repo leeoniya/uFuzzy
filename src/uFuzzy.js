@@ -64,14 +64,16 @@ const mode2Tpl = '(?:\\b|_)';
 export default function uFuzzy(opts) {
 	opts = Object.assign({}, OPTS, opts);
 
+	const { interLft, interRgt } = opts;
+
 	let intraSplit = new RegExp(opts.intraSplit, 'g');
 	let interSplit = new RegExp(opts.interSplit, 'g');
 
-	const { interLft, interRgt } = opts;
+	const split = needle => needle.trim().replace(intraSplit, m => m[0] + ' ' + m[1]).split(interSplit);
 
-	const prepQuery = (query, capt = 0) => {
+	const prepQuery = (needle, capt = 0) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
-		let parts = query.trim().replace(intraSplit, m => m[0] + ' ' + m[1]).split(interSplit);
+		let parts = split(needle);
 
 		let intraCharsTpl = lazyRepeat(opts.intraChars, opts.intraMax);
 
@@ -346,8 +348,75 @@ export default function uFuzzy(opts) {
 	};
 
 	return {
+		split,
 		filter,
 		info,
 		sort: opts.sort,
 	};
 }
+
+const latinize = (() => {
+	let accents = {
+		A: 'ÁÀÃÂÄ',
+		a: 'áàãâä',
+		E: 'ÉÈÊË',
+		e: 'éèêë',
+		I: 'ÍÌÎÏ',
+		i: 'íìîï',
+		O: 'ÓÒÔÕÖ',
+		o: 'óòôõö',
+		U: 'ÚÙÛÜ',
+		u: 'úùûü',
+		C: 'Ç',
+		c: 'ç',
+		N: 'Ñ',
+		n: 'ñ'
+	};
+
+	let accentsMap = new Map();
+	let accentsTpl = '';
+
+	for (let r in accents) {
+		accents[r].split('').forEach(a => {
+			accentsTpl += a;
+			accentsMap.set(a, r);
+		});
+	}
+
+	let accentsRe = new RegExp(`[${accentsTpl}]`, 'g');
+
+	return strings => {
+		let out = Array(strings.length);
+		for (let i = 0; i < strings.length; i++)
+			out[i] = strings[i].replace(accentsRe, m => accentsMap.get(m));
+		return out;
+	};
+})();
+
+// https://stackoverflow.com/questions/9960908/permutations-in-javascript/37580979#37580979
+function permute(arr) {
+	let length = arr.length,
+		result = [arr.slice()],
+		c = new Array(length).fill(0),
+		i = 1, k, p;
+
+	while (i < length) {
+		if (c[i] < i) {
+			k = i % 2 && c[i];
+			p = arr[i];
+			arr[i] = arr[k];
+			arr[k] = p;
+			++c[i];
+			i = 1;
+			result.push(arr.slice());
+		} else {
+			c[i] = 0;
+			++i;
+		}
+	}
+
+	return result;
+}
+
+uFuzzy.latinize = latinize;
+uFuzzy.permute = permute;

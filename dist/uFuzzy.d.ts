@@ -9,11 +9,23 @@ declare class uFuzzy {
 
 	/** performs final result sorting via Array.sort(), relying on Info */
 	sort(info: uFuzzy.Info, haystack: string[], needle: string): uFuzzy.InfoIdxOrder;
+
+	/** utility for splitting needle into terms following defined interSplit/intraSplit opts. useful for out-of-order permutes */
+	split(needle: string): uFuzzy.Terms;
+
+	/** util for creating out-of-order permutations of a needle terms array */
+	static permute(arr: unknown[]): unknown[][];
+
+	/** util for replacing common diacritics/accents */
+	static latinize(strings: string[]): string[];
 }
 
 export = uFuzzy;
 
 declare namespace uFuzzy {
+	/** needle -> terms splitter */
+	export type Terms = string[];
+
 	/** subset of idxs of a haystack array */
 	export type HaystackIdxs = number[];
 
@@ -21,7 +33,7 @@ declare namespace uFuzzy {
 	export type InfoIdxOrder = number[];
 
 	/** partial RegExp */
-	export type PartialRegExp = string;
+	type PartialRegExp = string;
 
 	/** what should be considered acceptable term bounds */
 	export const enum BoundMode {
