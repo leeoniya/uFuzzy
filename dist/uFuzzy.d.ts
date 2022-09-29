@@ -23,7 +23,7 @@ declare class uFuzzy {
 export = uFuzzy;
 
 declare namespace uFuzzy {
-	/** needle -> terms splitter */
+	/** needle's terms */
 	export type Terms = string[];
 
 	/** subset of idxs of a haystack array */
