@@ -422,8 +422,27 @@ var uFuzzy = (function () {
 		return result;
 	}
 
+	function highlight(str, ranges, pre = '<b>', suf = '</b>') {
+		let dst = str.substring(0, ranges[0]);
+
+		for (let i = 0; i < ranges.length; i+=2) {
+			let fr = ranges[i];
+			let to = ranges[i+1];
+
+			dst += pre + str.substring(fr, to) + suf;
+
+			if (i < ranges.length - 3)
+				dst += str.substring(ranges[i+1], ranges[i+2]);
+		}
+
+		dst += str.substring(ranges[ranges.length - 1]);
+
+		return dst;
+	}
+
 	uFuzzy.latinize = latinize;
 	uFuzzy.permute = permute;
+	uFuzzy.highlight = highlight;
 
 	return uFuzzy;
 

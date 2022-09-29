@@ -18,6 +18,9 @@ declare class uFuzzy {
 
 	/** util for replacing common diacritics/accents */
 	static latinize(strings: string[]): string[];
+
+	/** util for highlighting matched substr parts of a result */
+	static highlight(match: string, ranges: number[], pre: string, suf: string): string;
 }
 
 export = uFuzzy;

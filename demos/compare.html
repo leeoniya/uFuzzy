@@ -238,8 +238,7 @@
 				if (BENCH)
 					found = [];
 				else
-					found = found.slice(0, 1000).map(r => toStr(r).replace(/[\n\r]+/g, ' '));
-
+					found = found.slice(0, 1000).map(toStr);
 
 				return [
 					`${lib.name} <a href="${lib.repo}" target="_blank">repo</a>` + (lib.demo ? ` <a href="${lib.demo}" target="_blank">demo</a>` : ''),
@@ -248,24 +247,6 @@
 					'',
 					found.join('\n'),
 				].join('\n');
-			}
-
-			function highlightParts(str, ranges) {
-				let dst = str.substring(0, ranges[0]);
-
-				for (let i = 0; i < ranges.length; i+=2) {
-					let fr = ranges[i];
-					let to = ranges[i+1];
-
-					dst += '<b>' + str.substring(fr, to) + '</b>';
-
-					if (i < ranges.length - 3)
-						dst += str.substring(ranges[i+1], ranges[i+2]);
-				}
-
-				dst += str.substring(ranges[ranges.length - 1]);
-
-				return dst;
 			}
 
 			// copy & tweak from core
@@ -429,55 +410,59 @@
 
 						return {
 							search: needle => {
-								if (oooPermute) {
-									let needles = uFuzzy.permute(u.split(needle)).map(terms => terms.join(' '));
+								let needles = oooPermute ? uFuzzy.permute(u.split(needle)).map(terms => terms.join(' ')) : [needle];
 
-									let allFound = [];
+								let needleIdxs = needles.map(needle => u.filter(haystack, needle));
+
+								let total = needleIdxs.reduce((acc, idxs) => acc + idxs.length, 0);
+
+								if (total <= rankThresh) {
 									let allInfos = {};
+									let allOrders = [];
 
-									needles.forEach((needle, pi) => {
-										let idxs = u.filter(haystack, needle);
-										let found = idxs;
-										toStr = idx => haystack[idx];
-
-										if (idxs.length <= rankThresh) {
-											let info = u.info(idxs, haystack, needle);
-											let order = u.sort(info, haystack, needle);
-
-											found = order;
-
-											// offset idxs for concat'ing infos
-											if (pi > 0) {
-												for (let i = 0; i < found.length; i++)
-													found[i] += allFound.length;
-											}
-
-											for (let k in info)
-												allInfos[k] = (allInfos[k] ?? []).concat(info[k]);
-
-											toStr = oi => highlightParts(haystack[allInfos.idx[oi]], allInfos.ranges[oi]);
-										}
-
-										allFound = allFound.concat(found); // dedupe/combine/weight/re-sort?
-									});
-
-									return allFound;
-								}
-								else {
-									let idxs = u.filter(haystack, needle);
-									let found = idxs;
-									toStr = idx => haystack[idx];
-
-									if (idxs.length <= rankThresh) {
+									for (let ni = 0; ni < needleIdxs.length; ni++) {
+										let idxs = needleIdxs[ni];
+										let needle = needles[ni];
 										let info = u.info(idxs, haystack, needle);
 										let order = u.sort(info, haystack, needle);
 
-										found = order;
+										// offset idxs for concat'ing infos
+										if (ni > 0) {
+											for (let i = 0; i < order.length; i++)
+												order[i] += allOrders.length;
+										}
 
-										toStr = oi => highlightParts(haystack[info.idx[oi]], info.ranges[oi]);
+										for (let k in info)
+											allInfos[k] = (allInfos[k] ?? []).concat(info[k]);
+
+										allOrders = allOrders.concat(order);
 									}
 
-									return found;
+									let uniqHis = new Set();
+									let allOrdersU = [];
+
+									for (let oi of allOrders) {
+										let hi = allInfos.idx[oi];
+
+										if (!uniqHis.has(hi)) {
+											uniqHis.add(hi);
+											allOrdersU.push(oi);
+										}
+									}
+
+									needleIdxs = null;
+									toStr = oi => {
+										let hi = allInfos.idx[oi];
+										return uFuzzy.highlight(haystack[hi], allInfos.ranges[oi]);
+									};
+
+									return allOrdersU;
+								}
+								else {
+									let ret = needles.length == 1 ? needleIdxs[0] : [...new Set(needleIdxs.flat())];
+									needleIdxs = null;
+									toStr = idx => haystack[idx];
+									return ret; // unordered, unique
 								}
 							},
 							toStr: m => toStr(m),
