@@ -437,5 +437,15 @@ function highlight(str, ranges, pre = '<b>', suf = '</b>') {
 }
 
 uFuzzy.latinize = latinize;
-uFuzzy.permute = permute;
+uFuzzy.permute = arr => {
+	let idxs = permute([...Array(arr.length).keys()]).sort((a,b) => {
+		for (let i = 0; i < a.length; i++) {
+			if (a[i] != b[i])
+				return a[i] - b[i];
+		}
+		return 0;
+	});
+
+	return idxs.map(pi => pi.map(i => arr[i]));
+};
 uFuzzy.highlight = highlight;
