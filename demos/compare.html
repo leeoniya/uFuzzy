@@ -888,6 +888,7 @@
 
 						return {
 							search: needle => {
+								needle = '+' + needle.replace(/\s+/g, '~1 +') + '~1';
 								return index.search(needle);
 							},
 							toStr: m => haystack[+m.ref],
