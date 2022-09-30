@@ -231,14 +231,16 @@
 				e.target.style.display = 'none';
 			});
 
+			const fmtNum = new Intl.NumberFormat('en-US').format;
+
 			function fmtResult(lib, found, toStr, haystack, elapsed) {
-				let allCount = haystack.length.toLocaleString("en-US");
-				let foundCount = found.length.toLocaleString("en-US");
+				let allCount = fmtNum(haystack.length);
+				let foundCount = fmtNum(found.length);
 
 				if (BENCH)
 					found = [];
 				else
-					found = found.slice(0, 1000).map(toStr);
+					found = found.slice(0, 1000).map(s => toStr(s).replace(/[\r\n]+/gm, ' '));
 
 				return [
 					`${lib.name} <a href="${lib.repo}" target="_blank">repo</a>` + (lib.demo ? ` <a href="${lib.demo}" target="_blank">demo</a>` : ''),
