@@ -113,6 +113,11 @@ else {
 ```
 
 ---
+### API
+
+A liberally-commented 100 LoC [uFuzzy.d.ts](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.d.ts) file.
+
+---
 ### Options
 
 Options with an **inter** prefix apply to allowances _in between_ search terms, while those with an **intra** prefix apply to allowances _within_ each search term.
