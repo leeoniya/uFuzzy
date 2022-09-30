@@ -513,7 +513,7 @@
 								return qs.search(needle);
 							},
 							toStr: m => {
-								return `<i>${+m.score.toFixed(3)}</i> ` + highlightParts(m.item, m.matches.flat());
+								return `<i>${+m.score.toFixed(3)}</i> ` + uFuzzy.highlight(m.item, m.matches.flat());
 							},
 						};
 					},

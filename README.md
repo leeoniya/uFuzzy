@@ -213,8 +213,6 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
 ---
 ### A biased appraisal of similar work
 
-Forget "apples and oranges"; me comparing text search engines is closer to "planes, trains, and cars".
-However, that doesnt mean we cannot gain _some_ insight into a slice of operational behavior.
 This assessment is extremely narrow and, of course, biased towards my use cases, text corpus, and my complete expertise in operating my own library.
 It is highly probable that I'm not taking full advantage of some feature in other libraries that may significantly improve outcomes along some axis;
 I welcome improvement PRs from anyone with deeper library knowledge than afforded by my hasty 10min skim over any "Basic usage" example and README doc.
@@ -230,9 +228,33 @@ What constitutes a good top match in a "typeahead / auto-suggest" case can be a 
 Some solutions optimize for the latter, some for the former.
 It's common to find knobs that skew the results in either direction, but these are often by-feel and imperfect, being little more than a proxy to producing a single, composite match "score".
 
-Let's take a look at some matches produced by the most popular fuzzy search library, [Fuse.js](https://github.com/krisk/Fuse) and a some others for which match highlighting is implemented in the demo.
+Let's take a look at some matches produced by the most popular fuzzy search library, [Fuse.js](https://github.com/krisk/Fuse) and some others for which match highlighting is implemented in the demo.
 
-TODO...
+Searching for the partial term **"twili"**, we see these results appearing above numerous obvious **"twilight"** results:
+
+https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,fuzzysort,QuickScore,Fuse&search=twili
+
+- **twi**r**li**ng
+- **The total number of received alerts that **were **inva**li**d.
+- **T**om Clancy's Ghost Recon **Wil**dlands - AS**I**A Pre-order Standard Uplay Activation
+- **t**heHunter™: Call of the **Wi**ld - Bearclaw **Li**te CB-60
+
+Not only are these poor matches in isolation, but they actually rank higher than literal substrings.
+
+Finishing the search term to **"twilight"**, _still_ scores bizzare results higher:
+
+https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,fuzzysort,QuickScore,Fuse&search=twilight
+
+- Magic: **T**he Gathering - Duels of the Planeswalkers **Wi**ngs of **Light** Unlock
+- **T**he **Wil**d E**ight**
+
+Some engines do better with partial prefix matches, at the expense of higher startup/indexing cost:
+
+https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,FlexSearch,match-sorter,MiniSearch&search=twili
+
+Here, `match-sorter` returns 1,384 results, but only the first 40 are relevant. How do we know where the cut-off is?
+
+https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,FlexSearch,match-sorter,MiniSearch&search=super
 
 <!--
 twil  0.1683 ok, 0.25+ bad
@@ -246,16 +268,32 @@ puzz, puzl (MiniSearch, {fuzzy: 0.4}, uFuzzy, intraLimit: 1)
 
 Can-of-worms #2.
 
-I've tried to follow any "best performance" advice when I could find it in each library's docs, but it's a certainty that some stones were left unturned when implementing ~20 different search engines.
+All benchmarks suck, but this one might suck more than others.
 
-The task:
+- I've tried to follow any "best performance" advice when I could find it in each library's docs, but it's a certainty that some stones were left unturned when implementing ~20 different search engines.
+- Despite my best efforts, result quality is still extremely variable between libraries, and even between search terms. In some cases, results are very poor but the library is very fast; in other cases, the results are better, but the library is quite slow. What use is extreme speed when the search quality is sub-par? This is a subjective, nuanced topic that will surely affect how you interpret these numbers. I consider uFuzzy's search quality second-to-none, so my view of most faster libraries is typically one of quality trade-offs I'm happy not to have made. I encourage you to evaluate the results for all benched search phrases manually to decide this for yourself.
+- Many fulltext & document-search libraries compared here are designed to work best with exact terms rather than partial matches (which this benchmark is skewed towards).
 
-1. Given a diverse list of 162,000 words and phrases, assume a Latin/Western European charset (can skip any diacritics/accents normalization)
-2. Do a case-insensitive, partial/fuzzy match of the search string "super ma"
-3. Sort the results in the most sensible way, following the [Principle of least astonishment](https://en.wikipedia.org/wiki/Principle_of_least_astonishment)
-4. Optionally highlight the matched substrings in each result
-5. Bonus points for matches with out-of-order terms
-6. Do it with the fewest resources (CPU and RAM)
+Still, something is better than a hand-wavy YMMV/do-it-yourself dismissal and certainly better than nothing.
+
+#### Benchmark
+
+- Each benchmark can be run by changing the `libs` parameter to the desired library name: https://leeoniya.github.io/uFuzzy/demos/compare.html?bench&libs=uFuzzy
+- Results output is suppressed in `bench` mode to avoid benchmarking the DOM.
+- Measurements are taken in the Performance secrion of Chrome's DevTools by recording several reloads of the bench page, with forced garbage collection in between. The middle/typical run is used to collect numbers.
+- The search corpus is 162,000 words and phrases, loaded from a 4MB [testdata.json](https://github.com/leeoniya/uFuzzy/blob/main/demos/testdata.json).
+- The benchmark types and then deletes, character-by-character (every 100ms) the following search terms, triggering a search for each keypress: `test`, `chest`, `super ma`, `mania`, `puzz`, `prom rem stor`, `twil`.
+
+To evaluate the results for each library, or to compare several, simply visit the same page with more `libs` and without `bench`: https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,fuzzysort,QuickScore,Fuse&search=super%20ma.
+
+![profile example](bench.png)
+
+There are several metrics evaluated:
+
+- Init time - how long it takes to load the library and build any required index to perform searching.
+- Bench runtime - how long it takes to execute all searches.
+- Memory required - peak JS heap size used during the bench as well as how much is still retained after a forced garbage collection at the end.
+- GC cost - how much time is needed to collect garbage at the end (main thread jank)
 
 <!--
 https://bestofjs.org/projects?tags=search
