@@ -42,10 +42,10 @@ const OPTS = {
 		return idx.map((v, i) => i).sort((ia, ib) => (
 			// least char intra-fuzz (most contiguous)
 			intra[ia] - intra[ib] ||
-			// most prefix/suffix bounds, boosted by full term matches
+			// most prefix bounds, boosted by full term matches
 			(
-				(terms[ib] + lft2[ib] + 0.5 * lft1[ib] + rgt2[ib] + 0.5 * rgt1[ib]) -
-				(terms[ia] + lft2[ia] + 0.5 * lft1[ia] + rgt2[ia] + 0.5 * rgt1[ia])
+				(terms[ib] + lft2[ib] + 0.5 * lft1[ib]) -
+				(terms[ia] + lft2[ia] + 0.5 * lft1[ia])
 			) ||
 			// highest density of match (least span)
 		//	span[ia] - span[ib] ||
