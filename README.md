@@ -338,7 +338,7 @@ https://bestofjs.org/projects?tags=search
             <td>23.5KB</td>
             <td>40ms</td>
             <td>35432ms</td>
-            <td>306MB</td>
+            <td>372MB</td>
             <td>14MB</td>
         </tr>
         <tr>
@@ -360,10 +360,10 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 8.2k</td>
             <td>29.4KB</td>
-            <td>1700ms</td>
-            <td>8.7ms</td>
-            <td>295MB</td>
-            <td>120MB</td>
+            <td>1900ms</td>
+            <td>755ms</td>
+            <td>450MB</td>
+            <td>231MB</td>
         </tr>
         <tr>
             <td>
@@ -380,9 +380,9 @@ https://bestofjs.org/projects?tags=search
             <td>★ 3.1k</td>
             <td>7.3KB</td>
             <td>0.03ms</td>
-            <td>125ms</td>
-            <td>145MB</td>
-            <td>7.6MB</td>
+            <td>8900ms</td>
+            <td>73.4MB</td>
+            <td>7.4MB</td>
         </tr>
         <tr>
             <td>
@@ -392,9 +392,9 @@ https://bestofjs.org/projects?tags=search
             <td>★ 3k</td>
             <td>5.5KB</td>
             <td>50ms</td>
-            <td>12ms</td>
-            <td>132MB</td>
-            <td>81MB</td>
+            <td>1400ms</td>
+            <td>176MB</td>
+            <td>84MB</td>
         </tr>
         <tr>
             <td>
@@ -403,9 +403,9 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 3k</td>
             <td>4KB</td>
-            <td>920ms</td>
-            <td>3.2ms</td>
-            <td>464MB</td>
+            <td>770ms</td>
+            <td>315ms</td>
+            <td>436MB</td>
             <td>42MB</td>
         </tr>
         <tr>
@@ -423,9 +423,9 @@ https://bestofjs.org/projects?tags=search
             <td>★ 1.9k</td>
             <td>18.1KB</td>
             <td>1000ms</td>
-            <td>1.5ms</td>
-            <td>330MB</td>
-            <td>67MB</td>
+            <td>1630ms</td>
+            <td>224MB</td>
+            <td>70MB</td>
         </tr>
         <tr>
             <td>
@@ -434,9 +434,9 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 1.5k</td>
             <td>22.4KB</td>
-            <td>575ms</td>
-            <td>36ms</td>
-            <td>209MB</td>
+            <td>550ms</td>
+            <td>1900ms</td>
+            <td>423MB</td>
             <td>64MB</td>
         </tr>
         <tr>
@@ -446,9 +446,9 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 1.3k</td>
             <td>2.8KB</td>
-            <td>2900ms</td>
-            <td>31ms</td>
-            <td>800MB</td>
+            <td>3100ms</td>
+            <td>850ms</td>
+            <td>660MB</td>
             <td>238MB</td>
         </tr>
         <tr>
@@ -494,9 +494,9 @@ https://bestofjs.org/projects?tags=search
             <td>★ 131</td>
             <td>9.1KB</td>
             <td>26ms</td>
-            <td>489ms</td>
-            <td>260MB</td>
-            <td>12.5MB</td>
+            <td>7100ms</td>
+            <td>171MB</td>
+            <td>12.3MB</td>
         </tr>
         <tr>
             <td>
