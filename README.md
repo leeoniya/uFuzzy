@@ -240,7 +240,7 @@ Searching for the partial term **"twili"**, we see these results appearing above
 https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,fuzzysort,QuickScore,Fuse&search=twili
 
 - **twi**r**li**ng
-- **The total number of received alerts that **were **inva**li**d.
+- **T**he total number of received alerts that **w**ere **i**nva**li**d.
 - **T**om Clancy's Ghost Recon **Wil**dlands - AS**I**A Pre-order Standard Uplay Activation
 - **t**heHunter™: Call of the **Wi**ld - Bearclaw **Li**te CB-60
 
