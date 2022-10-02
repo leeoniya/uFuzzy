@@ -101,13 +101,13 @@
 
 				<div class="group" style="color: #8e24aa;">
 					<label>
-						intraMax
-						<input class="uf" id="intraMax" type="text" value="0" placeholder="Inf">
+						intraIns
+						<input class="uf" id="intraIns" type="text" value="0" placeholder="Inf">
 					</label>
 					<br>
 					<label>
-						interMax
-						<input class="uf" id="interMax" type="text" placeholder="Inf">
+						interIns
+						<input class="uf" id="interIns" type="text" placeholder="Inf">
 					</label>
 				</div>
 
@@ -198,6 +198,12 @@
 
 			let urlParams = new URLSearchParams(location.search);
 
+			let tmpVar;
+
+			// previous sig support (published urls)
+			if ((tmpVar = urlParams.get('intraMax')) != null)
+				urlParams.set('intraIns', tmpVar);
+
 			const BENCH = urlParams.get('bench') != null;
 
 			for (let [k, v] of urlParams) {
@@ -284,7 +290,6 @@
 			}
 
 			let tmpOnlyLib = null;
-			let tmpVar;
 
 			let libs = [
 				{
@@ -294,14 +299,18 @@
 					repo: 'https://github.com/leeoniya/uFuzzy',
 					demo: 'https://leeoniya.github.io/uFuzzy/demos/compare.html',
 					opts: {
-						intraMax:   (tmpVar = urlParams.get('intraMax')) == null ? 0        : tmpVar == 'inf' ? Infinity : +tmpVar,
-						interMax:   (tmpVar = urlParams.get('interMax')) == null ? Infinity : tmpVar == 'inf' ? Infinity : +tmpVar,
+						intraIns:   (tmpVar = urlParams.get('intraIns')) == null ? 0        : tmpVar == 'inf' ? Infinity : +tmpVar,
+						interIns:   (tmpVar = urlParams.get('interIns')) == null ? Infinity : tmpVar == 'inf' ? Infinity : +tmpVar,
 
 						intraChars: (tmpVar = urlParams.get('intraChars')),
 						interChars: (tmpVar = urlParams.get('interChars')),
 
 						interLft:   (tmpVar = urlParams.get('interLft')) != null ? +tmpVar : 0,
 						interRgt:   (tmpVar = urlParams.get('interRgt')) != null ? +tmpVar : 0,
+
+						intraSub:   (tmpVar = urlParams.get('intraSub')) == null || tmpVar == '0' ? 0 : 1,
+						intraTrn:   (tmpVar = urlParams.get('intraTrn')) == null || tmpVar == '0' ? 0 : 1,
+						intraDel:   (tmpVar = urlParams.get('intraDel')) == null || tmpVar == '0' ? 0 : 1,
 
 						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
 
@@ -351,18 +360,18 @@
 							tmpOnlyLib = null;
 						};
 
-						document.getElementById('intraMax').addEventListener('keyup', bump);
-						document.getElementById('intraMax').addEventListener('input', e => {
+						document.getElementById('intraIns').addEventListener('keyup', bump);
+						document.getElementById('intraIns').addEventListener('input', e => {
 							let v = e.target.value;
-							opts.intraMax = v == '' ? Infinity : +e.target.value;
+							opts.intraIns = v == '' ? Infinity : +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
 
-						document.getElementById('interMax').addEventListener('keyup', bump);
-						document.getElementById('interMax').addEventListener('input', e => {
+						document.getElementById('interIns').addEventListener('keyup', bump);
+						document.getElementById('interIns').addEventListener('input', e => {
 							let v = e.target.value;
-							opts.interMax = v == '' ? Infinity : +e.target.value;
+							opts.interIns = v == '' ? Infinity : +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});

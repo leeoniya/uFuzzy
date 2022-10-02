@@ -59,11 +59,21 @@ declare namespace uFuzzy {
 
 		/** allowance between terms */
 		interChars?: PartialRegExp;  // '.'
-		interMax?: number;           // Infinity
+		interIns?: number;           // Infinity
 
 		/** allowance between chars within terms */
 		intraChars?: PartialRegExp;  // '[a-z\\d]'
-		intraMax?: number;           // 0
+		intraIns?: number;           // 0
+
+		// typo tolerance within terms (excluding first & last chars)
+		// setting any of these to 1 will force intraIns=0
+
+		/** max substitutions */
+		intraSub?: 0 | 1; // 0
+		/** max transpositions */
+		intraTrn?: 0 | 1; // 0
+		/** max omissions/deletions */
+		intraDel?: 0 | 1; // 0
 
 		/** post-filters matches during .info() based on cmp of term in needle vs partial match */
 		intraFilt?: (term: string, match: string, index: number) => boolean; // should this also accept WIP info?

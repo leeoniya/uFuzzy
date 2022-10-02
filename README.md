@@ -133,7 +133,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
     </thead>
     <tbody>
         <tr>
-            <td><code>intraMax</code></td>
+            <td><code>intraIns</code></td>
             <td>Max number of extra chars allowed<br>between each char within a term</td>
             <td><code>0</code></td>
             <td>
@@ -143,7 +143,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             </td>
         </tr>
         <tr>
-            <td><code>interMax</code></td>
+            <td><code>interIns</code></td>
             <td>Max number of extra chars allowed between terms</td>
             <td><code>Infinity</code></td>
             <td>
@@ -266,7 +266,7 @@ twil  0.1683 ok, 0.25+ bad
 chest 0.1959 ok, 0.2+ bad
 train
 nin tur
-puzz, puzl (MiniSearch, {fuzzy: 0.4}, uFuzzy, intraLimit: 1)
+puzz, puzl (MiniSearch, {fuzzy: 0.4}, uFuzzy, intraIns: 1)
 -->
 
 #### Performance

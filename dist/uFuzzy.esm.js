@@ -25,14 +25,27 @@ const OPTS = {
 
 	// allowance between terms
 	interChars: '.',
-	interMax: inf,
+	interIns: inf,
+
+	// allow matches with single letter omissions or substitutions
+	// enabling this forces intraIns=0, and info.ranges will include any substituted chars
 
 	// allowance between chars in terms
 	intraChars: '[a-z\\d]', // internally case-insensitive
-	intraMax: 0,
+	intraIns: 0,
+
+	// typo tolerance
+	// all of these are either 0 or 1
+
+	// max substitutions
+	intraSub: 0,
+	// max transpositions
+	intraTrn: 0,
+	// max omissions/deletions
+	intraDel: 0,
 
 	// can post-filter matches that are too far apart in distance or length
-	// (since intraMax is between each char, it can accum to nonsense matches)
+	// (since intraIns is between each char, it can accum to nonsense matches)
 	intraFilt: (term, match, index) => true, // should this also accept WIP info?
 
 	// final sorting fn
@@ -71,7 +84,12 @@ const mode2Tpl = '(?:\\b|_)';
 function uFuzzy(opts) {
 	opts = Object.assign({}, OPTS, opts);
 
-	const { interLft, interRgt } = opts;
+	const { interLft, interRgt, intraSub, intraTrn, intraDel } = opts;
+
+	const withTypos = (intraSub + intraTrn + intraDel) > 0;
+
+	if (withTypos)
+		opts.intraIns = 0;
 
 	let intraSplit = new RegExp(opts.intraSplit, 'g');
 	let interSplit = new RegExp(opts.interSplit, 'g');
@@ -82,24 +100,67 @@ function uFuzzy(opts) {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
 		let parts = split(needle);
 
-		let intraCharsTpl = lazyRepeat(opts.intraChars, opts.intraMax);
+		let intraCharsTpl = lazyRepeat(opts.intraChars, opts.intraIns);
 
 		// capture at char level
-		if (capt == 2 && opts.intraMax > 0) {
+		if (capt == 2 && opts.intraIns > 0) {
 			// sadly, we also have to capture the inter-term junk via parenth-wrapping .*?
 			// to accum other capture groups' indices for \b boosting during scoring
 			intraCharsTpl = ')(' + intraCharsTpl + ')(';
 		}
 
 		// array of regexp tpls for each term
-		let reTpl = parts.map(p => p.split('').join(intraCharsTpl));
+		let reTpl;
+
+		if (withTypos)
+			reTpl = parts.map(p => {
+				if (p.length <= 2)
+					return p;
+
+				let lftIdx  =  1;
+				let rgtIdx  = -1;
+				let lftChar = p[0];
+				let rgtChar = p.at(-1);
+
+				let chars = p.slice(lftIdx, rgtIdx);
+
+				let numChars = chars.length;
+
+				let variants = [];
+
+				// variants with single char substitutions
+				if (opts.intraSub) {
+					for (let i = 0; i < numChars; i++)
+						variants.push(lftChar + chars.slice(0, i) + opts.intraChars + chars.slice(i + 1) + rgtChar);
+				}
+
+				// variants with single transpositions
+				if (opts.intraTrn) {
+					for (let i = 0; i < numChars - 1; i++) {
+						if (chars[i] != chars[i+1])
+							variants.push(lftChar + chars.slice(0, i) + chars[i+1] + chars[i] + chars.slice(i + 2) + rgtChar);
+					}
+				}
+
+				// variants with single char omissions
+				if (opts.intraDel) {
+					for (let i = 0; i < numChars; i++)
+						variants.push(lftChar + chars.slice(0, i + 1) + '?' + chars.slice(i + 1) + rgtChar);
+				}
+
+				return '(?:' + p + '|' + variants.join('|') + ')';
+			});
+		else
+			reTpl = parts.map(p => p.split('').join(intraCharsTpl));
+
+	//	console.log(reTpl);
 
 		// this only helps to reduce initial matches early when they can be detected
 		// TODO: might want a mode 3 that excludes _
 		let preTpl = interLft == 2 ? mode2Tpl : '';
 		let sufTpl = interRgt == 2 ? mode2Tpl : '';
 
-		let interCharsTpl = sufTpl + lazyRepeat(opts.interChars, opts.interMax) + preTpl;
+		let interCharsTpl = sufTpl + lazyRepeat(opts.interChars, opts.interIns) + preTpl;
 
 		// capture at word level
 		if (capt > 0) {
@@ -212,9 +273,9 @@ function uFuzzy(opts) {
 				let fullMatch = group == parts[j];
 
 				if (!fullMatch) {
-					// when intraMax > 0 'test' query can match 'ttest' in 'fittest'
+					// when intraIns > 0 'test' query can match 'ttest' in 'fittest'
 					// try an exact substring match to improve rank quality
-					if (opts.intraMax > 0) {
+					if (opts.intraIns > 0) {
 						let idxOf = group.indexOf(parts[j]);
 						if (idxOf > -1) {
 							fullMatch = true;
