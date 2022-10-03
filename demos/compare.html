@@ -773,7 +773,7 @@
 
 						return {
 							search: needle => {
-								return miniSearch.search(needle);
+								return miniSearch.search(needle, { combineWith: 'AND' });
 							},
 							toStr: m => haystack[m.id],
 						};
@@ -933,6 +933,39 @@
 								});
 							},
 							toStr: m => haystack[+m.ref],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
+					name: 'js-search',
+					script: './lib/js-search.min.js',
+					fulltext: false,
+					repo: 'https://github.com/bvaughn/js-search',
+					demo: 'https://bvaughn.github.io/js-search/',
+					opts: {},
+					setup: (haystack, opts) => {
+						let search = new JsSearch.Search('i');
+						search.indexStrategy = new JsSearch.AllSubstringsIndexStrategy();
+						search.addIndex('s');
+
+						let docs = Array(haystack.length);
+
+						for (let i = 0; i < haystack.length; i++) {
+							docs[i] = {
+								i,
+								s: haystack[i],
+							};
+						}
+
+						search.addDocuments(docs);
+
+						return {
+							search: needle => {
+								return search.search(needle);
+							},
+							toStr: m => haystack[m.i],
 						};
 					},
 					search: null,
