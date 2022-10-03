@@ -317,6 +317,10 @@
 					//	intraFilt: (term, match, index) => match.length - term.length < 3,
 					},
 					setup: (haystack, opts) => {
+					//	console.time('diacritics');
+					//	haystack = uFuzzy.latinize(haystack);
+					//	console.timeEnd('diacritics');
+
 						if (opts.sort == null)
 							delete opts.sort;
 						if (opts.intraChars == null)
@@ -1044,10 +1048,6 @@
 							opt.selected = false;
 					});
 				};
-
-			//	console.time('diacritics');
-			//	haystack = latinize(haystack);
-			//	console.timeEnd('diacritics');
 
 				let libNames = getLibNames();
 
