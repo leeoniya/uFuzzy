@@ -10,7 +10,7 @@ uFuzzy is a [fuzzy search](https://en.wikipedia.org/wiki/Approximate_string_matc
 It might be best described as a more forgiving [String.indexOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf).
 Common use cases are list filtering, auto-complete/suggest, and title/name/description/filename/function searches.
 
-Each uFuzzy match must contain all alpha-numeric characters from the needle in the same sequence, so is likely a poor fit for applications like spellcheck or fulltext/document search.
+In its default configuration, each uFuzzy match must contain all alpha-numeric characters from the needle in the same sequence, so is likely a poor fit for applications like spellcheck or fulltext/document search.
 However, its speed leaves ample headroom to [match out-of-order terms](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca) by combining results from all permutations of the needle.
 When held _just right_, it can efficiently match against multiple object properties, too.
 
@@ -18,7 +18,7 @@ When held _just right_, it can efficiently match against multiple object propert
 ### Features
 
 - **Junk-free, high quality results** that are _dataset-independent_. No need to fine-tune indexing options or boosting params to attain some arbitrary quality score cut-off.
-- **Straightforward fuzziness control** that can be explained to your grandma in 5min.
+- **Straightforward fuzziness control** without surprises.
 - **Sorting you can reason about** and customize using a simple `Array.sort()` which gets access to each match's stats/counters. There's no composite, black box "score" to understand.
 - **Concise set of options** that don't interact in mysterious ways to drastically alter combined behavior.
 - **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 12ms with in-order terms or 50ms with out-of-order terms.
@@ -65,6 +65,23 @@ const uFuzzy = require('@leeoniya/ufuzzy');
 
 ---
 ### Usage
+
+uFuzzy has two operational modes which differ in matching strategy:
+
+- **intraMode: 0** (default) requires all alpha-numeric characters in the search phrase to exist in the same sequence in all matches. For example, when searching for "**cat**", this mode is capable of matching the strings below. What is _actually_ matched will depend on additonal fuzziness settings.
+  - **cat**
+  - **c**o**at**
+  - s**c**r**at**ch
+  - **ca**n**t**ina
+  - tra**c**tors **a**re la**t**e
+- **intraMode: 1** allows for a single error in each term of the search phrase, where an error is one of: substitution (replacement), transposition (swap), insertion (addition), or deletion (omission). The search strings with errors below can return matches containing "**example**". What is _actually_ matched will depend on additonal fuzziness settings. In contrast to the previous mode, searching for "**example**" will never match "**ex**tr**a** **m**a**ple**".
+  - example - exact
+  - examplle - single insertion (addition)
+  - exemple - single substitution (replacement)
+  - exmaple - single transposition (swap)
+  - exmple - single deletion (omission)
+  - xamp - partial
+  - xmap - partial with transposition
 
 uFuzzy works in 3 phases:
 
