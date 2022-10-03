@@ -30,21 +30,16 @@ var uFuzzy = (function () {
 		interChars: '.',
 		interIns: inf,
 
-		// allow matches with single letter omissions or substitutions
-		// enabling this forces intraIns=0, and info.ranges will include any substituted chars
-
 		// allowance between chars in terms
 		intraChars: '[a-z\\d]', // internally case-insensitive
 		intraIns: 0,
 
-		// typo tolerance
-		// all of these are either 0 or 1
+		// multi-insert or single-error mode
+		intraMode: 0,
 
-		// max substitutions
+		// single-error tolerance toggles
 		intraSub: 0,
-		// max transpositions
 		intraTrn: 0,
-		// max omissions/deletions
 		intraDel: 0,
 
 		// can post-filter matches that are too far apart in distance or length
@@ -87,12 +82,18 @@ var uFuzzy = (function () {
 	function uFuzzy(opts) {
 		opts = Object.assign({}, OPTS, opts);
 
-		const { interLft, interRgt, intraSub, intraTrn, intraDel, intraSplit: _intraSplit, interSplit: _interSplit } = opts;
-
-		const withTypos = (intraSub + intraTrn + intraDel) > 0;
-
-		if (withTypos)
-			opts.intraIns = 0;
+		const {
+			interLft,
+			interRgt,
+			intraMode,
+			intraIns,
+			intraSub,
+			intraTrn,
+			intraDel,
+			intraSplit: _intraSplit,
+			interSplit: _interSplit,
+			intraChars,
+		} = opts;
 
 		let intraSplit = new RegExp(_intraSplit, 'g');
 		let interSplit = new RegExp(_interSplit, 'g');
@@ -105,22 +106,19 @@ var uFuzzy = (function () {
 			// split on punct, whitespace, num-alpha, and upper-lower boundaries
 			let parts = split(needle);
 
-			let intraCharsTpl = lazyRepeat(opts.intraChars, opts.intraIns);
-
-			// capture at char level
-			if (capt == 2 && opts.intraIns > 0) {
-				// sadly, we also have to capture the inter-term junk via parenth-wrapping .*?
-				// to accum other capture groups' indices for \b boosting during scoring
-				intraCharsTpl = ')(' + intraCharsTpl + ')(';
-			}
-
 			// array of regexp tpls for each term
 			let reTpl;
 
-			if (withTypos)
+			// allows single mutations within each term
+			if (intraMode == 1) {
 				reTpl = parts.map(p => {
-					if (p.length <= 2)
+					let plen = p.length;
+
+					if (plen <= 2) {
+						if (intraIns > 0 && plen == 2)
+							return p[0] + lazyRepeat(intraChars, 1) + p[1];
 						return p;
+					}
 
 					let lftIdx  =  1;
 					let rgtIdx  = -1;
@@ -134,13 +132,13 @@ var uFuzzy = (function () {
 					let variants = [];
 
 					// variants with single char substitutions
-					if (opts.intraSub) {
+					if (intraSub) {
 						for (let i = 0; i < numChars; i++)
-							variants.push(lftChar + chars.slice(0, i) + opts.intraChars + chars.slice(i + 1) + rgtChar);
+							variants.push(lftChar + chars.slice(0, i) + intraChars + chars.slice(i + 1) + rgtChar);
 					}
 
 					// variants with single transpositions
-					if (opts.intraTrn) {
+					if (intraTrn) {
 						for (let i = 0; i < numChars - 1; i++) {
 							if (chars[i] != chars[i+1])
 								variants.push(lftChar + chars.slice(0, i) + chars[i+1] + chars[i] + chars.slice(i + 2) + rgtChar);
@@ -148,15 +146,34 @@ var uFuzzy = (function () {
 					}
 
 					// variants with single char omissions
-					if (opts.intraDel) {
+					if (intraDel) {
 						for (let i = 0; i < numChars; i++)
 							variants.push(lftChar + chars.slice(0, i + 1) + '?' + chars.slice(i + 1) + rgtChar);
 					}
 
+					// variants with single char insertions
+					if (intraIns) {
+						let intraInsTpl = lazyRepeat(intraChars, 1);
+
+						for (let i = 0; i < numChars + 1; i++)
+							variants.push(lftChar + chars.slice(0, i) + intraInsTpl + chars.slice(i) + rgtChar);
+					}
+
 					return '(?:' + p + '|' + variants.join('|') + ')';
 				});
-			else
-				reTpl = parts.map(p => p.split('').join(intraCharsTpl));
+			}
+			else {
+				let intraInsTpl = lazyRepeat(intraChars, intraIns);
+
+				// capture at char level
+				if (capt == 2 && intraIns > 0) {
+					// sadly, we also have to capture the inter-term junk via parenth-wrapping .*?
+					// to accum other capture groups' indices for \b boosting during scoring
+					intraInsTpl = ')(' + intraInsTpl + ')(';
+				}
+
+				reTpl = parts.map(p => p.split('').join(intraInsTpl));
+			}
 
 		//	console.log(reTpl);
 
@@ -280,7 +297,7 @@ var uFuzzy = (function () {
 					if (!fullMatch) {
 						// when intraIns > 0 'test' query can match 'ttest' in 'fittest'
 						// try an exact substring match to improve rank quality
-						if (opts.intraIns > 0) {
+						if (intraIns > 0) {
 							let idxOf = group.indexOf(parts[j]);
 							if (idxOf > -1) {
 								fullMatch = true;

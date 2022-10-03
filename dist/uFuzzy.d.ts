@@ -48,6 +48,13 @@ declare namespace uFuzzy {
 		Strict = 2,
 	}
 
+	export const enum IntraMode {
+		/** allows any number of extra char insertions within a term, but all term chars must be present for a match */
+		MultiInsert = 0,
+		/** allows for a single-char substitution, transposition, insertion, or deletion within terms (excluding first and last chars) */
+		SingleError = 1,
+	}
+
 	export interface Options {
 		/** term segmentation & punct/whitespace merging */
 		interSplit?: PartialRegExp;  // '[^A-Za-z0-9]+'
@@ -65,14 +72,14 @@ declare namespace uFuzzy {
 		intraChars?: PartialRegExp;  // '[a-z\\d]'
 		intraIns?: number;           // 0
 
-		// typo tolerance within terms (excluding first & last chars)
-		// setting any of these to 1 will force intraIns=0
+		/** error tolerance mode within terms. will clamp intraIns to 1 when set to SingleError */
+		intraMode?: IntraMode;       // 0
 
-		/** max substitutions */
+		/** max substitutions (when intraMode: 1) */
 		intraSub?: 0 | 1; // 0
-		/** max transpositions */
+		/** max transpositions (when intraMode: 1) */
 		intraTrn?: 0 | 1; // 0
-		/** max omissions/deletions */
+		/** max omissions/deletions (when intraMode: 1) */
 		intraDel?: 0 | 1; // 0
 
 		/** post-filters matches during .info() based on cmp of term in needle vs partial match */

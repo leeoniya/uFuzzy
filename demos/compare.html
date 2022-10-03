@@ -203,6 +203,8 @@
 			// previous sig support (published urls)
 			if ((tmpVar = urlParams.get('intraMax')) != null)
 				urlParams.set('intraIns', tmpVar);
+			if (urlParams.get('intraSub') != null || urlParams.get('intraTrn') != null || urlParams.get('intraDel') != null)
+				urlParams.set('intraMode', '1');
 
 			const BENCH = urlParams.get('bench') != null;
 
@@ -307,6 +309,8 @@
 
 						interLft:   (tmpVar = urlParams.get('interLft')) != null ? +tmpVar : 0,
 						interRgt:   (tmpVar = urlParams.get('interRgt')) != null ? +tmpVar : 0,
+
+						intraMode:  (tmpVar = urlParams.get('intraMode')) == null || tmpVar == '0' ? 0 : 1,
 
 						intraSub:   (tmpVar = urlParams.get('intraSub')) == null || tmpVar == '0' ? 0 : 1,
 						intraTrn:   (tmpVar = urlParams.get('intraTrn')) == null || tmpVar == '0' ? 0 : 1,
