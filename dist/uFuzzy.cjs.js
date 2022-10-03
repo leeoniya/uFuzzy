@@ -86,17 +86,19 @@ const mode2Tpl = '(?:\\b|_)';
 function uFuzzy(opts) {
 	opts = Object.assign({}, OPTS, opts);
 
-	const { interLft, interRgt, intraSub, intraTrn, intraDel } = opts;
+	const { interLft, interRgt, intraSub, intraTrn, intraDel, intraSplit: _intraSplit, interSplit: _interSplit } = opts;
 
 	const withTypos = (intraSub + intraTrn + intraDel) > 0;
 
 	if (withTypos)
 		opts.intraIns = 0;
 
-	let intraSplit = new RegExp(opts.intraSplit, 'g');
-	let interSplit = new RegExp(opts.interSplit, 'g');
+	let intraSplit = new RegExp(_intraSplit, 'g');
+	let interSplit = new RegExp(_interSplit, 'g');
 
-	const split = needle => needle.trim().replace(intraSplit, m => m[0] + ' ' + m[1]).split(interSplit);
+	let trimRe = new RegExp('^' + _interSplit + '|' + _interSplit + '$', 'g');
+
+	const split = needle => needle.replace(trimRe, '').replace(intraSplit, m => m[0] + ' ' + m[1]).split(interSplit);
 
 	const prepQuery = (needle, capt = 0) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
@@ -206,8 +208,8 @@ function uFuzzy(opts) {
 		return out;
 	};
 
-	let interBound = new RegExp(opts.interSplit);
-	let intraBound = new RegExp(opts.intraSplit);
+	let interBound = new RegExp(_interSplit);
+	let intraBound = new RegExp(_intraSplit);
 
 	const info = (idxs, haystack, needle) => {
 
