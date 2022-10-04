@@ -1,6 +1,6 @@
 ## ▒ μFuzzy
 
-A tiny, efficient, fuzzy search that doesn't suck.
+A tiny, efficient fuzzy search that doesn't suck.
 This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-work), but this one is mine.
 
 ---
@@ -22,7 +22,7 @@ When held _just right_, it can efficiently match against multiple object propert
 - **Sorting you can reason about** and customize using a simple `Array.sort()` which gets access to each match's stats/counters. There's no composite, black box "score" to understand.
 - **Concise set of options** that don't interact in mysterious ways to drastically alter combined behavior.
 - **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 12ms with in-order terms or 50ms with out-of-order terms.
-- **Micro, with zero dependencies** - currently [< 4KB min](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.iife.min.js)
+- **Micro, with zero dependencies** - currently [~4KB min](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.iife.min.js)
 
 [![uFuzzy demo](uFuzzy.png)](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca)
 
@@ -111,7 +111,7 @@ else {
 
 uFuzzy has two operational modes which differ in matching strategy:
 
-- **intraMode: 0** (default) requires all alpha-numeric characters in the search phrase to exist in the same sequence in all matches. For example, when searching for "**cat**", this mode is capable of matching the strings below. What is _actually_ matched will depend on additonal fuzziness settings.
+- **intraMode: 0** (default) requires all alpha-numeric characters in each search term to exist in the same sequence in all matches. For example, when searching for "**cat**", this mode is capable of matching the strings below. What is _actually_ matched will depend on additonal fuzziness settings.
   - **cat**
   - **c**o**at**
   - s**c**r**at**ch
