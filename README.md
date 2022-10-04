@@ -64,30 +64,7 @@ const uFuzzy = require('@leeoniya/ufuzzy');
 ```
 
 ---
-### Usage
-
-uFuzzy has two operational modes which differ in matching strategy:
-
-- **intraMode: 0** (default) requires all alpha-numeric characters in the search phrase to exist in the same sequence in all matches. For example, when searching for "**cat**", this mode is capable of matching the strings below. What is _actually_ matched will depend on additonal fuzziness settings.
-  - **cat**
-  - **c**o**at**
-  - s**c**r**at**ch
-  - **ca**n**t**ina
-  - tra**c**tors **a**re la**t**e
-- **intraMode: 1** allows for a single error in each term of the search phrase, where an error is one of: substitution (replacement), transposition (swap), insertion (addition), or deletion (omission). The search strings with errors below can return matches containing "**example**". What is _actually_ matched will depend on additonal fuzziness settings. In contrast to the previous mode, searching for "**example**" will never match "**ex**tr**a** **m**a**ple**".
-  - example - exact
-  - examplle - single insertion (addition)
-  - exemple - single substitution (replacement)
-  - exmaple - single transposition (swap)
-  - exmple - single deletion (omission)
-  - xamp - partial
-  - xmap - partial with transposition
-
-uFuzzy works in 3 phases:
-
-1. **Filter** - This filters the full `haystack` with a fast RegExp compiled from your `needle` without doing any extra ops. It returns an array of matched indices in original order.
-2. **Info** - This collects more detailed stats about the filtered matches, such as start offsets, fuzz level, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. Finally, it filters out any matches that don't conform to the desired prefix/suffix rules. To do all this it re-compiles the `needle` into two more-expensive RegExps that can partition each match. Therefore, it should be run on a reduced subset of the haystack, usually returned by the Filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead with this phase.
-3. **Sort** - This does an `Array.sort()` to determine final result order, utilizing the `info` object returned from the previous phase. A custom sort function can be provided via a uFuzzy option: `{sort: (info, haystack, needle) => idxsOrder}`.
+### Example
 
 ```js
 let haystack = [
@@ -128,6 +105,32 @@ else {
   }
 }
 ```
+
+---
+### How It Works
+
+uFuzzy has two operational modes which differ in matching strategy:
+
+- **intraMode: 0** (default) requires all alpha-numeric characters in the search phrase to exist in the same sequence in all matches. For example, when searching for "**cat**", this mode is capable of matching the strings below. What is _actually_ matched will depend on additonal fuzziness settings.
+  - **cat**
+  - **c**o**at**
+  - s**c**r**at**ch
+  - **ca**n**t**ina
+  - tra**c**tors **a**re la**t**e
+- **intraMode: 1** allows for a single error in each term of the search phrase, where an error is one of: substitution (replacement), transposition (swap), insertion (addition), or deletion (omission). The search strings with errors below can return matches containing "**example**". What is _actually_ matched will depend on additonal fuzziness settings. In contrast to the previous mode, searching for "**example**" will never match "**ex**tr**a** **m**a**ple**".
+  - example - exact
+  - examplle - single insertion (addition)
+  - exemple - single substitution (replacement)
+  - exmaple - single transposition (swap)
+  - exmple - single deletion (omission)
+  - xamp - partial
+  - xmap - partial with transposition
+
+There are 3 phases to a search:
+
+1. **Filter** filters the full `haystack` with a fast RegExp compiled from your `needle` without doing any extra ops. It returns an array of matched indices in original order.
+2. **Info** collects more detailed stats about the filtered matches, such as start offsets, fuzz level, prefix/suffix counters, etc. It also gathers substring match positions for range highlighting. Finally, it filters out any matches that don't conform to the desired prefix/suffix rules. To do all this it re-compiles the `needle` into two more-expensive RegExps that can partition each match. Therefore, it should be run on a reduced subset of the haystack, usually returned by the Filter phase. The [uFuzzy demo](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy) is gated at <= 1,000 filtered items, before moving ahead with this phase.
+3. **Sort** does an `Array.sort()` to determine final result order, utilizing the `info` object returned from the previous phase. A custom sort function can be provided via a uFuzzy option: `{sort: (info, haystack, needle) => idxsOrder}`.
 
 ---
 ### API
