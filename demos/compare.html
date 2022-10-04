@@ -143,6 +143,35 @@
 					</label>
 				</div>
 
+				<div class="group" style="color: #8e24aa;">
+					<label>
+						intraMode
+						<select id="intraMode">
+							<option value="0">MultiInsert</option>
+							<option value="1">SingleError</option>
+						</select>
+					</label>
+				</div>
+
+				<div class="group" style="color: #8e24aa;">
+					<label>
+						<label>
+							intraSub
+							<input class="uf" id="intraSub" type="text" placeholder="0" value="0">
+						</label>
+						<br>
+						<label>
+							intraTrn
+							<input class="uf" id="intraTrn" type="text" placeholder="0" value="0">
+						</label>
+						<br>
+						<label>
+							intraDel
+							<input class="uf" id="intraDel" type="text" placeholder="0" value="0">
+						</label>
+					</label>
+				</div>
+
 				<div class="group" style="color: #1976d2;">
 					<label>
 						<input class="uf" id="outOfOrder" type="checkbox">
@@ -368,10 +397,40 @@
 							tmpOnlyLib = null;
 						};
 
+						document.getElementById('intraMode').addEventListener('change', e => {
+							opts.intraMode = +e.target.value;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
 						document.getElementById('intraIns').addEventListener('keyup', bump);
 						document.getElementById('intraIns').addEventListener('input', e => {
 							let v = e.target.value;
 							opts.intraIns = v == '' ? Infinity : +e.target.value;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('intraSub').addEventListener('keyup', bump);
+						document.getElementById('intraSub').addEventListener('input', e => {
+							let v = e.target.value;
+							opts.intraSub = v == '' ? 0 : +e.target.value;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('intraTrn').addEventListener('keyup', bump);
+						document.getElementById('intraTrn').addEventListener('input', e => {
+							let v = e.target.value;
+							opts.intraTrn = v == '' ? 0 : +e.target.value;
+							u = new uFuzzy(opts);
+							ufSearch(e);
+						});
+
+						document.getElementById('intraDel').addEventListener('keyup', bump);
+						document.getElementById('intraDel').addEventListener('input', e => {
+							let v = e.target.value;
+							opts.intraDel = v == '' ? 0 : +e.target.value;
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});
