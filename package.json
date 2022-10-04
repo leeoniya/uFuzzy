@@ -1,7 +1,7 @@
 {
   "name": "@leeoniya/ufuzzy",
-  "version": "0.6.0",
-  "description": "A fuzzy matcher that doesn't suck",
+  "version": "0.7.0",
+  "description": "A tiny, efficient fuzzy matcher that doesn't suck",
   "main": "./dist/uFuzzy.cjs.js",
   "module": "./dist/uFuzzy.esm.js",
   "types": "./dist/uFuzzy.d.ts",

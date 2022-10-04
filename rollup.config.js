@@ -11,7 +11,7 @@ const banner = [
 	"* All rights reserved. (MIT Licensed)",
 	"*",
 	"* uFuzzy.js (μFuzzy)",
-	"* A fuzzy matcher that doesn't suck",
+	"* A tiny, efficient fuzzy matcher that doesn't suck",
 	"* " + urlVer,
 	"*/",
 	"",

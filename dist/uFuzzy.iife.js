@@ -3,8 +3,8 @@
 * All rights reserved. (MIT Licensed)
 *
 * uFuzzy.js (μFuzzy)
-* A fuzzy matcher that doesn't suck
-* https://github.com/leeoniya/uFuzzy (v0.6.0)
+* A tiny, efficient fuzzy matcher that doesn't suck
+* https://github.com/leeoniya/uFuzzy (v0.7.0)
 */
 
 var uFuzzy = (function () {
