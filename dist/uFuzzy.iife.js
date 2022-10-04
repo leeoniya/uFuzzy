@@ -48,20 +48,33 @@ var uFuzzy = (function () {
 
 		// final sorting fn
 		sort: (info, haystack, needle) => {
-			let { idx, terms, lft2, lft1, rgt2, rgt1, span, start, intra, inter } = info;
+			let {
+				idx,
+				chars,
+				terms,
+				interLft2,
+				interLft1,
+			//	interRgt2,
+			//	interRgt1,
+				start,
+				intraIns,
+				interIns,
+			} = info;
 
 			return idx.map((v, i) => i).sort((ia, ib) => (
+				// most contig chars matched
+				chars[ib] - chars[ia] ||
 				// least char intra-fuzz (most contiguous)
-				intra[ia] - intra[ib] ||
+				intraIns[ia] - intraIns[ib] ||
 				// most prefix bounds, boosted by full term matches
 				(
-					(terms[ib] + lft2[ib] + 0.5 * lft1[ib]) -
-					(terms[ia] + lft2[ia] + 0.5 * lft1[ia])
+					(terms[ib] + interLft2[ib] + 0.5 * interLft1[ib]) -
+					(terms[ia] + interLft2[ia] + 0.5 * interLft1[ia])
 				) ||
 				// highest density of match (least span)
 			//	span[ia] - span[ib] ||
 				// highest density of match (least term inter-fuzz)
-				inter[ia] - inter[ib] ||
+				interIns[ia] - interIns[ib] ||
 				// earliest start of match
 				start[ia] - start[ib] ||
 				// alphabetic
@@ -247,21 +260,22 @@ var uFuzzy = (function () {
 				// length of match
 			//	span: field.slice(),
 
+				// contiguous chars matched
+				chars: field.slice(),
+
 				// contiguous (no fuzz) and bounded terms (intra=0, lft2/1, rgt2/1)
 				// excludes terms that are contiguous but have < 2 bounds (substrings)
 				terms: field.slice(),
-				// contiguous chars matched (currently, from full terms)
-			//	chars: field.slice(),
 
 				// cumulative length of unmatched chars (fuzz) within span
-				inter: field.slice(), // between terms
-				intra: field.slice(), // within terms
+				interIns: field.slice(), // between terms
+				intraIns: field.slice(), // within terms
 
 				// interLft/interRgt counters
-				lft2: field.slice(),
-				rgt2: field.slice(),
-				lft1: field.slice(),
-				rgt1: field.slice(),
+				interLft2: field.slice(),
+				interRgt2: field.slice(),
+				interLft1: field.slice(),
+				interRgt1: field.slice(),
 
 				ranges: Array(len),
 			};
@@ -286,6 +300,7 @@ var uFuzzy = (function () {
 				let lft1 = 0;
 				let rgt2 = 0;
 				let rgt1 = 0;
+				let chars = 0;
 				let terms = 0;
 				let inter = 0;
 				let intra = 0;
@@ -364,8 +379,12 @@ var uFuzzy = (function () {
 							}
 						}
 
-						if (fullMatch && isPre && isSuf)
-							terms++;
+						if (fullMatch) {
+							chars += parts[j].length;
+
+							if (isPre && isSuf)
+								terms++;
+						}
 					}
 					else
 						intra += group.length - parts[j].length; // intraFuzz
@@ -383,14 +402,15 @@ var uFuzzy = (function () {
 				}
 
 				if (!disc) {
-					info.idx[ii]  = idxs[i];
-					info.lft2[ii] = lft2;
-					info.lft1[ii] = lft1;
-					info.rgt2[ii] = rgt2;
-					info.rgt1[ii] = rgt1;
-					info.terms[ii] = terms;
-					info.inter[ii] = inter;
-					info.intra[ii] = intra;
+					info.idx[ii]       = idxs[i];
+					info.interLft2[ii] = lft2;
+					info.interLft1[ii] = lft1;
+					info.interRgt2[ii] = rgt2;
+					info.interRgt1[ii] = rgt1;
+					info.chars[ii]     = chars;
+					info.terms[ii]     = terms;
+					info.interIns[ii]  = inter;
+					info.intraIns[ii]  = intra;
 
 					info.start[ii] = start;
 				//	info.span[ii] = span;

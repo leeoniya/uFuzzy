@@ -157,17 +157,17 @@
 					<label>
 						<label>
 							intraSub
-							<input class="uf" id="intraSub" type="text" placeholder="0" value="0">
+							<input class="uf" id="intraSub" type="text" placeholder="0" value="1">
 						</label>
 						<br>
 						<label>
 							intraTrn
-							<input class="uf" id="intraTrn" type="text" placeholder="0" value="0">
+							<input class="uf" id="intraTrn" type="text" placeholder="0" value="1">
 						</label>
 						<br>
 						<label>
 							intraDel
-							<input class="uf" id="intraDel" type="text" placeholder="0" value="0">
+							<input class="uf" id="intraDel" type="text" placeholder="0" value="1">
 						</label>
 					</label>
 				</div>
@@ -291,24 +291,37 @@
 			// copy & tweak from core
 			const cmp = new Intl.Collator('en').compare;
 			const typeAheadSort = (info, haystack, needle) => {
-				let { idx, terms, lft2, lft1, rgt2, rgt1, span, start, intra, inter } = info;
+				let {
+					idx,
+					chars,
+					terms,
+					interLft2,
+					interLft1,
+				//	interRgt2,
+				//	interRgt1,
+					start,
+					intraIns,
+					interIns,
+				} = info;
 
 				return idx.map((v, i) => i).sort((ia, ib) => (
+					// most contig chars matched
+					chars[ib] - chars[ia] ||
 					// least char intra-fuzz (most contiguous)
-					intra[ia] - intra[ib] ||
+					intraIns[ia] - intraIns[ib] ||
 					// earliest start of match
 					start[ia] - start[ib] ||
 					// shortest match first
 					haystack[idx[ia]].length - haystack[idx[ib]].length ||
 					// most prefix bounds, boosted by full term matches
 					(
-						(terms[ib] + lft2[ib] + 0.5 * lft1[ib]) -
-						(terms[ia] + lft2[ia] + 0.5 * lft1[ia])
+						(terms[ib] + interLft2[ib] + 0.5 * interLft1[ib]) -
+						(terms[ia] + interLft2[ia] + 0.5 * interLft1[ia])
 					) ||
 					// highest density of match (least span)
 				//	span[ia] - span[ib] ||
 					// highest density of match (least term inter-fuzz)
-					inter[ia] - inter[ib] ||
+					interIns[ia] - interIns[ib] ||
 					// alphabetic
 					cmp(haystack[idx[ia]], haystack[idx[ib]])
 				))
@@ -341,9 +354,9 @@
 
 						intraMode:  (tmpVar = urlParams.get('intraMode')) == null || tmpVar == '0' ? 0 : 1,
 
-						intraSub:   (tmpVar = urlParams.get('intraSub')) == null || tmpVar == '0' ? 0 : 1,
-						intraTrn:   (tmpVar = urlParams.get('intraTrn')) == null || tmpVar == '0' ? 0 : 1,
-						intraDel:   (tmpVar = urlParams.get('intraDel')) == null || tmpVar == '0' ? 0 : 1,
+						intraSub:   (tmpVar = urlParams.get('intraSub')) == null || tmpVar == '1' ? 1 : 0,
+						intraTrn:   (tmpVar = urlParams.get('intraTrn')) == null || tmpVar == '1' ? 1 : 0,
+						intraDel:   (tmpVar = urlParams.get('intraDel')) == null || tmpVar == '1' ? 1 : 0,
 
 						sort: urlParams.get('sortPreset') == 'typeahead' ? typeAheadSort : null,
 
@@ -398,7 +411,12 @@
 						};
 
 						document.getElementById('intraMode').addEventListener('change', e => {
-							opts.intraMode = +e.target.value;
+							let v = e.target.value;
+							opts.intraMode = +v;
+
+							document.getElementById('intraIns').value = v;
+							opts.intraIns = +v;
+
 							u = new uFuzzy(opts);
 							ufSearch(e);
 						});

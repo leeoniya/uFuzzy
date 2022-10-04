@@ -96,18 +96,21 @@ declare namespace uFuzzy {
 		start: number[];
 
 		/** number of left BoundMode.Strict term boundaries found */
-		lft2: number[];
+		interLft2: number[];
 		/** number of right BoundMode.Strict term boundaries found */
-		rgt2: number[];
+		interRgt2: number[];
 		/** number of left BoundMode.Loose term boundaries found */
-		lft1: number[];
+		interLft1: number[];
 		/** number of right BoundMode.Loose term boundaries found */
-		rgt1: number[];
+		interRgt1: number[];
 
 		/** total number of extra chars matched within all terms. higher = matched terms have more fuzz in them */
-		intra: number[];
+		intraIns: number[];
 		/** total number of chars found in between matched terms. higher = terms are more sparse, have more fuzz in between them */
-		inter: number[];
+		interIns: number[];
+
+		/** total number of matched contiguous chars (substrs but not necessarily full terms) */
+		chars: number[];
 
 		/** number of exactly-matched terms (intra = 0) where both lft and rgt landed on a BoundMode.Loose or BoundMode.Strict boundary */
 		terms: number[];
