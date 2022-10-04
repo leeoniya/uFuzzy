@@ -118,13 +118,13 @@ uFuzzy has two operational modes which differ in matching strategy:
   - **ca**n**t**ina
   - tra**c**tors **a**re la**t**e
 - **intraMode: 1** allows for a single error in each term of the search phrase, where an error is one of: substitution (replacement), transposition (swap), insertion (addition), or deletion (omission). The search strings with errors below can return matches containing "**example**". What is _actually_ matched will depend on additonal fuzziness settings. In contrast to the previous mode, searching for "**example**" will never match "**ex**tr**a** **m**a**ple**".
-  - example - exact
-  - examplle - single insertion (addition)
-  - exemple - single substitution (replacement)
-  - exmaple - single transposition (swap)
-  - exmple - single deletion (omission)
-  - xamp - partial
-  - xmap - partial with transposition
+  - `example` - exact
+  - `examplle` - single insertion (addition)
+  - `exemple` - single substitution (replacement)
+  - `exmaple` - single transposition (swap)
+  - `exmple` - single deletion (omission)
+  - `xamp` - partial
+  - `xmap` - partial with transposition
 
 There are 3 phases to a search:
 
@@ -153,6 +153,16 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
     </thead>
     <tbody>
         <tr>
+            <td><code>intraMode</code></td>
+            <td>How term matching should be performed</td>
+            <td><code>0</code></td>
+            <td>
+                <code>0</code> MultiInsert<br>
+                <code>1</code> SingleError<br><br>
+                See <a href="#how-it-works">How It Works</a>
+            </td>
+        </tr>
+        <tr>
             <td><code>intraIns</code></td>
             <td>Max number of extra chars allowed<br>between each char within a term</td>
             <td><code>0</code></td>
@@ -173,8 +183,24 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             </td>
         </tr>
         <tr>
+            <td>
+                <code>intraSub</code><br>
+                <code>intraTrn</code><br>
+                <code>intraDel</code><br>
+            </td>
+            <td>
+                For <code>intraMode: 1</code> only,<br>
+                Error types to tolerate within terms
+            </td>
+            <td><code>0</code></td>
+            <td>
+                <code>0</code> No<br>
+                <code>1</code> Yes<br>
+            </td>
+        </tr>
+        <tr>
             <td><code>intraChars</code></td>
-            <td>Partial regexp for allowed extra<br>chars between each char within a term</td>
+            <td>Partial regexp for allowed insert<br>chars between each char within a term</td>
             <td><code>[a-z\d]</code></td>
             <td>
                 <code>[a-z\d]</code> matches only alpha-numeric (case-insensitive)<br>
