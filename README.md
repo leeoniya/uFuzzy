@@ -45,6 +45,16 @@ Here is the full library list but with a reduced dataset (just `hearthstone_750`
 https://leeoniya.github.io/uFuzzy/demos/compare.html?lists=hearthstone_750,urls_and_titles_600&search=moo
 
 ---
+### Questions?
+
+Answers:
+
+- https://news.ycombinator.com/item?id=33035580
+- https://old.reddit.com/r/javascript/comments/xtrszc/ufuzzyjs_a_tiny_efficient_fuzzy_search_that/
+
+Else: https://github.com/leeoniya/uFuzzy/issues
+
+---
 ### Installation
 
 ### Node
