@@ -18,7 +18,7 @@ When held _just right_, it can efficiently match against multiple object propert
 ### Features
 
 - **Junk-free, high quality results** that are _dataset-independent_. No need to fine-tune indexing options or boosting params to attain some arbitrary quality score cut-off.
-- **Straightforward fuzziness control** without surprises.
+- **Precise fuzziness control** that follows straightforward rules, without returning unexpected matches.
 - **Sorting you can reason about** and customize using a simple `Array.sort()` which gets access to each match's stats/counters. There's no composite, black box "score" to understand.
 - **Concise set of options** that don't interact in mysterious ways to drastically alter combined behavior.
 - **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 12ms with in-order terms or 50ms with out-of-order terms.
@@ -304,8 +304,6 @@ Some engines do better with partial prefix matches, at the expense of higher sta
 https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,FlexSearch,match-sorter,MiniSearch&search=twili
 
 Here, `match-sorter` returns 1,384 results, but only the first 40 are relevant. How do we know where the cut-off is?
-
-https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,FlexSearch,match-sorter,MiniSearch&search=super
 
 <!--
 twil  0.1683 ok, 0.25+ bad
