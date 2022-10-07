@@ -377,6 +377,37 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
+                <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&intraIns=1&intraChars=[a-z\d%20]&outOfOrder&search=super%20ma">try</a>)<br>
+                (outOfOrder, fuzzier)
+            </td>
+            <td>★ 0</td>
+            <td>4KB</td>
+            <td>0.3ms</td>
+            <td>920ms</td>
+            <td>27.5MB</td>
+            <td>8MB</td>
+            <td>20ms</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&intraMode=1&intraIns=1&intraChars=[a-z\d%20]&outOfOrder&search=super%20ma">try</a>)<br>
+                (outOfOrder, fuzzier, SingleError)
+            </td>
+            <td>★ 0</td>
+            <td>4KB</td>
+            <td>0.3ms</td>
+            <td>1000ms</td>
+            <td>27.5MB</td>
+            <td>8MB</td>
+            <td>20ms</td>
+        </tr>
+        <tr>
+            <th colspan="8">-------</th>
+        </th>
+        <tr>
+            <td>
                 <a href="https://github.com/krisk/Fuse">Fuse.js</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuse&search=super%20ma">try</a>)
             </td>
