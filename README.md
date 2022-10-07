@@ -416,10 +416,16 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
-                <a href="https://github.com/LyraSearch/lyra">LyraSearch</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=LyraSearch&search=super%20ma">try</a>)
+                <a href="https://github.com/LyraSearch/lyra">Lyra</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Lyra&search=super%20ma">try</a>)
             </td>
-            <td>★ 3.3k</td>
+            <td>★ 3.4k</td>
+            <td>30KB</td>
+            <td>4300ms</td>
+            <td>630ms</td>
+            <td>199MB</td>
+            <td>89MB</td>
+            <td>170ms</td>
         </tr>
         <tr>
             <td>
