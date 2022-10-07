@@ -372,7 +372,7 @@ https://bestofjs.org/projects?tags=search
             <td>0.3ms</td>
             <td>630ms</td>
             <td>25.5MB</td>
-            <td>7.5MB</td>
+            <td>8MB</td>
             <td>20ms</td>
         </tr>
         <tr>
@@ -466,6 +466,12 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzysearch&search=super%20ma">try</a>)
             </td>
             <td>★ 2.6k</td>
+            <td>0.2KB</td>
+            <td>0.1ms</td>
+            <td>840ms</td>
+            <td>25.5MB</td>
+            <td>8MB</td>
+            <td>20ms</td>
         </tr>
         <tr>
             <td>
