@@ -341,7 +341,7 @@ Still, something is better than a hand-wavy YMMV/do-it-yourself dismissal and ce
 - Results output is suppressed in `bench` mode to avoid benchmarking the DOM.
 - Measurements are taken in the Performance secrion of Chrome's DevTools by recording several reloads of the bench page, with forced garbage collection in between. The middle/typical run is used to collect numbers.
 - The search corpus is 162,000 words and phrases, loaded from a 4MB [testdata.json](https://github.com/leeoniya/uFuzzy/blob/main/demos/testdata.json).
-- The benchmark types and then deletes, character-by-character (every 100ms) the following search terms, triggering a search for each keypress: `test`, `chest`, `super ma`, `mania`, `puzz`, `prom rem stor`, `twil`.
+- The benchmark types and then deletes, character-by-character (every 20ms) the following search terms, triggering a search for each keypress: `test`, `chest`, `super ma`, `mania`, `puzz`, `prom rem stor`, `twil`.
 
 To evaluate the results for each library, or to compare several, simply visit the same page with more `libs` and without `bench`: https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy,fuzzysort,QuickScore,Fuse&search=super%20ma.
 
@@ -377,13 +377,27 @@ https://bestofjs.org/projects?tags=search
                 <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&search=super%20ma">try</a>)
             </td>
-            <td>★ 0</td>
+            <td>★ 1.5k</td>
             <td>4KB</td>
             <td>0.3ms</td>
-            <td>630ms</td>
-            <td>25.5MB</td>
+            <td>1030ms</td>
+            <td>26.6MB</td>
             <td>8MB</td>
-            <td>20ms</td>
+            <td>30ms</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&prefixCache&search=super%20ma">try</a>)<br>
+                (external prefix caching)
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>460ms</td>
+            <td>27.5MB</td>
+            <td>8MB</td>
+            <td>30ms</td>
         </tr>
         <tr>
             <td>
@@ -391,13 +405,13 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&intraIns=1&intraChars=[a-z\d%20]&outOfOrder&search=super%20ma">try</a>)<br>
                 (outOfOrder, fuzzier)
             </td>
-            <td>★ 0</td>
-            <td>4KB</td>
-            <td>0.3ms</td>
-            <td>920ms</td>
-            <td>27.5MB</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>1275ms</td>
+            <td>26.6MB</td>
             <td>8MB</td>
-            <td>20ms</td>
+            <td>30ms</td>
         </tr>
         <tr>
             <td>
@@ -405,13 +419,13 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&intraMode=1&intraIns=1&intraChars=[a-z\d%20]&outOfOrder&search=super%20ma">try</a>)<br>
                 (outOfOrder, fuzzier, SingleError)
             </td>
-            <td>★ 0</td>
-            <td>4KB</td>
-            <td>0.3ms</td>
-            <td>1000ms</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>1350ms</td>
             <td>27.5MB</td>
             <td>8MB</td>
-            <td>20ms</td>
+            <td>30ms</td>
         </tr>
         <tr>
             <th colspan="8">-------</th>
@@ -425,7 +439,7 @@ https://bestofjs.org/projects?tags=search
             <td>23.5KB</td>
             <td>40ms</td>
             <td>35600ms</td>
-            <td>323MB</td>
+            <td>226MB</td>
             <td>14.5MB</td>
             <td>30ms</td>
         </tr>
@@ -437,10 +451,10 @@ https://bestofjs.org/projects?tags=search
             <td>★ 8.9k</td>
             <td>5.9KB</td>
             <td>3600ms</td>
-            <td>130ms</td>
+            <td>145ms</td>
             <td>673MB</td>
             <td>316MB</td>
-            <td>320ms</td>
+            <td>450ms</td>
         </tr>
         <tr>
             <td>
@@ -449,11 +463,11 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 8.2k</td>
             <td>29.4KB</td>
-            <td>2000ms</td>
-            <td>800ms</td>
-            <td>355MB</td>
+            <td>2500ms</td>
+            <td>1430ms</td>
+            <td>379MB</td>
             <td>121MB</td>
-            <td>130ms</td>
+            <td>200ms</td>
         </tr>
         <tr>
             <td>
@@ -462,11 +476,11 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 3.4k</td>
             <td>30KB</td>
-            <td>4300ms</td>
-            <td>630ms</td>
+            <td>4000ms</td>
+            <td>790ms</td>
             <td>199MB</td>
             <td>89MB</td>
-            <td>170ms</td>
+            <td>200ms</td>
         </tr>
         <tr>
             <td>
@@ -477,7 +491,7 @@ https://bestofjs.org/projects?tags=search
             <td>7.3KB</td>
             <td>0.03ms</td>
             <td>10000ms</td>
-            <td>79MB</td>
+            <td>39MB</td>
             <td>8MB</td>
             <td>30ms</td>
         </tr>
@@ -489,8 +503,8 @@ https://bestofjs.org/projects?tags=search
             <td>★ 3k</td>
             <td>5.5KB</td>
             <td>60ms</td>
-            <td>1500ms</td>
-            <td>176MB</td>
+            <td>1850ms</td>
+            <td>174MB</td>
             <td>84MB</td>
             <td>70ms</td>
         </tr>
@@ -501,9 +515,9 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 3k</td>
             <td>4KB</td>
-            <td>840ms</td>
-            <td>370ms</td>
-            <td>436MB</td>
+            <td>1000ms</td>
+            <td>460ms</td>
+            <td>438MB</td>
             <td>42MB</td>
             <td>100ms</td>
         </tr>
@@ -515,8 +529,8 @@ https://bestofjs.org/projects?tags=search
             <td>★ 2.6k</td>
             <td>0.2KB</td>
             <td>0.1ms</td>
-            <td>840ms</td>
-            <td>25.5MB</td>
+            <td>1000ms</td>
+            <td>28MB</td>
             <td>8MB</td>
             <td>20ms</td>
         </tr>
@@ -527,9 +541,9 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 2k</td>
             <td>17.1KB</td>
-            <td>6500ms</td>
-            <td>1350ms</td>
-            <td>1937MB</td>
+            <td>9400ms</td>
+            <td>1580ms</td>
+            <td>1760MB</td>
             <td>734MB</td>
             <td>1400ms</td>
         </tr>
@@ -540,11 +554,11 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 1.9k</td>
             <td>18.1KB</td>
-            <td>1220ms</td>
-            <td>1770ms</td>
-            <td>238MB</td>
+            <td>1600ms</td>
+            <td>1800ms</td>
+            <td>227MB</td>
             <td>70MB</td>
-            <td>100ms</td>
+            <td>130ms</td>
         </tr>
         <tr>
             <td>
@@ -553,11 +567,11 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 1.5k</td>
             <td>22.4KB</td>
-            <td>525ms</td>
-            <td>1800ms</td>
-            <td>422MB</td>
+            <td>650ms</td>
+            <td>2300ms</td>
+            <td>428MB</td>
             <td>64MB</td>
-            <td>90ms</td>
+            <td>150ms</td>
         </tr>
         <tr>
             <td>
@@ -566,11 +580,11 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 1.3k</td>
             <td>2.8KB</td>
-            <td>3500ms</td>
-            <td>1000ms</td>
-            <td>660MB</td>
+            <td>4000ms</td>
+            <td>1140ms</td>
+            <td>628MB</td>
             <td>238MB</td>
-            <td>430ms</td>
+            <td>600ms</td>
         </tr>
         <tr>
             <td>
@@ -585,6 +599,8 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=LiquidMetal&search=super%20ma">try</a>)
             </td>
             <td>★ 285</td>
+            <td>4.2KB</td>
+            <td colspan="5">(crash)</td>
         </tr>
         <tr>
             <td>
@@ -599,6 +615,12 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy-search&search=super%20ma">try</a>)
             </td>
             <td>★ 184</td>
+            <td>3.5KB</td>
+            <td>17ms</td>
+            <td>10000ms</td>
+            <td>51MB</td>
+            <td>11.2MB</td>
+            <td>30ms</td>
         </tr>
         <tr>
             <td>
@@ -606,6 +628,12 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=FuzzySearch2&search=super%20ma">try</a>)
             </td>
             <td>★ 173</td>
+            <td>19.4KB</td>
+            <td>120ms</td>
+            <td>6000ms</td>
+            <td>113MB</td>
+            <td>41MB</td>
+            <td>30ms</td>
         </tr>
         <tr>
             <td>
@@ -615,8 +643,8 @@ https://bestofjs.org/projects?tags=search
             <td>★ 131</td>
             <td>9.1KB</td>
             <td>40ms</td>
-            <td>7500ms</td>
-            <td>176MB</td>
+            <td>7900ms</td>
+            <td>172MB</td>
             <td>12.8MB</td>
             <td>30ms</td>
         </tr>

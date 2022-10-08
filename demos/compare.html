@@ -504,11 +504,52 @@
 
 						let toStr;
 
+						let prefixCache = [];
+
+						let usePrefixCache = urlParams.has('prefixCache');
+
+						console.log(usePrefixCache);
+
+						function filter(haystack, needle) {
+							// find longest matching prefix <= needle.length
+							let li = null;
+							prefixCache.forEach((c, i) => {
+								if (c.needle.length <= needle.length && needle.indexOf(c.needle) == 0) {
+									if (li == null || c.needle.length > prefixCache[li].needle.length) {
+										li = i;
+									}
+								}
+							});
+
+							// reset prefix cache if what's in cache has no prefix of current needle
+							if (prefixCache.length > 0 && li == null)
+								prefixCache.length = 0;
+
+							let idxs = (
+								li == null ? u.filter(haystack, needle) :
+								prefixCache[li].needle.length == needle.length ? prefixCache[li].idxs :
+								u.filter(haystack, needle, prefixCache[li].idxs)
+							);
+
+							if (idxs.length <= 1e4 && (li == null || needle != prefixCache[li].needle)) {
+								prefixCache.push({
+									needle,
+									idxs,
+								});
+
+								// trim cache to length 10
+								if (prefixCache.length > 10)
+									prefixCache = prefixCache.slice(1);
+							}
+
+							return idxs;
+						}
+
 						return {
 							search: needle => {
 								let needles = oooPermute ? uFuzzy.permute(u.split(needle)).map(terms => terms.join(' ')) : [needle];
 
-								let needleIdxs = needles.map(needle => u.filter(haystack, needle));
+								let needleIdxs = needles.map(needle => usePrefixCache ? filter(haystack, needle) : u.filter(haystack, needle));
 
 								let total = needleIdxs.reduce((acc, idxs) => acc + idxs.length, 0);
 
@@ -984,7 +1025,7 @@
 
 						return {
 							search: needle => {
-								needle = '+' + needle.replace(/\s+/g, '~1 +') + '~1';
+								needle = '+' + needle.trim().replace(/\s+/g, '~1 +') + '~1';
 								return index.search(needle);
 							},
 							toStr: m => haystack[+m.ref],
@@ -1250,7 +1291,7 @@
 						else
 							console.timeEnd('setup');
 
-						let run = needle => {
+						let run = (needle, render = true) => {
 							let elapsed = 0;
 							let matches = [];
 
@@ -1260,7 +1301,8 @@
 								});
 							}
 
-							res.innerHTML = fmtResult(l, matches, l.toStr, haystack, elapsed);
+							if (render)
+								res.innerHTML = fmtResult(l, matches, l.toStr, haystack, elapsed);
 						};
 
 						document.getElementById("search").addEventListener('input', e => {
@@ -1275,24 +1317,28 @@
 						if (BENCH) {
 							async function typeAndDel(str) {
 								for (let i = 0; i < str.length; i++) {
-									run(str.slice(0, i+1));
-									await delay(100);
+									run(str.slice(0, i+1), false);
+									await delay(20);
 								}
 
 								for (let i = str.length - 1; i >= -1; i--) {
-									run(str.slice(0, i+1));
-									await delay(100);
+									run(str.slice(0, i+1), false);
+									await delay(20);
 								}
 							}
 
-							let go = () => {
-								typeAndDel('test');
-								typeAndDel('chest');
-								typeAndDel('super ma');
-								typeAndDel('mania');
-								typeAndDel('puzz');
-								typeAndDel('prom rem stor');
-								typeAndDel('twil');
+							let go = async () => {
+								res.innerHTML = 'RUNNING BENCHMARK...';
+
+								await typeAndDel('test');
+								await typeAndDel('chest');
+								await typeAndDel('super ma');
+								await typeAndDel('mania');
+								await typeAndDel('puzz');
+								await typeAndDel('prom rem stor');
+								await typeAndDel('twil');
+
+								res.innerHTML = 'DONE!';
 							};
 
 							if (setupRet instanceof Promise)
