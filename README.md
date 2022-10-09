@@ -111,7 +111,7 @@ if (idxs.length <= 1e3) {
 else {
   // render pre-filtered but unordered matches
   for (let i = 0; i < idxs.length; i++) {
-    console.log(haystack[i]);
+    console.log(haystack[idxs[i]]);
   }
 }
 ```
