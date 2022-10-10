@@ -521,22 +521,25 @@ function permute(arr) {
 	return result;
 }
 
-function highlight(str, ranges, pre = '<mark>', suf = '</mark>') {
-	let dst = str.substring(0, ranges[0]);
+const _mark = (part, matched) => matched ? `<mark>${part}</mark>` : part;
+const _append = (acc, part) => acc + part;
+
+function highlight(str, ranges, mark = _mark, accum = '', append = _append) {
+	accum = append(accum, mark(str.substring(0, ranges[0]), false));
 
 	for (let i = 0; i < ranges.length; i+=2) {
 		let fr = ranges[i];
 		let to = ranges[i+1];
 
-		dst += pre + str.substring(fr, to) + suf;
+		accum = append(accum, mark(str.substring(fr, to), true));
 
 		if (i < ranges.length - 3)
-			dst += str.substring(ranges[i+1], ranges[i+2]);
+			accum = append(accum, mark(str.substring(ranges[i+1], ranges[i+2]), false));
 	}
 
-	dst += str.substring(ranges[ranges.length - 1]);
+	accum = append(accum, mark(str.substring(ranges[ranges.length - 1]), false));
 
-	return dst;
+	return accum;
 }
 
 uFuzzy.latinize = latinize;

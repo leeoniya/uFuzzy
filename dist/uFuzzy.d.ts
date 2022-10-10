@@ -20,7 +20,14 @@ declare class uFuzzy {
 	static latinize(strings: string[]): string[];
 
 	/** util for highlighting matched substr parts of a result */
-	static highlight(match: string, ranges: number[], pre: string, suf: string): string;
+	static highlight<TAccum = string, TMarkedPart = string>(
+		match: string,
+		ranges: number[],
+
+		mark?: (part: string, matched: boolean) => TMarkedPart,
+		accum?: TAccum,
+		append?: (accum: TAccum, part: TMarkedPart) => TAccum,
+	): TAccum;
 }
 
 export = uFuzzy;
