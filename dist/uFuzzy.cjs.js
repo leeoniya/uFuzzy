@@ -523,7 +523,7 @@ function permute(arr) {
 	return result;
 }
 
-function highlight(str, ranges, pre = '<b>', suf = '</b>') {
+function highlight(str, ranges, pre = '<mark>', suf = '</mark>') {
 	let dst = str.substring(0, ranges[0]);
 
 	for (let i = 0; i < ranges.length; i+=2) {
