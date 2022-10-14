@@ -365,7 +365,7 @@ https://bestofjs.org/projects?tags=search
             <th>Stars</th>
             <th>Size (min)</th>
             <th>Init</th>
-            <th>Search</th>
+            <th>Search<br>(x 86)</th>
             <th>Heap (peak)</th>
             <th>Retained</th>
             <th>GC</th>
