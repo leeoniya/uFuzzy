@@ -674,6 +674,12 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzyMatch&search=super%20ma">try</a>)
             </td>
             <td>★ 0</td>
+            <td>1KB</td>
+            <td>0.05ms</td>
+            <td>2500ms</td>
+            <td>90MB</td>
+            <td>8MB</td>
+            <td>30ms</td>
         </tr>
     </tbody>
 </table>
