@@ -1220,7 +1220,27 @@
 					search: null,
 					toStr: null,
 				},
-			//  TODO:
+				{
+					name: 'fuzzy',
+					script: './lib/fuzzy-min.js',
+					fulltext: false,
+					repo: 'https://github.com/mattyork/fuzzy',
+					opts: {},
+					setup: (haystack, opts) => {
+						return {
+							search: needle => {
+								return fuzzy.filter(needle, haystack, { pre: '<mark>', post: '</mark>' });
+							},
+							toStr: m => m.string,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+
+			//	TODO:
+			//	https://github.com/wouterrutgers/fuzzy-search (186)
+			//	https://github.com/gjuchault/fuzzyjs (177)
 			//	https://github.com/nol13/fuzzball.js
 			];
 

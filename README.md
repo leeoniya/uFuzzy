@@ -608,6 +608,19 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
+                <a href="https://github.com/mattyork/fuzzy">fuzzy</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy&search=super%20ma">try</a>)
+            </td>
+            <td>★ 801</td>
+            <td>1.4KB</td>
+            <td>0.05ms</td>
+            <td>6000ms</td>
+            <td>41MB</td>
+            <td>8MB</td>
+            <td>30ms</td>
+        </tr>
+        <tr>
+            <td>
                 <a href="https://github.com/ajitid/fzf-for-js">fzf-for-js</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fzf-for-js&search=super%20ma">try</a>)
             </td>
