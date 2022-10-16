@@ -510,7 +510,7 @@
 
 						let usePrefixCache = urlParams.has('prefixCache');
 
-						function filter(haystack, needle) {
+						function filter(haystack, needle, ooo = false) {
 							// find longest matching prefix <= needle.length
 							let li = null;
 							prefixCache.forEach((c, i) => {
@@ -521,9 +521,8 @@
 								}
 							});
 
-							// reset prefix cache if what's in cache has no prefix of current needle
-							// TODO: a single cache invalidates too often with outOfOrder and low cache eviction threshold
-							if (prefixCache.length > 0 && li == null)
+							// when not outOfOrder, reset prefix cache if what's in cache has no prefix of current needle
+							if (!ooo && prefixCache.length > 0 && li == null)
 								prefixCache.length = 0;
 
 							let idxs = (
@@ -538,8 +537,10 @@
 									idxs,
 								});
 
-								// trim cache to length 10
-								if (prefixCache.length > 10)
+								let cacheLen = prefixCache.length;
+
+								// trim cache to 100 prefixes when outOfOrder, else 10 prefixes
+								if (ooo ? cacheLen > 100 : cacheLen > 10)
 									prefixCache = prefixCache.slice(1);
 							}
 
@@ -550,7 +551,7 @@
 							search: needle => {
 								let needles = oooPermute ? uFuzzy.permute(u.split(needle)).map(terms => terms.join(' ')) : [needle];
 
-								let needleIdxs = needles.map(needle => usePrefixCache ? filter(haystack, needle) : u.filter(haystack, needle));
+								let needleIdxs = needles.map(needle => usePrefixCache ? filter(haystack, needle, oooPermute) : u.filter(haystack, needle));
 
 								let total = needleIdxs.reduce((acc, idxs) => acc + idxs.length, 0);
 
@@ -604,6 +605,9 @@
 								}
 							},
 							toStr: m => toStr(m),
+							clear: () => {
+								prefixCache.length = 0;
+							},
 						};
 					},
 					search: null,
@@ -1255,19 +1259,23 @@
 		//	res to da
 		//	promremstorfal;
 
+			const _noop = _ => {};
+
 			function setup(lib, haystack) {
 				let o = lib.setup(haystack, lib.opts);
 
 				if (o instanceof Promise) {
-					return o.then(({search, toStr}) => {
+					return o.then(({search, toStr, clear}) => {
 						lib.search = search;
 						lib.toStr = toStr;
+						lib.clear = clear ?? _noop;
 					});
 				}
 				else {
-					let {search, toStr} = o;
+					let {search, toStr, clear} = o;
 					lib.search = search;
 					lib.toStr = toStr;
+					lib.clear = clear ?? _noop;
 				}
 			}
 
@@ -1406,7 +1414,9 @@
 							let elapsed = 0;
 							let matches = [];
 
-							if (needle != '') {
+							if (needle == '')
+								l.clear();
+							else {
 								elapsed = timeIt(() => {
 									matches = l.search(needle) ?? [];
 								});
