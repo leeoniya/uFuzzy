@@ -1175,6 +1175,51 @@
 					search: null,
 					toStr: null,
 				},
+				{
+					name: 'fzf-for-js',
+					script: './lib/fzf.iife.min.js',
+					fulltext: false,
+					repo: 'https://github.com/ajitid/fzf-for-js',
+					opts: {},
+					setup: (haystack, opts) => {
+						const fzf = new Fzf.Fzf(haystack, {
+							casing: 'case-insensitive',
+							normalize: false,
+						});
+
+						let toStr;
+
+						return {
+							search: needle => {
+								let matches = fzf.find(needle);
+
+								if (matches.length <= 1e3)  {
+									toStr = m => {
+										let item = m.item;
+										let pos = m.positions;
+										let s = '';
+
+										for (let i = 0; i < item.length; i++) {
+											if (pos.has(i))
+												s += '<mark>' + item[i] + '</mark>'
+											else
+												s += item[i];
+										}
+
+										return s;
+									};
+								}
+								else
+									toStr = m => m.item;
+
+								return matches;
+							},
+							toStr: m => toStr(m),
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//  TODO:
 			//	https://github.com/nol13/fuzzball.js
 			];

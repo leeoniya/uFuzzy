@@ -608,6 +608,19 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
+                <a href="https://github.com/ajitid/fzf-for-js">fzf-for-js</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fzf-for-js&search=super%20ma">try</a>)
+            </td>
+            <td>★ 538</td>
+            <td>15.4KB</td>
+            <td>75ms</td>
+            <td>6700ms</td>
+            <td>353MB</td>
+            <td>190MB</td>
+            <td>160ms</td>
+        </tr>
+        <tr>
+            <td>
                 <a href="https://github.com/rmm5t/liquidmetal">LiquidMetal</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=LiquidMetal&search=super%20ma">try</a>)
             </td>
