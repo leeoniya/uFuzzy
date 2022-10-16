@@ -595,6 +595,19 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
+                <a href="https://github.com/brianreavis/sifter.js">sifter.js</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=sifter&search=super%20ma">try</a>)
+            </td>
+            <td>★ 1.1k</td>
+            <td>7.5KB</td>
+            <td>3ms</td>
+            <td>1140ms</td>
+            <td>40MB</td>
+            <td>11.3MB</td>
+            <td>30ms</td>
+        </tr>
+        <tr>
+            <td>
                 <a href="https://github.com/rmm5t/liquidmetal">LiquidMetal</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=LiquidMetal&search=super%20ma">try</a>)
             </td>

@@ -1148,6 +1148,33 @@
 					search: null,
 					toStr: null,
 				},
+				{
+					name: 'sifter',
+					script: './lib/sifter.min.js',
+					fulltext: false,
+					repo: 'https://github.com/brianreavis/sifter.js',
+					opts: {},
+					setup: (haystack, opts) => {
+						let _haystack = [];
+
+						for (let i = 0; i < haystack.length; i++) {
+							haystack[i] != null && _haystack.push({
+								s: haystack[i],
+							});
+						}
+
+						const sifter = new Sifter(_haystack);
+
+						return {
+							search: needle => {
+								return sifter.search(needle, {fields: 's', conjunction: 'and'}).items;
+							},
+							toStr: m => haystack[m.id],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//  TODO:
 			//	https://github.com/nol13/fuzzball.js
 			];
