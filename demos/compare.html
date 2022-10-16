@@ -1129,9 +1129,27 @@
 					search: null,
 					toStr: null,
 				},
+				{
+					name: 'fast-fuzzy',
+					script: './lib/fast-fuzzy.iife.min.js',
+					fulltext: false,
+					repo: 'https://github.com/EthanRutherford/fast-fuzzy',
+					opts: {},
+					setup: (haystack, opts) => {
+						const searcher = new fastfuzzy.Searcher(haystack);
+
+						return {
+							search: needle => {
+								return searcher.search(needle);
+							},
+							toStr: m => m,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//  TODO:
 			//	https://github.com/nol13/fuzzball.js
-			//	https://github.com/LyraSearch/lyra
 			];
 
 		//	let liblist = libs.map(lib => `<a href="${lib.repo}">${lib.name}</a>`).join("\n");

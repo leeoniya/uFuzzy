@@ -604,6 +604,19 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
+                <a href="https://github.com/EthanRutherford/fast-fuzzy">fast-fuzzy</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fast-fuzzy&search=super%20ma">try</a>)
+            </td>
+            <td>★ 270</td>
+            <td>13.8KB</td>
+            <td>850ms</td>
+            <td>10300ms</td>
+            <td>555MB</td>
+            <td>165MB</td>
+            <td>150ms</td>
+        </tr>
+        <tr>
+            <td>
                 <a href="https://github.com/itemsapi/itemsjs">ItemJS</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=ItemJS&search=super%20ma">try</a>)
             </td>
