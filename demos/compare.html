@@ -522,6 +522,7 @@
 							});
 
 							// reset prefix cache if what's in cache has no prefix of current needle
+							// TODO: a single cache invalidates too often with outOfOrder and low cache eviction threshold
 							if (prefixCache.length > 0 && li == null)
 								prefixCache.length = 0;
 
