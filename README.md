@@ -117,6 +117,100 @@ else {
 ```
 
 ---
+### Match Highlighting
+
+Get your ordered matches first:
+
+```js
+let haystack = [
+  'foo',
+  'bar',
+  'cowbaz',
+];
+
+let needle = 'ba';
+
+let u = new uFuzzy();
+
+let idxs = u.filter(haystack, needle);
+let info = u.info(idxs, haystack, needle);
+let order = u.sort(info, haystack, needle);
+```
+
+Basic innerHTML highlighter (`<mark>`-wrapped ranges):
+
+```js
+let innerHTML = '';
+
+for (let i = 0; i < order.length; i++) {
+  let infoIdx = order[i];
+
+  innerHTML += uFuzzy.highlight(
+    haystack[info.idx[infoIdx]],
+    info.ranges[infoIdx],
+  ) + '<br>';
+}
+
+console.log(innerHTML);
+```
+
+innerHTML highlighter with custom marking function (`<b>`-wrapped ranges):
+
+```js
+let innerHTML = '';
+
+const mark = (part, matched) => matched ? '<b>' + part + '</b>' : part;
+
+for (let i = 0; i < order.length; i++) {
+  let infoIdx = order[i];
+
+  innerHTML += uFuzzy.highlight(
+    haystack[info.idx[infoIdx]],
+    info.ranges[infoIdx],
+
+    mark,
+  ) + '<br>';
+}
+
+console.log(innerHTML);
+```
+
+DOM/JSX element highlighter with custom marking and append functions:
+
+```js
+let domElems = [];
+
+const mark = (part, matched) => {
+  let el = matched ? document.createElement('mark') : document.createElement('span');
+  el.textContent = part;
+  return el;
+};
+
+const append = (accum, part) => { accum.push(part); };
+
+for (let i = 0; i < order.length; i++) {
+  let infoIdx = order[i];
+
+  let matchEl = document.createElement('div');
+
+  let parts = uFuzzy.highlight(
+    haystack[info.idx[infoIdx]],
+    info.ranges[infoIdx],
+
+    mark,
+    [],
+    append,
+  );
+
+  matchEl.append(...parts);
+
+  domElems.push(matchEl);
+}
+
+document.getElementById('matches').append(...domElems);
+```
+
+---
 ### How It Works
 
 uFuzzy has two operational modes which differ in matching strategy:

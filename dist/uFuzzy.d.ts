@@ -26,7 +26,7 @@ declare class uFuzzy {
 
 		mark?: (part: string, matched: boolean) => TMarkedPart,
 		accum?: TAccum,
-		append?: (accum: TAccum, part: TMarkedPart) => TAccum,
+		append?: (accum: TAccum, part: TMarkedPart) => TAccum | undefined,
 	): TAccum;
 }
 

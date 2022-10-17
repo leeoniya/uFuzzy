@@ -527,19 +527,19 @@ const _mark = (part, matched) => matched ? `<mark>${part}</mark>` : part;
 const _append = (acc, part) => acc + part;
 
 function highlight(str, ranges, mark = _mark, accum = '', append = _append) {
-	accum = append(accum, mark(str.substring(0, ranges[0]), false));
+	accum = append(accum, mark(str.substring(0, ranges[0]), false)) ?? accum;
 
 	for (let i = 0; i < ranges.length; i+=2) {
 		let fr = ranges[i];
 		let to = ranges[i+1];
 
-		accum = append(accum, mark(str.substring(fr, to), true));
+		accum = append(accum, mark(str.substring(fr, to), true)) ?? accum;
 
 		if (i < ranges.length - 3)
-			accum = append(accum, mark(str.substring(ranges[i+1], ranges[i+2]), false));
+			accum = append(accum, mark(str.substring(ranges[i+1], ranges[i+2]), false)) ?? accum;
 	}
 
-	accum = append(accum, mark(str.substring(ranges[ranges.length - 1]), false));
+	accum = append(accum, mark(str.substring(ranges[ranges.length - 1]), false)) ?? accum;
 
 	return accum;
 }
