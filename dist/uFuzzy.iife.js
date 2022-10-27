@@ -19,6 +19,9 @@ var uFuzzy = (function () {
 		interSplit: '[^A-Za-z0-9]+',
 		intraSplit: '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]',
 
+		// intra bounds that will be used to increase lft1/rgt1 info counters
+		intraBound: '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]',
+
 		// inter-bounds mode
 		// 2 = strict (will only match 'man' on whitepace and punct boundaries: Mega Man, Mega_Man, mega.man)
 		// 1 = loose  (plus allowance for alpha-num and case-change boundaries: MegaMan, 0007man)
@@ -105,15 +108,25 @@ var uFuzzy = (function () {
 			intraDel,
 			intraSplit: _intraSplit,
 			interSplit: _interSplit,
+			intraBound: _intraBound,
 			intraChars,
 		} = opts;
+
+		let withIntraSplit = !!_intraSplit;
 
 		let intraSplit = new RegExp(_intraSplit, 'g');
 		let interSplit = new RegExp(_interSplit, 'g');
 
 		let trimRe = new RegExp('^' + _interSplit + '|' + _interSplit + '$', 'g');
 
-		const split = needle => needle.replace(trimRe, '').replace(intraSplit, m => m[0] + ' ' + m[1]).split(interSplit);
+		const split = needle => {
+			needle = needle.replace(trimRe, '');
+
+			if (withIntraSplit)
+				needle = needle.replace(intraSplit, m => m[0] + ' ' + m[1]);
+
+			return needle.split(interSplit);
+		};
 
 		const prepQuery = (needle, capt = 0) => {
 			// split on punct, whitespace, num-alpha, and upper-lower boundaries
@@ -239,8 +252,10 @@ var uFuzzy = (function () {
 			return out;
 		};
 
+		let withIntraBound = !!_intraBound;
+
 		let interBound = new RegExp(_interSplit);
-		let intraBound = new RegExp(_intraSplit);
+		let intraBound = new RegExp(_intraBound);
 
 		const info = (idxs, haystack, needle) => {
 
@@ -346,7 +361,7 @@ var uFuzzy = (function () {
 								break;
 							}
 
-							if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
+							if (withIntraBound && intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
 								fullMatch && lft1++;
 							else {
 								if (interLft == 1) {
@@ -367,7 +382,7 @@ var uFuzzy = (function () {
 								break;
 							}
 
-							if (intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
+							if (withIntraBound && intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
 								fullMatch && rgt1++;
 							else {
 								if (interRgt == 1) {
