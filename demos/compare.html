@@ -631,7 +631,7 @@
 								return fuzzysort.go(needle, haystack, opts);
 							},
 							toStr: m => {
-								return `<i>${+m.score.toFixed(4)}</i> ` + fuzzysort.highlight(m);
+								return `<i>${+m.score.toFixed(4)}</i> ` + fuzzysort.highlight(m, '<mark>', '</mark>');
 							},
 						};
 					},
@@ -688,9 +688,9 @@
 
 								content += [
 									inputText.substring(nextUnhighlightedRegionStartingIndex, region[0]),
-									`<b>`,
+									`<mark>`,
 									inputText.substring(region[0], lastRegionNextIndex),
-									'</b>',
+									'</mark>',
 								].join('');
 
 								nextUnhighlightedRegionStartingIndex = lastRegionNextIndex;
