@@ -213,6 +213,7 @@
 						<option value="mtg_16000">mtg_16000</option>
 						<option value="steam_games_47000">steam_games_47000</option>
 						<option value="wordlist_58000">wordlist_58000</option>
+						<option value="emojis">emojis</option>
 					</select>
 				</label>
 				<div id="filedrop">
@@ -1243,6 +1244,28 @@
 					toStr: null,
 				},
 
+				// http://localhost:8080/demos/compare.html?libs=uFuzzy&lists=emojis&bench
+				// http://localhost:8080/demos/compare.html?libs=EmojisTrie&haystack=emojis&bench
+				{
+					name: 'EmojisTrie',
+					script: './lib/EmojisTrie.js',
+					fulltext: false,
+					repo: '#',
+					demo: '#',
+					opts: {},
+					setup: (haystack, opts) => {
+						let emojisTrie = initEmojisTrie(haystack);
+
+						return {
+							search: needle => {
+								return emojisTrie.getAllMatchingWords(needle);
+							},
+							toStr: m => m.name,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//	TODO:
 			//	https://github.com/wouterrutgers/fuzzy-search (186)
 			//	https://github.com/gjuchault/fuzzyjs (177)
@@ -1300,24 +1323,44 @@
 				'mtg_16000',
 				'steam_games_47000',
 				'wordlist_58000',
+				'emojis',
 			];
 
-			fetch('./testdata.json').then(r => r.json()).then(data => {
+			const DEFAULT_HAYSTACK = 'testdata';
+
+			let haystackFile = urlParams.get('haystack') ?? DEFAULT_HAYSTACK;
+
+			fetch(`./${haystackFile}.json`).then(r => r.json()).then(data => {
+				let haystack;
+
+				let listsEl = document.getElementById('lists');
+
+				if (haystackFile == DEFAULT_HAYSTACK) {
+					let listNames = urlParams.get('lists');
+
+					if (listNames == null)
+						listNames = allListNames;
+					else
+						listNames = listNames.split(',');
+
+					haystack = listNames.flatMap(k => data[k]);
+
+					listsEl.addEventListener('change', e => {
+						listNames = [...listsEl.querySelectorAll('option')].filter(option => option.selected).map(option => option.value);
+						setHaystack(listNames.flatMap(k => data[k]));
+						document.querySelector('#droptip').style.display = 'block';
+						document.querySelector('#dropfilename').textContent = '';
+					});
+				}
+				else
+					haystack = data;
+
+				data = null; // clears mem, but prevents haystack selection
+
 			//	let haystack = data.steam_games;
 			//	let haystack = data.wordlist_58k;
 			//	let haystack = data.test;
 			//	let haystack = data.metric_name;
-
-				let listNames = urlParams.get('lists');
-
-				if (listNames == null)
-					listNames = allListNames;
-				else
-					listNames = listNames.split(',');
-
-				let haystack = listNames.flatMap(k => data[k]);
-
-				let listsEl = document.getElementById('lists');
 
 				function setHaystack(_haystack) {
 					haystack = _haystack;
@@ -1329,13 +1372,6 @@
 
 					document.getElementById('search').dispatchEvent(new Event('input', {bubbles: true, cancelable: true}));
 				}
-
-				listsEl.addEventListener('change', e => {
-					listNames = [...listsEl.querySelectorAll('option')].filter(option => option.selected).map(option => option.value);
-					setHaystack(listNames.flatMap(k => data[k]));
-					document.querySelector('#droptip').style.display = 'block';
-					document.querySelector('#dropfilename').textContent = '';
-				});
 
 				let noop = e => {
 					e.stopPropagation();
@@ -1451,13 +1487,21 @@
 							let go = async () => {
 								res.innerHTML = 'RUNNING BENCHMARK...';
 
+							//	await typeAndDel('test');
+							//	await typeAndDel('chest');
+							//	await typeAndDel('super ma');
+							//	await typeAndDel('mania');
+							//	await typeAndDel('puzz');
+							//	await typeAndDel('prom rem stor');
+							//	await typeAndDel('twil');
+
 								await typeAndDel('test');
 								await typeAndDel('chest');
-								await typeAndDel('super ma');
-								await typeAndDel('mania');
-								await typeAndDel('puzz');
-								await typeAndDel('prom rem stor');
-								await typeAndDel('twil');
+								await typeAndDel('super');
+								await typeAndDel('smile');
+								await typeAndDel('cat');
+								await typeAndDel('disapp');
+								await typeAndDel('japanese');
 
 								res.innerHTML = 'DONE!';
 							};
