@@ -1,7 +1,7 @@
 ## ▒ μFuzzy
 
 A tiny, efficient fuzzy search that doesn't suck.
-This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-work), but this one is mine.
+This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-work), but this one is mine.[¹](https://en.wikipedia.org/wiki/Rifleman's_Creed#Current_text)
 
 ---
 ### Overview
