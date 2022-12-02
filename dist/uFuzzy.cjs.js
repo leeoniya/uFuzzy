@@ -150,7 +150,7 @@ function uFuzzy(opts) {
 				let lftIdx  =  1;
 				let rgtIdx  = -1;
 				let lftChar = p[0];
-				let rgtChar = p.at(-1);
+				let rgtChar = p[plen - 1];
 
 				let chars = p.slice(lftIdx, rgtIdx);
 

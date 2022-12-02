@@ -6,7 +6,7 @@
   "module": "./dist/uFuzzy.esm.js",
   "types": "./dist/uFuzzy.d.ts",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c --bundleConfigAsCjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/leeoniya/uFuzzy#readme",
   "devDependencies": {
-    "rollup": "^3.2.3",
+    "rollup": "^3.5.1",
     "rollup-plugin-terser": "^7.0.2"
   }
 }
