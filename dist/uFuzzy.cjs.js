@@ -41,6 +41,9 @@ const OPTS = {
 	// multi-insert or single-error mode
 	intraMode: 0,
 
+	// single-error bounds for errors within terms, default requires exact first char
+	intraSlice: [1, inf],
+
 	// single-error tolerance toggles
 	intraSub: 0,
 	intraTrn: 0,
@@ -103,6 +106,7 @@ function uFuzzy(opts) {
 		interLft,
 		interRgt,
 		intraMode,
+		intraSlice,
 		intraIns,
 		intraSub,
 		intraTrn,
@@ -112,6 +116,50 @@ function uFuzzy(opts) {
 		intraBound: _intraBound,
 		intraChars,
 	} = opts;
+
+	let { intraRules } = opts;
+
+	if (intraRules == null) {
+		intraRules = p => {
+			// default is exact term matches only
+			let _intraSlice = OPTS.intraSlice, // requires first char
+				_intraIns = 0,
+				_intraSub = 0,
+				_intraTrn = 0,
+				_intraDel = 0;
+
+			let plen = p.length;
+
+			// prevent junk matches by requiring stricter rules for short terms
+			if (plen <= 4) {
+				if (plen >= 3) {
+					// one swap in non-first char when 3-4 chars
+					_intraTrn = 1;
+
+					// or one insertion when 4 chars
+					if (plen == 4)
+						_intraIns = 1;
+				}
+				// else exact match when 1-2 chars
+			}
+			// use supplied opts
+			else {
+				_intraSlice = intraSlice;
+				_intraIns = intraIns,
+				_intraSub = intraSub,
+				_intraTrn = intraTrn,
+				_intraDel = intraDel;
+			}
+
+			return {
+				intraSlice: _intraSlice,
+				intraIns: _intraIns,
+				intraSub: _intraSub,
+				intraTrn: _intraTrn,
+				intraDel: _intraDel,
+			};
+		};
+	}
 
 	let withIntraSplit = !!_intraSplit;
 
@@ -139,18 +187,20 @@ function uFuzzy(opts) {
 		// allows single mutations within each term
 		if (intraMode == 1) {
 			reTpl = parts.map(p => {
-				let plen = p.length;
+				let {
+					intraSlice,
+					intraIns,
+					intraSub,
+					intraTrn,
+					intraDel,
+				} = intraRules(p);
 
-				if (plen <= 2) {
-					if (intraIns > 0 && plen == 2)
-						return p[0] + lazyRepeat(intraChars, 1) + p[1];
+				if (intraIns + intraSub + intraTrn + intraDel == 0)
 					return p;
-				}
 
-				let lftIdx  =  1;
-				let rgtIdx  = -1;
-				let lftChar = p[0];
-				let rgtChar = p[plen - 1];
+				let [lftIdx, rgtIdx] = intraSlice;
+				let lftChar = p.slice(0, lftIdx);
+				let rgtChar = p.slice(rgtIdx);
 
 				let chars = p.slice(lftIdx, rgtIdx);
 

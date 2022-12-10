@@ -62,6 +62,8 @@ declare namespace uFuzzy {
 		SingleError = 1,
 	}
 
+	export type IntraSliceIdxs = [from: number, to: number];
+
 	export interface Options {
 		/** term segmentation & punct/whitespace merging */
 		interSplit?: PartialRegExp;         // '[^A-Za-z0-9]+'
@@ -85,12 +87,24 @@ declare namespace uFuzzy {
 		/** error tolerance mode within terms. will clamp intraIns to 1 when set to SingleError */
 		intraMode?: IntraMode;       // 0
 
+		/** which part of each term should tolerate errors (when intraMode: 1) */
+		intraSlice?: IntraSliceIdxs; // [1, Infinity]
+
 		/** max substitutions (when intraMode: 1) */
 		intraSub?: 0 | 1; // 0
 		/** max transpositions (when intraMode: 1) */
 		intraTrn?: 0 | 1; // 0
 		/** max omissions/deletions (when intraMode: 1) */
 		intraDel?: 0 | 1; // 0
+
+		/** can dynamically adjust error tolerance rules per term in needle (when intraMode: 1) */
+		intraRules?: (term: string) => {
+			intraSlice?: IntraSliceIdxs;
+			intraIns: 0 | 1;
+			intraSub: 0 | 1;
+			intraTrn: 0 | 1;
+			intraDel: 0 | 1;
+		};
 
 		/** post-filters matches during .info() based on cmp of term in needle vs partial match */
 		intraFilt?: (term: string, match: string, index: number) => boolean; // should this also accept WIP info?
