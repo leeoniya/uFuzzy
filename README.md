@@ -471,7 +471,7 @@ https://bestofjs.org/projects?tags=search
                 <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&search=super%20ma">try</a>)
             </td>
-            <td>★ 1.5k</td>
+            <td>★ 1.9k</td>
             <td>4KB</td>
             <td>0.3ms</td>
             <td>1030ms</td>
@@ -800,6 +800,19 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fzy&search=super%20ma">try</a>)
             </td>
             <td>★ 115</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/axules/fuzzy-tools">fuzzy-tools</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy-tools&search=super%20ma">try</a>)
+            </td>
+            <td>★ 13</td>
+            <td>2.8KB</td>
+            <td>0.1ms</td>
+            <td>6000ms</td>
+            <td>92MB</td>
+            <td>7.7MB</td>
+            <td>30ms</td>
         </tr>
         <tr>
             <td>

@@ -1242,7 +1242,32 @@
 					search: null,
 					toStr: null,
 				},
+				{
+					name: 'fuzzy-tools',
+					script: './lib/fuzzy-tools.iife.js',
+					fulltext: false,
+					repo: 'https://github.com/axules/fuzzy-tools',
+					opts: {},
+					setup: (haystack, opts) => {
+						return {
+							search: needle => {
+								const wordsMode = true;
+								const search = wordsMode ? needle.split(/[\s\t\r\n]/).filter(Boolean) : needle;
+								const result = FuzzyTools.filter(search, haystack, {
+									caseSensitive: false,
+									withWrapper: '<mark>{?}</mark>',
+									itemWrapper: (item, result) => result.wrapped,
 
+								});
+
+								return result;
+							},
+							toStr: m => m,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//	TODO:
 			//	https://github.com/wouterrutgers/fuzzy-search (186)
 			//	https://github.com/gjuchault/fuzzyjs (177)
