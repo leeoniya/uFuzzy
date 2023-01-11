@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2022, Leon Sorokin
+* Copyright (c) 2023, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
 * uFuzzy.js (μFuzzy)
@@ -14,15 +14,13 @@ var uFuzzy = (function () {
 
 	const inf = Infinity;
 
-	const INTRA_BOUND = '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]';
-
 	const OPTS = {
 		// term segmentation & punct/whitespace merging
 		interSplit: '[^A-Za-z0-9]+',
-		intraSplit: INTRA_BOUND,
+		intraSplit: '[a-z][A-Z]',
 
 		// intra bounds that will be used to increase lft1/rgt1 info counters
-		intraBound: INTRA_BOUND,
+		intraBound: '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]',
 
 		// inter-bounds mode
 		// 2 = strict (will only match 'man' on whitepace and punct boundaries: Mega Man, Mega_Man, mega.man)

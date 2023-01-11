@@ -67,7 +67,7 @@ declare namespace uFuzzy {
 	export interface Options {
 		/** term segmentation & punct/whitespace merging */
 		interSplit?: PartialRegExp;         // '[^A-Za-z0-9]+'
-		intraSplit?: PartialRegExp | null;  // '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]'
+		intraSplit?: PartialRegExp | null;  // '[a-z][A-Z]'
 
 		/** intra bounds that will be used to increase lft1/rgt1 info counters */
 		intraBound?: PartialRegExp | null;  // '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]'
