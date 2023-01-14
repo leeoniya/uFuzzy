@@ -516,7 +516,7 @@ https://bestofjs.org/projects?tags=search
             <td></td>
             <td></td>
             <td></td>
-            <td>1350ms</td>
+            <td>1200ms</td>
             <td>27.5MB</td>
             <td>8MB</td>
             <td>30ms</td>

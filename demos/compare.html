@@ -510,7 +510,7 @@
 
 						let usePrefixCache = urlParams.has('prefixCache');
 
-						function filter(haystack, needle, ooo = false) {
+						function filter(haystack, needle) {
 							// find longest matching prefix <= needle.length
 							let li = null;
 							prefixCache.forEach((c, i) => {
@@ -522,7 +522,7 @@
 							});
 
 							// when not outOfOrder, reset prefix cache if what's in cache has no prefix of current needle
-							if (!ooo && prefixCache.length > 0 && li == null)
+							if (prefixCache.length > 0 && li == null)
 								prefixCache.length = 0;
 
 							let idxs = (
@@ -539,8 +539,8 @@
 
 								let cacheLen = prefixCache.length;
 
-								// trim cache to 100 prefixes when outOfOrder, else 10 prefixes
-								if (ooo ? cacheLen > 100 : cacheLen > 10)
+								// trim cache to 10 prefixes
+								if (cacheLen > 10)
 									prefixCache = prefixCache.slice(1);
 							}
 
@@ -549,9 +549,24 @@
 
 						return {
 							search: needle => {
+								let oooPreFilter = null;
+
+								if (oooPermute) {
+									// since uFuzzy is an AND-based search, we can iteratively pre-reduce the haystack by searching
+									// for each term in isolation before running permutations on what's left.
+									// this is a major perf win. e.g. searching "test man ger pp a" goes from 570ms -> 14ms
+									u.split(needle).sort((a, b) => b.length - a.length).forEach(term => {
+										if (oooPreFilter == null || oooPreFilter.length > 0)
+											oooPreFilter = u.filter(haystack, term, oooPreFilter);
+									});
+
+									if (oooPreFilter.length == 0)
+										return [];
+								}
+
 								let needles = oooPermute ? uFuzzy.permute(u.split(needle)).map(terms => terms.join(' ')) : [needle];
 
-								let needleIdxs = needles.map(needle => usePrefixCache ? filter(haystack, needle, oooPermute) : u.filter(haystack, needle));
+								let needleIdxs = needles.map(needle => usePrefixCache ? filter(haystack, needle) : u.filter(haystack, needle, oooPreFilter));
 
 								let total = needleIdxs.reduce((acc, idxs) => acc + idxs.length, 0);
 
