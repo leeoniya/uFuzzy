@@ -130,11 +130,11 @@ function uFuzzy(opts) {
 			if (plen <= 4) {
 				if (plen >= 3) {
 					// one swap in non-first char when 3-4 chars
-					_intraTrn = 1;
+					_intraTrn = Math.min(intraTrn, 1);
 
 					// or one insertion when 4 chars
 					if (plen == 4)
-						_intraIns = 1;
+						_intraIns = Math.min(intraIns, 1);
 				}
 				// else exact match when 1-2 chars
 			}
