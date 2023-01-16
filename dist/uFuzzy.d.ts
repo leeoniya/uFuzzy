@@ -1,14 +1,35 @@
 declare class uFuzzy {
 	constructor(opts?: uFuzzy.Options);
 
+	/** search API composed of filter/info/sort, with a ranking threshold (1e3) and fast outOfOrder impl */
+	search(
+		haystack: string[],
+		needle: string,
+		outOfOrder = false,
+		rankThresh = 1e3,
+		preFiltered?: uFuzzy.HaystackIdxs | null
+	): uFuzzy.SearchResult;
+
 	/** initial haystack filter, can accept idxs from previous prefix/typeahead match as optimization */
-	filter(haystack: string[], needle: string, idxs?: uFuzzy.HaystackIdxs): uFuzzy.HaystackIdxs;
+	filter(
+		haystack: string[],
+		needle: string,
+		idxs?: uFuzzy.HaystackIdxs
+	): uFuzzy.HaystackIdxs;
 
 	/** collects stats about pre-filtered matches, does additional filtering based on term boundary settings, finds highlight ranges */
-	info(idxs: uFuzzy.HaystackIdxs, haystack: string[], needle: string): uFuzzy.Info;
+	info(
+		idxs: uFuzzy.HaystackIdxs,
+		haystack: string[],
+		needle: string
+	): uFuzzy.Info;
 
 	/** performs final result sorting via Array.sort(), relying on Info */
-	sort(info: uFuzzy.Info, haystack: string[], needle: string): uFuzzy.InfoIdxOrder;
+	sort(
+		info: uFuzzy.Info,
+		haystack: string[],
+		needle: string
+	): uFuzzy.InfoIdxOrder;
 
 	/** utility for splitting needle into terms following defined interSplit/intraSplit opts. useful for out-of-order permutes */
 	split(needle: string): uFuzzy.Terms;
@@ -26,7 +47,7 @@ declare class uFuzzy {
 
 		mark?: (part: string, matched: boolean) => TMarkedPart,
 		accum?: TAccum,
-		append?: (accum: TAccum, part: TMarkedPart) => TAccum | undefined,
+		append?: (accum: TAccum, part: TMarkedPart) => TAccum | undefined
 	): TAccum;
 }
 
@@ -41,6 +62,16 @@ declare namespace uFuzzy {
 
 	/** sorted order in which info facets should be iterated */
 	export type InfoIdxOrder = number[];
+
+	export type FilteredResult = [uFuzzy.HaystackIdxs, null, null];
+
+	export type RankedResult = [
+		uFuzzy.HaystackIdxs,
+		uFuzzy.Info,
+		uFuzzy.InfoIdxOrder
+	];
+
+	export type SearchResult = FilteredResult | RankedResult;
 
 	/** partial RegExp */
 	type PartialRegExp = string;

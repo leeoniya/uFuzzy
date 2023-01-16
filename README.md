@@ -94,7 +94,9 @@ let uf = new uFuzzy(opts);
 let idxs = uf.filter(haystack, needle);
 
 // sort/rank only when <= 1,000 items
-if (idxs.length <= 1e3) {
+let rankThresh = 1e3;
+
+if (idxs.length <= rankThresh) {
   let info = uf.info(idxs, haystack, needle);
 
   // order is a double-indirection array (a re-order of the passed-in idxs)
@@ -115,6 +117,12 @@ else {
   }
 }
 ```
+
+---
+### Integrated Search
+
+uFuzzy provides a `uf.search(haystack, needle, outOfOrder = false, rankThresh = 1e3) => [idxs, info, order]` wrapper which combines the `filter`, `info`, `sort` steps above.
+This method also implements efficient logic for matching search terms out of order.
 
 ---
 ### Match Highlighting

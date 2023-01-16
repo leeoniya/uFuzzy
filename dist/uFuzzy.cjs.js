@@ -515,7 +515,106 @@ function uFuzzy(opts) {
 		return info;
 	};
 
+	// returns [idxs, info, order]
+	const _search = (haystack, needle, outOfOrder = false, rankThresh = 1e3, preFiltered) => {
+		let needles = null;
+		let matches = null;
+
+		if (outOfOrder) {
+			// since uFuzzy is an AND-based search, we can iteratively pre-reduce the haystack by searching
+			// for each term in isolation before running permutations on what's left.
+			// this is a major perf win. e.g. searching "test man ger pp a" goes from 570ms -> 14ms
+			let terms = split(needle);
+
+			if (terms.length > 1) {
+				// longest -> shortest
+				let terms2 = terms.slice().sort((a, b) => b.length - a.length);
+
+				for (let ti = 0; ti < terms2.length; ti++) {
+					// no haystack item contained all terms
+					if (preFiltered?.length == 0)
+						return [[], null, null];
+
+					preFiltered = filter(haystack, terms2[ti], preFiltered);
+				}
+
+				needles = permute(terms).map(perm => perm.join(' '));
+
+				// filtered matches for each needle excluding same matches for prior needles
+				matches = [];
+
+				// keeps track of already-matched idxs to skip in follow-up permutations
+				let matchedIdxs = new Set();
+
+				for (let ni = 0; ni < needles.length; ni++) {
+					if (matchedIdxs.size < preFiltered.length) {
+						// filter further for this needle, exclude already-matched
+						let preFiltered2 = preFiltered.filter(idx => !matchedIdxs.has(idx));
+
+						let matched = filter(haystack, needles[ni], preFiltered2);
+
+						for (let j = 0; j < matched.length; j++)
+							matchedIdxs.add(matched[j]);
+
+						matches.push(matched);
+					}
+					else
+						matches.push([]);
+				}
+			}
+		}
+
+		// non-ooo or ooo w/single term
+		if (needles == null) {
+			needles = [needle];
+			matches = [preFiltered?.length > 0 ? preFiltered : filter(haystack, needle)];
+		}
+
+		let matchCount = matches.reduce((acc, idxs) => acc + idxs.length, 0);
+
+		let retInfo = null;
+		let retOrder = null;
+
+		// rank, sort, concat
+		if (matchCount <= rankThresh) {
+			retInfo = {};
+			retOrder = [];
+
+			for (let ni = 0; ni < matches.length; ni++) {
+				let idxs = matches[ni];
+
+				if (idxs == null || idxs.length == 0)
+					continue;
+
+				let needle = needles[ni];
+				let _info = info(idxs, haystack, needle);
+				let order = opts.sort(_info, haystack, needle);
+
+				// offset idxs for concat'ing infos
+				if (ni > 0) {
+					for (let i = 0; i < order.length; i++)
+						order[i] += retOrder.length;
+				}
+
+				for (let k in _info)
+					retInfo[k] = (retInfo[k] ?? []).concat(_info[k]);
+
+				retOrder = retOrder.concat(order);
+			}
+		}
+
+		return [
+			[].concat(...matches),
+			retInfo,
+			retOrder,
+		];
+	};
+
 	return {
+		search: (...args) => {
+			let out = _search(...args);
+			return out;
+		},
 		split,
 		filter,
 		info,
@@ -565,6 +664,8 @@ const latinize = (() => {
 
 // https://stackoverflow.com/questions/9960908/permutations-in-javascript/37580979#37580979
 function permute(arr) {
+	arr = arr.slice();
+
 	let length = arr.length,
 		result = [arr.slice()],
 		c = new Array(length).fill(0),

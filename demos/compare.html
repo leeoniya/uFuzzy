@@ -549,75 +549,23 @@
 
 						return {
 							search: needle => {
-								let oooPreFilter = null;
+								let preFiltered = usePrefixCache ? filter(haystack, needle) : null;
 
-								if (oooPermute) {
-									// since uFuzzy is an AND-based search, we can iteratively pre-reduce the haystack by searching
-									// for each term in isolation before running permutations on what's left.
-									// this is a major perf win. e.g. searching "test man ger pp a" goes from 570ms -> 14ms
-									u.split(needle).sort((a, b) => b.length - a.length).forEach(term => {
-										if (oooPreFilter == null || oooPreFilter.length > 0)
-											oooPreFilter = u.filter(haystack, term, oooPreFilter);
-									});
+								let [idxs, info, order] = u.search(haystack, needle, oooPermute, rankThresh, preFiltered);
 
-									if (oooPreFilter.length == 0)
-										return [];
-								}
-
-								let needles = oooPermute ? uFuzzy.permute(u.split(needle)).map(terms => terms.join(' ')) : [needle];
-
-								let needleIdxs = needles.map(needle => usePrefixCache ? filter(haystack, needle) : u.filter(haystack, needle, oooPreFilter));
-
-								let total = needleIdxs.reduce((acc, idxs) => acc + idxs.length, 0);
-
-								if (total <= rankThresh) {
-									let allInfos = {};
-									let allOrders = [];
-
-									for (let ni = 0; ni < needleIdxs.length; ni++) {
-										let idxs = needleIdxs[ni];
-										let needle = needles[ni];
-										let info = u.info(idxs, haystack, needle);
-										let order = u.sort(info, haystack, needle);
-
-										// offset idxs for concat'ing infos
-										if (ni > 0) {
-											for (let i = 0; i < order.length; i++)
-												order[i] += allOrders.length;
-										}
-
-										for (let k in info)
-											allInfos[k] = (allInfos[k] ?? []).concat(info[k]);
-
-										allOrders = allOrders.concat(order);
-									}
-
-									let uniqHis = new Set();
-									let allOrdersU = [];
-
-									for (let oi of allOrders) {
-										let hi = allInfos.idx[oi];
-
-										if (!uniqHis.has(hi)) {
-											uniqHis.add(hi);
-											allOrdersU.push(oi);
-										}
-									}
-
-									needleIdxs = null;
+								if (info != null) {
 									toStr = oi => {
-										let hi = allInfos.idx[oi];
-										return uFuzzy.highlight(haystack[hi], allInfos.ranges[oi]);
+										let hi = info.idx[oi];
+										return uFuzzy.highlight(haystack[hi], info.ranges[oi]);
 									};
-
-									return allOrdersU;
+									return order;
 								}
-								else {
-									let ret = needles.length == 1 ? needleIdxs[0] : [...new Set(needleIdxs.flat())];
-									needleIdxs = null;
+								else if (idxs.length > 0) {
 									toStr = idx => haystack[idx];
-									return ret; // unordered, unique
+									return idxs;
 								}
+
+								return [];
 							},
 							toStr: m => toStr(m),
 							clear: () => {
