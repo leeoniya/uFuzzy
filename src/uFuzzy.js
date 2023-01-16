@@ -513,7 +513,7 @@ export default function uFuzzy(opts) {
 	};
 
 	// returns [idxs, info, order]
-	const _search = (haystack, needle, outOfOrder = false, rankThresh = 1e3, preFiltered) => {
+	const _search = (haystack, needle, outOfOrder = false, infoThresh = 1e3, preFiltered) => {
 		let needles = null;
 		let matches = null;
 
@@ -573,7 +573,7 @@ export default function uFuzzy(opts) {
 		let retOrder = null;
 
 		// rank, sort, concat
-		if (matchCount <= rankThresh) {
+		if (matchCount <= infoThresh) {
 			retInfo = {};
 			retOrder = [];
 

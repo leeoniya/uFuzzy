@@ -188,8 +188,8 @@
 
 				<div class="group" style="color: #1976d2;">
 					<label>
-						rankThresh
-						<input class="uf" id="rankThresh" type="text" value="1000" placeholder="Inf" style="width: 94px;">
+						infoThresh
+						<input class="uf" id="infoThresh" type="text" value="1000" placeholder="Inf" style="width: 94px;">
 					</label>
 					<br>
 					<label>
@@ -378,10 +378,10 @@
 
 						let u = new uFuzzy(opts);
 
-						let rankThresh = 1e3;
+						let infoThresh = 1e3;
 
-						document.getElementById('rankThresh').addEventListener('input', e => {
-							rankThresh = +e.target.value;
+						document.getElementById('infoThresh').addEventListener('input', e => {
+							infoThresh = +e.target.value;
 							ufSearch(e);
 						});
 
@@ -551,7 +551,7 @@
 							search: needle => {
 								let preFiltered = usePrefixCache ? filter(haystack, needle) : null;
 
-								let [idxs, info, order] = u.search(haystack, needle, oooPermute, rankThresh, preFiltered);
+								let [idxs, info, order] = u.search(haystack, needle, oooPermute, infoThresh, preFiltered);
 
 								if (info != null) {
 									toStr = oi => {

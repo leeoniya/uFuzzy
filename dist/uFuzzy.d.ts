@@ -1,12 +1,12 @@
 declare class uFuzzy {
 	constructor(opts?: uFuzzy.Options);
 
-	/** search API composed of filter/info/sort, with a ranking threshold (1e3) and fast outOfOrder impl */
+	/** search API composed of filter/info/sort, with a info/ranking threshold (1e3) and fast outOfOrder impl */
 	search(
 		haystack: string[],
 		needle: string,
 		outOfOrder = false,
-		rankThresh = 1e3,
+		infoThresh = 1e3,
 		preFiltered?: uFuzzy.HaystackIdxs | null
 	): uFuzzy.SearchResult;
 
