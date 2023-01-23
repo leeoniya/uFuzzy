@@ -198,10 +198,15 @@ var uFuzzy = (function () {
 						return p;
 
 					let [lftIdx, rgtIdx] = intraSlice;
-					let lftChar = p.slice(0, lftIdx);
-					let rgtChar = p.slice(rgtIdx);
+					let lftChar = p.slice(0, lftIdx); // prefix
+					let rgtChar = p.slice(rgtIdx); // suffix
 
 					let chars = p.slice(lftIdx, rgtIdx);
+
+					// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
+					// but skip when search term contains leading repetition (aardvark, aaa)
+					if (intraIns == 1 && lftChar.length == 1 && lftChar != chars[0])
+						lftChar += '(?!' + lftChar + ')';
 
 					let numChars = chars.length;
 
@@ -231,7 +236,7 @@ var uFuzzy = (function () {
 					if (intraIns) {
 						let intraInsTpl = lazyRepeat(intraChars, 1);
 
-						for (let i = 0; i < numChars + 1; i++)
+						for (let i = 0; i < numChars; i++)
 							variants.push(lftChar + chars.slice(0, i) + intraInsTpl + chars.slice(i) + rgtChar);
 					}
 
@@ -248,7 +253,14 @@ var uFuzzy = (function () {
 					intraInsTpl = ')(' + intraInsTpl + ')(';
 				}
 
-				reTpl = parts.map(p => p.split('').join(intraInsTpl));
+				reTpl = parts.map(p => p.split('').map((c, i, chars) => {
+					// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
+					// but skip when search term contains leading repetition (aardvark, aaa)
+					if (intraIns == 1 && i == 0 && chars.length > 1 && c[i] != c[i+1])
+						c += '(?!' + c + ')';
+
+					return c;
+				}).join(intraInsTpl));
 			}
 
 		//	console.log(reTpl);
@@ -310,6 +322,7 @@ var uFuzzy = (function () {
 		const info = (idxs, haystack, needle) => {
 
 			let [query, parts] = prepQuery(needle, 1);
+			let partsLen = parts.length;
 			let [queryR] = prepQuery(needle, 2);
 
 			let len = idxs.length;
@@ -352,6 +365,8 @@ var uFuzzy = (function () {
 
 			for (let i = 0; i < idxs.length; i++) {
 				let mhstr = haystack[idxs[i]];
+
+				// the matched parts are [full, junk, term, junk, term, junk]
 				let m = mhstr.match(query);
 
 				// leading junk
@@ -370,34 +385,17 @@ var uFuzzy = (function () {
 				let inter = 0;
 				let intra = 0;
 
-				for (let j = 0, k = 2; j < parts.length; j++, k+=2) {
+				for (let j = 0, k = 2; j < partsLen; j++, k+=2) {
 					let group = m[k].toLowerCase();
-					let fullMatch = group == parts[j];
-
-					if (!fullMatch) {
-						// when intraIns > 0 'test' query can match 'ttest' in 'fittest'
-						// try an exact substring match to improve rank quality
-						if (intraIns > 0) {
-							let idxOf = group.indexOf(parts[j]);
-							if (idxOf > -1) {
-								fullMatch = true;
-								idxAcc += idxOf;
-								m[k] = m[k].slice(idxOf);
-
-								if (j == 0) {
-									start = idxAcc;
-								//	span -= idxOf;
-								}
-							}
-						}
-
-						// TODO: use difference in group/part length to boost eSyms? or iSyms (inexact)
-					}
+					let term = parts[j];
+					let termLen = term.length;
+					let groupLen = group.length;
+					let fullMatch = group == term;
 
 					if (mayDiscard || fullMatch) {
 						// does group's left and/or right land on \b
 						let lftCharIdx = idxAcc - 1;
-						let rgtCharIdx = idxAcc + m[k].length;
+						let rgtCharIdx = idxAcc + groupLen;
 
 						let isPre = true;
 						let isSuf = true;
@@ -445,25 +443,27 @@ var uFuzzy = (function () {
 						}
 
 						if (fullMatch) {
-							chars += parts[j].length;
+							chars += termLen;
 
 							if (isPre && isSuf)
 								terms++;
 						}
 					}
-					else
-						intra += group.length - parts[j].length; // intraFuzz
+
+					if (groupLen > termLen)
+						intra += groupLen - termLen; // intraFuzz
 
 					if (j > 0)
 						inter += m[k-1].length; // interFuzz
 
-					if (!opts.intraFilt(parts[j], group, idxAcc)) {
+					// TODO: group here is lowercased, which is okay for length cmp, but not more case-sensitive filts
+					if (!opts.intraFilt(term, group, idxAcc)) {
 						disc = true;
 						break;
 					}
 
-					if (j < parts.length - 1)
-						idxAcc += m[k].length + m[k+1].length;
+					if (j < partsLen - 1)
+						idxAcc += groupLen + m[k+1].length;
 				}
 
 				if (!disc) {
@@ -487,6 +487,7 @@ var uFuzzy = (function () {
 					let idxAcc = m.index + m[1].length;
 					let from = idxAcc;
 					let to = idxAcc;
+
 					for (let i = 2; i < m.length; i++) {
 						let len = m[i].length;
 
