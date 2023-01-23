@@ -378,9 +378,10 @@
 
 						let u = new uFuzzy(opts);
 
-						let infoThresh = 1e3;
+						let infoThreshEl = document.getElementById('infoThresh');
+						let infoThresh = +infoThreshEl.value;
 
-						document.getElementById('infoThresh').addEventListener('input', e => {
+						infoThreshEl.addEventListener('input', e => {
 							infoThresh = +e.target.value;
 							ufSearch(e);
 						});
