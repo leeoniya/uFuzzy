@@ -1,6 +1,6 @@
 {
   "name": "@leeoniya/ufuzzy",
-  "version": "0.9.1",
+  "version": "1.0.0",
   "description": "A tiny, efficient fuzzy matcher that doesn't suck",
   "main": "./dist/uFuzzy.cjs.js",
   "module": "./dist/uFuzzy.esm.js",
@@ -28,6 +28,7 @@
     "filter",
     "hint",
     "autocomplete",
+    "typeahead",
     "sort"
   ],
   "author": "Leon Sorokin <leeoniya@gmail.com>",
