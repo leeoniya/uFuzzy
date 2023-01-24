@@ -240,7 +240,11 @@ var uFuzzy = (function () {
 							variants.push(lftChar + chars.slice(0, i) + intraInsTpl + chars.slice(i) + rgtChar);
 					}
 
-					return '(?:' + p + '|' + variants.join('|') + ')';
+					let reTpl = '(?:' + p + '|' + variants.join('|') + ')';
+
+				//	console.log(reTpl);
+
+					return reTpl;
 				});
 			}
 			else {
