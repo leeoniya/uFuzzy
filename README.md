@@ -479,7 +479,7 @@ https://bestofjs.org/projects?tags=search
                 <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&search=super%20ma">try</a>)
             </td>
-            <td>★ 1.9k</td>
+            <td>★ 2k</td>
             <td>5.5KB</td>
             <td>0.3ms</td>
             <td>1030ms</td>
