@@ -866,7 +866,7 @@
 							search: needle => {
 								return miniSearch.search(needle, { combineWith: 'AND' });
 							},
-							toStr: m => haystack[m.id],
+							toStr: m => `<i>${+m.score.toFixed(2)}</i> ` + haystack[m.id],
 						};
 					},
 					search: null,
