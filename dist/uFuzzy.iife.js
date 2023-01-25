@@ -176,7 +176,7 @@ var uFuzzy = (function () {
 			return needle.split(interSplit);
 		};
 
-		const prepQuery = (needle, capt = 0) => {
+		const prepQuery = (needle, capt = 0, exactParts) => {
 			// split on punct, whitespace, num-alpha, and upper-lower boundaries
 			let parts = split(needle);
 
@@ -185,7 +185,7 @@ var uFuzzy = (function () {
 
 			// allows single mutations within each term
 			if (intraMode == 1) {
-				reTpl = parts.map(p => {
+				reTpl = parts.map((p, pi) => {
 					let {
 						intraSlice,
 						intraIns,
@@ -194,7 +194,7 @@ var uFuzzy = (function () {
 						intraDel,
 					} = intraRules(p);
 
-					if (intraIns + intraSub + intraTrn + intraDel == 0)
+					if (intraIns + intraSub + intraTrn + intraDel == 0 || exactParts?.[pi] == 1)
 						return p;
 
 					let [lftIdx, rgtIdx] = intraSlice;
@@ -257,7 +257,7 @@ var uFuzzy = (function () {
 					intraInsTpl = ')(' + intraInsTpl + ')(';
 				}
 
-				reTpl = parts.map(p => p.split('').map((c, i, chars) => {
+				reTpl = parts.map((p, pi) => exactParts?.[pi] == 1 ? p : p.split('').map((c, i, chars) => {
 					// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
 					// but skip when search term contains leading repetition (aardvark, aaa)
 					if (intraIns == 1 && i == 0 && chars.length > 1 && c[i] != c[i+1])
@@ -281,18 +281,12 @@ var uFuzzy = (function () {
 				// sadly, we also have to capture the inter-term junk via parenth-wrapping .*?
 				// to accum other capture groups' indices for \b boosting during scoring
 				reTpl = '(' + reTpl.join(')(' + interCharsTpl + ')(') + ')';
+				reTpl = '(.?' + preTpl + ')' + reTpl + '(' + sufTpl + '.*)'; // nit: trailing capture here assumes interIns = Inf
 			}
-			else
+			else {
 				reTpl = reTpl.join(interCharsTpl);
-
-			if (capt > 0) {
-				if (interLft == 2)
-					reTpl = '(' + preTpl + ')' + reTpl + '(' + sufTpl + ')';
-				else
-					reTpl = '(.?)' + reTpl + '(.?)';
-			}
-			else
 				reTpl = preTpl + reTpl + sufTpl;
+			}
 
 		//	console.log(reTpl);
 
@@ -327,7 +321,6 @@ var uFuzzy = (function () {
 
 			let [query, parts] = prepQuery(needle, 1);
 			let partsLen = parts.length;
-			let [queryR] = prepQuery(needle, 2);
 
 			let len = idxs.length;
 
@@ -389,12 +382,62 @@ var uFuzzy = (function () {
 				let inter = 0;
 				let intra = 0;
 
+				// will be populated if we need to re-generate a query with some exact terms
+				let useExactParts = null;
+
 				for (let j = 0, k = 2; j < partsLen; j++, k+=2) {
 					let group = m[k].toLowerCase();
 					let term = parts[j];
 					let termLen = term.length;
 					let groupLen = group.length;
 					let fullMatch = group == term;
+
+					// this won't handle the case when an exact match exists across the boundary of the current group and the next junk
+					// e.g. blob,ob when searching for 'bob' but finding the earlier `blob` (with extra insertion)
+					if (!fullMatch && groupLen >= termLen && m[k+1].length >= termLen) {
+						// probe for exact match in inter junk
+						let idxOf = m[k+1].toLowerCase().indexOf(term);
+
+						if (idxOf > -1) {
+							// so here we have three options:
+							// 1. mutate the current match to be better.
+							//    this doesn't help the range regex below, which would need different adjustement logic, since
+							//    its capture groups are more granular
+							// 2. re-generate a new regex with some terms flagged as exact rather than a group of alterations
+							//    this is more expensive since we need to re-process, but will be seamless for range query,
+							//    but would require popping out of this loop and throwing away exisitng info counters
+							// 3. do a combo of the above
+							//    we can stay in this loop, but also gen a more explicit ranges regex that will result in the
+							//    better match
+
+							// this whole section probably risks violating interIns < Inf, since better terms might be too far away
+							// we could test for this here to choose not to re-process, but it's pretty unusual to reduce interIns
+							// (usually to only accept tighter matches). the match improvement here is likely better.
+
+						//	debugger;
+
+							// shift the current group into the prior junk, adjust idxAcc & start
+							let prepend = m[k] + m[k+1].slice(0, idxOf);
+							m[k-1] += prepend;
+							idxAcc += prepend.length;
+
+							if (j == 0)
+								start = idxAcc;
+
+							// update current group and next junk
+							m[k]    = m[k+1].slice(idxOf, idxOf + termLen);
+							m[k+1]  = m[k+1].slice(idxOf + termLen);
+
+							group = m[k].toLowerCase();
+							groupLen = termLen;
+							fullMatch = true;
+
+							if (useExactParts == null)
+								useExactParts = Array(partsLen).fill(0);
+
+							useExactParts[j] = 1;
+						}
+					}
 
 					if (mayDiscard || fullMatch) {
 						// does group's left and/or right land on \b
@@ -471,6 +514,8 @@ var uFuzzy = (function () {
 				}
 
 				if (!disc) {
+					let [queryR] = prepQuery(needle, 2, useExactParts);
+
 					info.idx[ii]       = idxs[i];
 					info.interLft2[ii] = lft2;
 					info.interLft1[ii] = lft1;
