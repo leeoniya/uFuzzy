@@ -1422,7 +1422,9 @@
 						let setupRet = await setup(l, haystack);
 						console.timeEnd('setup ' + name);
 
-						run(search);
+						setTimeout(() => {
+							run(search);
+						}, 0);
 
 						document.getElementById("search").addEventListener('input', e => {
 							let needle = e.target.value
@@ -1458,12 +1460,7 @@
 								res.innerHTML = 'DONE!';
 							};
 
-							if (setupRet instanceof Promise)
-								setupRet.then(_ => {
-									setTimeout(go, 1000);
-								});
-							else
-								setTimeout(go, 1000);
+							setTimeout(go, 1000);
 						}
 					}
 				});
