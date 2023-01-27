@@ -319,6 +319,7 @@ function uFuzzy(opts) {
 	const info = (idxs, haystack, needle) => {
 
 		let [query, parts] = prepQuery(needle, 1);
+		let [queryR] = prepQuery(needle, 2);
 		let partsLen = parts.length;
 
 		let len = idxs.length;
@@ -513,7 +514,7 @@ function uFuzzy(opts) {
 			}
 
 			if (!disc) {
-				let [queryR] = prepQuery(needle, 2, useExactParts);
+				let idxQueryR = useExactParts != null ? prepQuery(needle, 2, useExactParts)[0] : queryR;
 
 				info.idx[ii]       = idxs[i];
 				info.interLft2[ii] = lft2;
@@ -529,7 +530,7 @@ function uFuzzy(opts) {
 			//	info.span[ii] = span;
 
 				// ranges
-				let m = mhstr.match(queryR);
+				let m = mhstr.match(idxQueryR);
 				let ranges = info.ranges[ii] = [];
 
 				let idxAcc = m.index + m[1].length;
