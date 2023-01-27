@@ -166,7 +166,7 @@ export default function uFuzzy(opts) {
 		return needle.split(interSplit);
 	};
 
-	const prepQuery = (needle, capt = 0, exactParts) => {
+	const prepQuery = (needle, capt = 0, exactParts, interOR = false) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
 		let parts = split(needle);
 
@@ -268,10 +268,16 @@ export default function uFuzzy(opts) {
 
 		// capture at word level
 		if (capt > 0) {
-			// sadly, we also have to capture the inter-term junk via parenth-wrapping .*?
-			// to accum other capture groups' indices for \b boosting during scoring
-			reTpl = '(' + reTpl.join(')(' + interCharsTpl + ')(') + ')';
-			reTpl = '(.?' + preTpl + ')' + reTpl + '(' + sufTpl + '.*)'; // nit: trailing capture here assumes interIns = Inf
+			if (interOR) {
+				// this is basically for doing .matchAll() occurence counting and highlihting without needing permuted ooo needles
+				reTpl = preTpl + '(' + reTpl.join(')' + sufTpl + '|' + preTpl + '(') + ')' + sufTpl;
+			}
+			else {
+				// sadly, we also have to capture the inter-term junk via parenth-wrapping .*?
+				// to accum other capture groups' indices for \b boosting during scoring
+				reTpl = '(' + reTpl.join(')(' + interCharsTpl + ')(') + ')';
+				reTpl = '(.?' + preTpl + ')' + reTpl + '(' + sufTpl + '.*)'; // nit: trailing capture here assumes interIns = Inf
+			}
 		}
 		else {
 			reTpl = reTpl.join(interCharsTpl);
@@ -611,6 +617,9 @@ export default function uFuzzy(opts) {
 				}
 			}
 		}
+
+		// interOR
+	//	console.log(prepQuery(needle, 1, null, true));
 
 		// non-ooo or ooo w/single term
 		if (needles == null) {
