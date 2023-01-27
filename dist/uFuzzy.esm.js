@@ -4,7 +4,7 @@
 *
 * uFuzzy.js (μFuzzy)
 * A tiny, efficient fuzzy matcher that doesn't suck
-* https://github.com/leeoniya/uFuzzy (v1.0.0)
+* https://github.com/leeoniya/uFuzzy (v1.0.1)
 */
 
 const cmp = new Intl.Collator('en').compare;
