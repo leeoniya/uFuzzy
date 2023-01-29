@@ -4,6 +4,8 @@ const cmp = new Intl.Collator('en').compare;
 
 const inf = Infinity;
 
+const NEGS_RE = /(?:\s|^)-[a-z\d]+/ig;
+
 const OPTS = {
 	// term segmentation & punct/whitespace merging
 	interSplit: '[^A-Za-z0-9]+',
@@ -574,6 +576,15 @@ export default function uFuzzy(opts) {
 		let needles = null;
 		let matches = null;
 
+		let negs = [];
+
+		needle = needle.replace(NEGS_RE, m => {
+			negs.push(m.trim().slice(1));
+			return ' ';
+		});
+
+	//	console.log(negs);
+
 		if (outOfOrder) {
 			// since uFuzzy is an AND-based search, we can iteratively pre-reduce the haystack by searching
 			// for each term in isolation before running permutations on what's left.
@@ -627,10 +638,16 @@ export default function uFuzzy(opts) {
 			matches = [preFiltered?.length > 0 ? preFiltered : filter(haystack, needle)];
 		}
 
-		let matchCount = matches.reduce((acc, idxs) => acc + idxs.length, 0);
-
 		let retInfo = null;
 		let retOrder = null;
+
+		if (negs.length > 0) {
+			// basically just interLft: 2
+			let negsRe = new RegExp('(?:\\b|_)(?:' + negs.join('|') + ')', 'i');
+			matches = matches.map(idxs => idxs.filter(idx => !negsRe.test(haystack[idx])));
+		}
+
+		let matchCount = matches.reduce((acc, idxs) => acc + idxs.length, 0);
 
 		// rank, sort, concat
 		if (matchCount <= infoThresh) {
