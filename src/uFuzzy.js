@@ -397,7 +397,7 @@ export default function uFuzzy(opts) {
 
 				// this won't handle the case when an exact match exists across the boundary of the current group and the next junk
 				// e.g. blob,ob when searching for 'bob' but finding the earlier `blob` (with extra insertion)
-				if (!fullMatch && groupLen >= termLen && m[k+1].length >= termLen) {
+				if (!fullMatch && m[k+1].length >= termLen) {
 					// probe for exact match in inter junk
 					let idxOf = m[k+1].toLowerCase().indexOf(term);
 
