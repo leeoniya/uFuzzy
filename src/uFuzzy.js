@@ -160,7 +160,7 @@ export default function uFuzzy(opts) {
 	let trimRe = new RegExp('^' + _interSplit + '|' + _interSplit + '$', 'g');
 
 	const split = needle => {
-		needle = needle.replace(trimRe, '');
+		needle = needle.replace(trimRe, '').toLowerCase();
 
 		if (withIntraSplit)
 			needle = needle.replace(intraSplit, m => m[0] + ' ' + m[1]);
@@ -168,7 +168,7 @@ export default function uFuzzy(opts) {
 		return needle.split(interSplit);
 	};
 
-	const prepQuery = (needle, capt = 0, exactParts, interOR = false) => {
+	const prepQuery = (needle, capt = 0, exactParts = null, interOR = false) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
 		let parts = split(needle);
 
@@ -271,7 +271,7 @@ export default function uFuzzy(opts) {
 		// capture at word level
 		if (capt > 0) {
 			if (interOR) {
-				// this is basically for doing .matchAll() occurence counting and highlihting without needing permuted ooo needles
+				// this is basically for doing .matchAll() occurence counting and highlighting without needing permuted ooo needles
 				reTpl = preTpl + '(' + reTpl.join(')' + sufTpl + '|' + preTpl + '(') + ')' + sufTpl;
 			}
 			else {
@@ -402,43 +402,18 @@ export default function uFuzzy(opts) {
 					let idxOf = m[k+1].toLowerCase().indexOf(term);
 
 					if (idxOf > -1) {
-						// so here we have three options:
-						// 1. mutate the current match to be better.
-						//    this doesn't help the range regex below, which would need different adjustement logic, since
-						//    its capture groups are more granular
-						// 2. re-generate a new regex with some terms flagged as exact rather than a group of alterations
-						//    this is more expensive since we need to re-process, but will be seamless for range query,
-						//    but would require popping out of this loop and throwing away exisitng info counters
-						// 3. do a combo of the above
-						//    we can stay in this loop, but also gen a more explicit ranges regex that will result in the
-						//    better match
-
-						// this whole section probably risks violating interIns < Inf, since better terms might be too far away
-						// we could test for this here to choose not to re-process, but it's pretty unusual to reduce interIns
-						// (usually to only accept tighter matches). the match improvement here is likely better.
-
-					//	debugger;
-
-						// shift the current group into the prior junk, adjust idxAcc & start
-						let prepend = m[k] + m[k+1].slice(0, idxOf);
-						m[k-1] += prepend;
-						idxAcc += prepend.length;
-
-						if (j == 0)
-							start = idxAcc;
-
-						// update current group and next junk
-						m[k]    = m[k+1].slice(idxOf, idxOf + termLen);
-						m[k+1]  = m[k+1].slice(idxOf + termLen);
-
-						group = m[k].toLowerCase();
+						idxAcc += refineMatch(m, k, idxOf, termLen);
+						group = term;
 						groupLen = termLen;
 						fullMatch = true;
 
 						if (useExactParts == null)
 							useExactParts = Array(partsLen).fill(0);
 
-						useExactParts[j] = 1;
+						useExactParts[j] = 1; // m[k-1].slice(-6); // 6-char max lookbehind
+
+						if (j == 0)
+							start = idxAcc;
 					}
 				}
 
@@ -463,6 +438,50 @@ export default function uFuzzy(opts) {
 							fullMatch && lft1++;
 						else {
 							if (interLft == 1) {
+								// regexps are eager, so try to improve the match by probing forward inter junk for exact match at a boundary
+								let junk = m[k+1];
+								let junkIdx = idxAcc + groupLen;
+
+								if (junk.length >= termLen) {
+									let idxOf = 0;
+									let found = false;
+									let re = new RegExp(term, 'ig');
+
+									let m2;
+									while (m2 = re.exec(junk)) {
+										idxOf = m2.index;
+
+										let charIdx = junkIdx + idxOf;
+										let lftCharIdx = charIdx - 1;
+
+
+										if (lftCharIdx == -1 || interBound.test(mhstr[lftCharIdx])) {
+											lft2++;
+											found = true;
+											break;
+										}
+										else if (intraBound.test(mhstr[lftCharIdx] + mhstr[charIdx])) {
+											lft1++;
+											found = true;
+											break;
+										}
+									}
+
+									if (found) {
+										// identical to exact term refinement pass above
+										idxAcc += refineMatch(m, k, idxOf, termLen);
+										group = term;
+										groupLen = termLen;
+										fullMatch = true;
+
+										if (useExactParts == null)
+											useExactParts = Array(partsLen).fill(0);
+
+										useExactParts[j] = 1; // m[k-1].slice(-6); // 6-char max lookbehind
+										break;
+									}
+								}
+
 								disc = true;
 								break;
 							}
@@ -569,6 +588,15 @@ export default function uFuzzy(opts) {
 		DEBUG && console.timeEnd('info');
 
 		return info;
+	};
+
+	const refineMatch = (m, k, idxInNext, termLen) => {
+		// shift the current group into the prior junk
+		let prepend = m[k] + m[k+1].slice(0, idxInNext);
+		m[k-1] += prepend;
+		m[k]    = m[k+1].slice(idxInNext, idxInNext + termLen);
+		m[k+1]  = m[k+1].slice(idxInNext + termLen);
+		return prepend.length;
 	};
 
 	// returns [idxs, info, order]
