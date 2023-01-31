@@ -38,7 +38,7 @@ declare class uFuzzy {
 	static permute(arr: unknown[]): unknown[][];
 
 	/** util for replacing common diacritics/accents */
-	static latinize(strings: string[]): string[];
+	static latinize<T extends string[] | string>(strings: T): T;
 
 	/** util for highlighting matched substr parts of a result */
 	static highlight<TAccum = string, TMarkedPart = string>(

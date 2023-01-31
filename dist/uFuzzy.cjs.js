@@ -763,11 +763,15 @@ const latinize = (() => {
 	}
 
 	let accentsRe = new RegExp(`[${accentsTpl}]`, 'g');
+	let replacer = m => accentsMap.get(m);
 
 	return strings => {
+		if (typeof strings == 'string')
+			return strings.replace(accentsRe, replacer);
+
 		let out = Array(strings.length);
 		for (let i = 0; i < strings.length; i++)
-			out[i] = strings[i].replace(accentsRe, m => accentsMap.get(m));
+			out[i] = strings[i].replace(accentsRe, replacer);
 		return out;
 	};
 })();
