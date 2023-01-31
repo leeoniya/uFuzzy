@@ -168,7 +168,7 @@ export default function uFuzzy(opts) {
 		return needle.split(interSplit);
 	};
 
-	const prepQuery = (needle, capt = 0, exactParts = null, interOR = false) => {
+	const prepQuery = (needle, capt = 0, interOR = false) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
 		let parts = split(needle);
 
@@ -186,7 +186,7 @@ export default function uFuzzy(opts) {
 					intraDel,
 				} = intraRules(p);
 
-				if (intraIns + intraSub + intraTrn + intraDel == 0 || exactParts?.[pi] == 1)
+				if (intraIns + intraSub + intraTrn + intraDel == 0)
 					return p;
 
 				let [lftIdx, rgtIdx] = intraSlice;
@@ -249,7 +249,7 @@ export default function uFuzzy(opts) {
 				intraInsTpl = ')(' + intraInsTpl + ')(';
 			}
 
-			reTpl = parts.map((p, pi) => exactParts?.[pi] == 1 ? p : p.split('').map((c, i, chars) => {
+			reTpl = parts.map(p => p.split('').map((c, i, chars) => {
 				// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
 				// but skip when search term contains leading repetition (aardvark, aaa)
 				if (intraIns == 1 && i == 0 && chars.length > 1 && c[i] != c[i+1])
@@ -385,8 +385,7 @@ export default function uFuzzy(opts) {
 			let inter = 0;
 			let intra = 0;
 
-			// will be populated if we need to re-generate a query with some exact terms
-			let useExactParts = null;
+			let refine = [];
 
 			for (let j = 0, k = 2; j < partsLen; j++, k+=2) {
 				let group = m[k].toLowerCase();
@@ -402,15 +401,11 @@ export default function uFuzzy(opts) {
 					let idxOf = m[k+1].toLowerCase().indexOf(term);
 
 					if (idxOf > -1) {
+						refine.push(idxAcc, idxOf, termLen);
 						idxAcc += refineMatch(m, k, idxOf, termLen);
 						group = term;
 						groupLen = termLen;
 						fullMatch = true;
-
-						if (useExactParts == null)
-							useExactParts = Array(partsLen).fill(0);
-
-						useExactParts[j] = 1; // m[k-1].slice(-6); // 6-char max lookbehind
 
 						if (j == 0)
 							start = idxAcc;
@@ -469,15 +464,11 @@ export default function uFuzzy(opts) {
 
 									if (found) {
 										// identical to exact term refinement pass above
+										refine.push(idxAcc, idxOf, termLen);
 										idxAcc += refineMatch(m, k, idxOf, termLen);
 										group = term;
 										groupLen = termLen;
 										fullMatch = true;
-
-										if (useExactParts == null)
-											useExactParts = Array(partsLen).fill(0);
-
-										useExactParts[j] = 1; // m[k-1].slice(-6); // 6-char max lookbehind
 										break;
 									}
 								}
@@ -536,8 +527,6 @@ export default function uFuzzy(opts) {
 			}
 
 			if (!disc) {
-				let idxQueryR = useExactParts != null ? prepQuery(needle, 2, useExactParts)[0] : queryR;
-
 				info.idx[ii]       = idxs[i];
 				info.interLft2[ii] = lft2;
 				info.interLft1[ii] = lft1;
@@ -552,17 +541,33 @@ export default function uFuzzy(opts) {
 			//	info.span[ii] = span;
 
 				// ranges
-				let m = mhstr.match(idxQueryR);
+				let m = mhstr.match(queryR);
 				let ranges = info.ranges[ii] = [];
 
 				let idxAcc = m.index + m[1].length;
 				let from = idxAcc;
 				let to = idxAcc;
 
+				let refLen = refine.length;
+				let ri = refLen > 0 ? 0 : Infinity;
+				let lastRi = refLen - 3;
+
 				for (let i = 2; i < m.length; i++) {
 					let len = m[i].length;
 
-					idxAcc += len;
+					if (ri <= lastRi && refine[ri] == idxAcc) {
+						let idxInNext = refine[ri+1];
+						let matchLen = refine[ri+2];
+						let offset = idxInNext + matchLen;
+
+						idxAcc += len + offset;
+						from = idxAcc - matchLen;
+						m[i+1] = m[i+1].slice(offset);
+
+						ri+=3;
+					}
+					else
+						idxAcc += len;
 
 					if (i % 2 == 0)
 						to = idxAcc;
