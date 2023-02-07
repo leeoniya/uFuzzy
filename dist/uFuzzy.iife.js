@@ -18,7 +18,7 @@ var uFuzzy = (function () {
 
 	const OPTS = {
 		// term segmentation & punct/whitespace merging
-		interSplit: '[^A-Za-z0-9]+',
+		interSplit: "[^A-Za-z0-9']+",
 		intraSplit: '[a-z][A-Z]',
 
 		// intra bounds that will be used to increase lft1/rgt1 info counters
@@ -168,6 +168,7 @@ var uFuzzy = (function () {
 		let interSplit = new RegExp(_interSplit, 'g');
 
 		let trimRe = new RegExp('^' + _interSplit + '|' + _interSplit + '$', 'g');
+		let contrsRe = /'[a-z0-9]{0,2}/gi;
 
 		const split = needle => {
 			needle = needle.replace(trimRe, '').toLowerCase();
@@ -181,6 +182,13 @@ var uFuzzy = (function () {
 		const prepQuery = (needle, capt = 0, interOR = false) => {
 			// split on punct, whitespace, num-alpha, and upper-lower boundaries
 			let parts = split(needle);
+
+			// split out any detected contractions for each term that become required suffixes
+			let contrs = Array(parts.length).fill('');
+			parts = parts.map((p, pi) => p.replace(contrsRe, m => {
+				contrs[pi] = m;
+				return '';
+			}));
 
 			// array of regexp tpls for each term
 			let reTpl;
@@ -197,11 +205,11 @@ var uFuzzy = (function () {
 					} = intraRules(p);
 
 					if (intraIns + intraSub + intraTrn + intraDel == 0)
-						return p;
+						return p + contrs[pi];
 
 					let [lftIdx, rgtIdx] = intraSlice;
 					let lftChar = p.slice(0, lftIdx); // prefix
-					let rgtChar = p.slice(rgtIdx); // suffix
+					let rgtChar = p.slice(rgtIdx);    // suffix
 
 					let chars = p.slice(lftIdx, rgtIdx);
 
@@ -242,7 +250,7 @@ var uFuzzy = (function () {
 							variants.push(lftChar + chars.slice(0, i) + intraInsTpl + chars.slice(i) + rgtChar);
 					}
 
-					let reTpl = '(?:' + p + '|' + variants.join('|') + ')';
+					let reTpl = '(?:' + p + '|' + variants.join('|') + ')' + contrs[pi];
 
 				//	console.log(reTpl);
 
@@ -259,14 +267,14 @@ var uFuzzy = (function () {
 					intraInsTpl = ')(' + intraInsTpl + ')(';
 				}
 
-				reTpl = parts.map(p => p.split('').map((c, i, chars) => {
+				reTpl = parts.map((p, pi) => p.split('').map((c, i, chars) => {
 					// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
 					// but skip when search term contains leading repetition (aardvark, aaa)
 					if (intraIns == 1 && i == 0 && chars.length > 1 && c[i] != c[i+1])
 						c += '(?!' + c + ')';
 
 					return c;
-				}).join(intraInsTpl));
+				}).join(intraInsTpl) + contrs[pi]);
 			}
 
 		//	console.log(reTpl);
@@ -298,7 +306,7 @@ var uFuzzy = (function () {
 
 		//	console.log(reTpl);
 
-			return [new RegExp(reTpl, 'i'), parts];
+			return [new RegExp(reTpl, 'i'), parts, contrs];
 		};
 
 		const filter = (haystack, needle, idxs) => {
@@ -327,7 +335,7 @@ var uFuzzy = (function () {
 
 		const info = (idxs, haystack, needle) => {
 
-			let [query, parts] = prepQuery(needle, 1);
+			let [query, parts, contrs] = prepQuery(needle, 1);
 			let [queryR] = prepQuery(needle, 2);
 			let partsLen = parts.length;
 
@@ -395,7 +403,7 @@ var uFuzzy = (function () {
 
 				for (let j = 0, k = 2; j < partsLen; j++, k+=2) {
 					let group = m[k].toLowerCase();
-					let term = parts[j];
+					let term = parts[j] + contrs[j];
 					let termLen = term.length;
 					let groupLen = group.length;
 					let fullMatch = group == term;
