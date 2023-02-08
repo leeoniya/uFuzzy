@@ -33,7 +33,7 @@ const OPTS = {
 	interIns: inf,
 
 	// allowance between chars in terms
-	intraChars: '[a-z\\d]', // internally case-insensitive
+	intraChars: "[a-z\\d']", // internally case-insensitive
 	intraIns: 0,
 
 	// multi-insert or single-error mode
@@ -165,7 +165,7 @@ function uFuzzy(opts) {
 	let interSplit = new RegExp(_interSplit, 'g');
 
 	let trimRe = new RegExp('^' + _interSplit + '|' + _interSplit + '$', 'g');
-	let contrsRe = /'[a-z0-9]{0,2}/gi;
+	let contrsRe = /'[a-z0-9]{1,2}\b/gi;
 
 	const split = needle => {
 		needle = needle.replace(trimRe, '').toLowerCase();
