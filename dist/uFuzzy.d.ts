@@ -115,6 +115,9 @@ declare namespace uFuzzy {
 		intraChars?: PartialRegExp;  // '[a-z\\d]'
 		intraIns?: number;           // 0
 
+		/** contractions detection */
+		intraContr?: PartialRegExp;  // "'[a-z]{1,2}\\b"
+
 		/** error tolerance mode within terms. will clamp intraIns to 1 when set to SingleError */
 		intraMode?: IntraMode;       // 0
 
