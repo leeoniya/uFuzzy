@@ -247,7 +247,7 @@ There are 3 phases to a search:
 ---
 ### API
 
-A liberally-commented 100 LoC [uFuzzy.d.ts](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.d.ts) file.
+A liberally-commented 200 LoC [uFuzzy.d.ts](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.d.ts) file.
 
 ---
 ### Options
