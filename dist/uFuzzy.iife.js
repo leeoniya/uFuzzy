@@ -179,12 +179,15 @@ var uFuzzy = (function () {
 			if (withIntraSplit)
 				needle = needle.replace(intraSplit, m => m[0] + ' ' + m[1]);
 
-			return needle.split(interSplit);
+			return needle.split(interSplit).filter(t => t != '');
 		};
 
 		const prepQuery = (needle, capt = 0, interOR = false) => {
 			// split on punct, whitespace, num-alpha, and upper-lower boundaries
 			let parts = split(needle);
+
+			if (parts.length == 0)
+				throw `Empty needle!`;
 
 			// split out any detected contractions for each term that become required suffixes
 			let contrs = Array(parts.length).fill('');
