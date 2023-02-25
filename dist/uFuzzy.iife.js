@@ -14,7 +14,7 @@ var uFuzzy = (function () {
 
 	const inf = Infinity;
 
-	const NEGS_RE = /(?:\s|^)-[a-z\d]+/ig;
+	const NEGS_RE = /(?:\s+|^)-[a-z\d]+/ig;
 
 	const OPTS = {
 		// term segmentation & punct/whitespace merging
@@ -631,10 +631,28 @@ var uFuzzy = (function () {
 
 			needle = needle.replace(NEGS_RE, m => {
 				negs.push(m.trim().slice(1));
-				return ' ';
+				return '';
 			});
 
+			let negsRe;
+
+			if (negs.length > 0) {
+				negsRe = new RegExp(negs.join('|'), 'i');
+
+				if (needle.trim() == '') {
+					let idxs = [];
+
+					for (let i = 0; i < haystack.length; i++) {
+						if (!negsRe.test(haystack[i]))
+							idxs.push(i);
+					}
+
+					return [idxs, null, null];
+				}
+			}
+
 		//	console.log(negs);
+		//	console.log(needle);
 
 			if (outOfOrder) {
 				// since uFuzzy is an AND-based search, we can iteratively pre-reduce the haystack by searching
@@ -692,10 +710,8 @@ var uFuzzy = (function () {
 			let retInfo = null;
 			let retOrder = null;
 
-			if (negs.length > 0) {
-				let negsRe = new RegExp(negs.join('|'), 'i');
+			if (negs.length > 0)
 				matches = matches.map(idxs => idxs.filter(idx => !negsRe.test(haystack[idx])));
-			}
 
 			let matchCount = matches.reduce((acc, idxs) => acc + idxs.length, 0);
 
