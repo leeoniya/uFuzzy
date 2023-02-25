@@ -10,8 +10,9 @@ uFuzzy is a [fuzzy search](https://en.wikipedia.org/wiki/Approximate_string_matc
 It might be best described as a more forgiving [String.indexOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf).
 Common use cases are list filtering, auto-complete/suggest, and title/name/description/filename/function searches.
 
-In its default configuration, each uFuzzy match must contain all alpha-numeric characters from the needle in the same sequence, so is likely a poor fit for applications like spellcheck or fulltext/document search.
-However, its speed leaves ample headroom to [match out-of-order terms](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca) by combining results from all permutations of the needle.
+In uFuzzy's default MultiInsert mode, each match must contain all alpha-numeric characters from the needle in the same sequence;
+in SingleError mode, single typos are tolerated in each term (like [Damerau–Levenshtein distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) = 1, but much faster).
+Its `.search()` API can efficiently [match out-of-order terms](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca) and supports multiple substring exclusions, e.g. `fruit -green -melon`.
 When held _just right_, it can efficiently match against multiple object properties, too.
 
 ---
