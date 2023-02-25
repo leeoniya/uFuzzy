@@ -17,6 +17,9 @@ var uFuzzy = (function () {
 	const NEGS_RE = /(?:\s+|^)-[a-z\d]+/ig;
 
 	const OPTS = {
+		// whether regexps use a /u unicode flag
+		unicode: false,
+
 		// term segmentation & punct/whitespace merging
 		interSplit: "[^A-Za-z0-9']+",
 		intraSplit: '[a-z][A-Z]',
@@ -106,6 +109,7 @@ var uFuzzy = (function () {
 		opts = Object.assign({}, OPTS, opts);
 
 		const {
+			unicode,
 			interLft,
 			interRgt,
 			intraMode,
@@ -120,6 +124,8 @@ var uFuzzy = (function () {
 			intraBound: _intraBound,
 			intraChars,
 		} = opts;
+
+		let uFlag = unicode ? 'u' : '';
 
 		let { intraRules } = opts;
 
@@ -167,11 +173,11 @@ var uFuzzy = (function () {
 
 		let withIntraSplit = !!_intraSplit;
 
-		let intraSplit = new RegExp(_intraSplit, 'g');
-		let interSplit = new RegExp(_interSplit, 'g');
+		let intraSplit = new RegExp(_intraSplit, 'g' + uFlag);
+		let interSplit = new RegExp(_interSplit, 'g' + uFlag);
 
-		let trimRe = new RegExp('^' + _interSplit + '|' + _interSplit + '$', 'g');
-		let contrsRe = new RegExp(intraContr, 'gi');
+		let trimRe = new RegExp('^' + _interSplit + '|' + _interSplit + '$', 'g' + uFlag);
+		let contrsRe = new RegExp(intraContr, 'gi' + uFlag);
 
 		const split = needle => {
 			needle = needle.replace(trimRe, '').toLowerCase();
@@ -312,7 +318,7 @@ var uFuzzy = (function () {
 
 		//	console.log(reTpl);
 
-			return [new RegExp(reTpl, 'i'), parts, contrs];
+			return [new RegExp(reTpl, 'i' + uFlag), parts, contrs];
 		};
 
 		const filter = (haystack, needle, idxs) => {
@@ -336,8 +342,8 @@ var uFuzzy = (function () {
 
 		let withIntraBound = !!_intraBound;
 
-		let interBound = new RegExp(_interSplit);
-		let intraBound = new RegExp(_intraBound);
+		let interBound = new RegExp(_interSplit, uFlag);
+		let intraBound = new RegExp(_intraBound, uFlag);
 
 		const info = (idxs, haystack, needle) => {
 
@@ -460,7 +466,7 @@ var uFuzzy = (function () {
 									if (junk.length >= termLen) {
 										let idxOf = 0;
 										let found = false;
-										let re = new RegExp(term, 'ig');
+										let re = new RegExp(term, 'ig' + uFlag);
 
 										let m2;
 										while (m2 = re.exec(junk)) {
@@ -637,7 +643,7 @@ var uFuzzy = (function () {
 			let negsRe;
 
 			if (negs.length > 0) {
-				negsRe = new RegExp(negs.join('|'), 'i');
+				negsRe = new RegExp(negs.join('|'), 'i' + uFlag);
 
 				if (needle.trim() == '') {
 					let idxs = [];

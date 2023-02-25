@@ -28,6 +28,20 @@ When held _just right_, it can efficiently match against multiple object propert
 [![uFuzzy demo](uFuzzy.png)](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca)
 
 ---
+### Charsets, Alphabets, Diacritics
+
+uFuzzy is optimized for the [Latin/Roman alphabet](https://en.wikipedia.org/wiki/Latin_alphabet) and relies internally on non-unicode regular expressions.
+The `uFuzzy.latinize()` util function may be used to strip common accents/diacritics from the haystack and needle prior to searching.
+
+It should be possible to support other scripts (Cyrillic, Chinese, Arabic, Greek, etc) by setting `{unicode: true}` and replacing various uFuzzy opts e.g. `[A-Z]` with `\p{Alpha}` or `\p{sc=Cyrillic}`.
+[More examples](https://javascript.info/regexp-unicode#example-chinese-hieroglyphs).
+Latin + Cyrillic can also be supported without the unicode flag by adding a charset range to an ASCII regexps, e.g. `[\wа-яё]`.
+There are likely performance implications for using unicode regexps that should be considered.
+If you're interested in assisting with creating and testing a collection of opts recipes for non-latin scripts, please open an issue to discuss.
+
+All searches are currently case-insensitive; it is not possible to do a case-sensitive search.
+
+---
 ### Demos
 
 **NOTE:** The [testdata.json](https://github.com/leeoniya/uFuzzy/blob/main/demos/testdata.json) file is a diverse 162,000 string/phrase dataset 4MB in size, so first load may be slow due to network transfer.

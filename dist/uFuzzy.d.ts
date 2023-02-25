@@ -96,6 +96,9 @@ declare namespace uFuzzy {
 	export type IntraSliceIdxs = [from: number, to: number];
 
 	export interface Options {
+		// whether regexps use a /u unicode flag
+		unicode?: boolean; // false
+
 		/** term segmentation & punct/whitespace merging */
 		interSplit?: PartialRegExp;         // '[^A-Za-z0-9]+'
 		intraSplit?: PartialRegExp | null;  // '[a-z][A-Z]'
