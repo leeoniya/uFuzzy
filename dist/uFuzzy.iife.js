@@ -693,8 +693,7 @@ var uFuzzy = (function () {
 			let retOrder = null;
 
 			if (negs.length > 0) {
-				// basically just interLft: 2
-				let negsRe = new RegExp('(?:\\b|_)(?:' + negs.join('|') + ')', 'i');
+				let negsRe = new RegExp(negs.join('|'), 'i');
 				matches = matches.map(idxs => idxs.filter(idx => !negsRe.test(haystack[idx])));
 			}
 
