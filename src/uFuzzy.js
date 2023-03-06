@@ -272,7 +272,7 @@ export default function uFuzzy(opts) {
 			reTpl = parts.map((p, pi) => p.split('').map((c, i, chars) => {
 				// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
 				// but skip when search term contains leading repetition (aardvark, aaa)
-				if (intraIns == 1 && i == 0 && chars.length > 1 && c[i] != c[i+1])
+				if (intraIns == 1 && i == 0 && chars.length > 1 && c != chars[i+1])
 					c += '(?!' + c + ')';
 
 				return c;
@@ -298,7 +298,7 @@ export default function uFuzzy(opts) {
 				// sadly, we also have to capture the inter-term junk via parenth-wrapping .*?
 				// to accum other capture groups' indices for \b boosting during scoring
 				reTpl = '(' + reTpl.join(')(' + interCharsTpl + ')(') + ')';
-				reTpl = '(.?' + preTpl + ')' + reTpl + '(' + sufTpl + '.*)'; // nit: trailing capture here assumes interIns = Inf
+				reTpl = '(.??' + preTpl + ')' + reTpl + '(' + sufTpl + '.*)'; // nit: trailing capture here assumes interIns = Inf
 			}
 		}
 		else {
