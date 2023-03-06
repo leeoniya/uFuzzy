@@ -662,7 +662,7 @@ export default function uFuzzy(opts) {
 
 				for (let ti = 0; ti < terms2.length; ti++) {
 					// no haystack item contained all terms
-					if (preFiltered?.length == 0)
+					if (preFiltered && preFiltered.length == 0)
 						return [[], null, null];
 
 					preFiltered = filter(haystack, terms2[ti], preFiltered);
@@ -700,7 +700,7 @@ export default function uFuzzy(opts) {
 		// non-ooo or ooo w/single term
 		if (needles == null) {
 			needles = [needle];
-			matches = [preFiltered?.length > 0 ? preFiltered : filter(haystack, needle)];
+			matches = [preFiltered && preFiltered.length > 0 ? preFiltered : filter(haystack, needle)];
 		}
 
 		let retInfo = null;
