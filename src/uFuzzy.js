@@ -222,7 +222,7 @@ export default function uFuzzy(opts) {
 
 				let numChars = chars.length;
 
-				let variants = [];
+				let variants = [p];
 
 				// variants with single char substitutions
 				if (intraSub) {
@@ -252,7 +252,7 @@ export default function uFuzzy(opts) {
 						variants.push(lftChar + chars.slice(0, i) + intraInsTpl + chars.slice(i) + rgtChar);
 				}
 
-				let reTpl = '(?:' + p + '|' + variants.join('|') + ')' + contrs[pi];
+				let reTpl = '(?:' + variants.join('|') + ')' + contrs[pi];
 
 			//	console.log(reTpl);
 
