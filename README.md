@@ -108,27 +108,30 @@ let uf = new uFuzzy(opts);
 // pre-filter
 let idxs = uf.filter(haystack, needle);
 
-// sort/rank only when <= 1,000 items
-let infoThresh = 1e3;
+// idxs can be null when the needle is non-searchable (has no alpha-numeric chars)
+if (idxs != null && idxs.length > 0) {
+  // sort/rank only when <= 1,000 items
+  let infoThresh = 1e3;
 
-if (idxs.length <= infoThresh) {
-  let info = uf.info(idxs, haystack, needle);
+  if (idxs.length <= infoThresh) {
+    let info = uf.info(idxs, haystack, needle);
 
-  // order is a double-indirection array (a re-order of the passed-in idxs)
-  // this allows corresponding info to be grabbed directly by idx, if needed
-  let order = uf.sort(info, haystack, needle);
+    // order is a double-indirection array (a re-order of the passed-in idxs)
+    // this allows corresponding info to be grabbed directly by idx, if needed
+    let order = uf.sort(info, haystack, needle);
 
-  // render post-filtered & ordered matches
-  for (let i = 0; i < order.length; i++) {
-    // using info.idx here instead of idxs because uf.info() may have
-    // further reduced the initial idxs based on prefix/suffix rules
-    console.log(haystack[info.idx[order[i]]]);
+    // render post-filtered & ordered matches
+    for (let i = 0; i < order.length; i++) {
+      // using info.idx here instead of idxs because uf.info() may have
+      // further reduced the initial idxs based on prefix/suffix rules
+      console.log(haystack[info.idx[order[i]]]);
+    }
   }
-}
-else {
-  // render pre-filtered but unordered matches
-  for (let i = 0; i < idxs.length; i++) {
-    console.log(haystack[idxs[i]]);
+  else {
+    // render pre-filtered but unordered matches
+    for (let i = 0; i < idxs.length; i++) {
+      console.log(haystack[idxs[i]]);
+    }
   }
 }
 ```
@@ -137,7 +140,7 @@ else {
 ### Integrated Search
 
 uFuzzy provides a `uf.search(haystack, needle, outOfOrder = false, infoThresh = 1e3) => [idxs, info, order]` wrapper which combines the `filter`, `info`, `sort` steps above.
-This method also implements efficient logic for matching search terms out of order.
+This method also implements efficient logic for matching search terms out of order and support for multiple substring exclusions, e.g. `fruit -green -melon`.
 
 ---
 ### Match Highlighting

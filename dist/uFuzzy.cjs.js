@@ -192,7 +192,7 @@ function uFuzzy(opts) {
 		let parts = split(needle);
 
 		if (parts.length == 0)
-			throw `Empty needle!`;
+			return [];
 
 		// split out any detected contractions for each term that become required suffixes
 		let contrs = Array(parts.length).fill('');
@@ -322,8 +322,12 @@ function uFuzzy(opts) {
 
 	const filter = (haystack, needle, idxs) => {
 
-		let out = [];
 		let [query] = prepQuery(needle);
+
+		if (query == null)
+			return null;
+
+		let out = [];
 
 		if (idxs != null) {
 			for (let i = 0; i < idxs.length; i++) {
@@ -639,12 +643,14 @@ function uFuzzy(opts) {
 			return '';
 		});
 
+		let terms = split(needle);
+
 		let negsRe;
 
 		if (negs.length > 0) {
 			negsRe = new RegExp(negs.join('|'), 'i' + uFlag);
 
-			if (needle.trim() == '') {
+			if (terms.length == 0) {
 				let idxs = [];
 
 				for (let i = 0; i < haystack.length; i++) {
@@ -654,6 +660,11 @@ function uFuzzy(opts) {
 
 				return [idxs, null, null];
 			}
+		}
+		else {
+			// abort search (needle is empty after pre-processing, e.g. no alpha-numeric chars)
+			if (terms.length == 0)
+				return [null, null, null];
 		}
 
 	//	console.log(negs);

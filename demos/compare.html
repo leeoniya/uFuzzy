@@ -554,16 +554,18 @@
 
 								let [idxs, info, order] = u.search(haystack, needle, oooPermute, infoThresh, preFiltered);
 
-								if (info != null) {
-									toStr = oi => {
-										let hi = info.idx[oi];
-										return uFuzzy.highlight(haystack[hi], info.ranges[oi]);
-									};
-									return order;
-								}
-								else if (idxs.length > 0) {
-									toStr = idx => haystack[idx];
-									return idxs;
+								if (idxs != null) {
+									if (info != null) {
+										toStr = oi => {
+											let hi = info.idx[oi];
+											return uFuzzy.highlight(haystack[hi], info.ranges[oi]);
+										};
+										return order;
+									}
+									else if (idxs.length > 0) {
+										toStr = idx => haystack[idx];
+										return idxs;
+									}
 								}
 
 								return [];

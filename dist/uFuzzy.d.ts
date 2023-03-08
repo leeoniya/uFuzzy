@@ -15,7 +15,7 @@ declare class uFuzzy {
 		haystack: string[],
 		needle: string,
 		idxs?: uFuzzy.HaystackIdxs
-	): uFuzzy.HaystackIdxs;
+	): uFuzzy.HaystackIdxs | null;
 
 	/** collects stats about pre-filtered matches, does additional filtering based on term boundary settings, finds highlight ranges */
 	info(
@@ -63,6 +63,8 @@ declare namespace uFuzzy {
 	/** sorted order in which info facets should be iterated */
 	export type InfoIdxOrder = number[];
 
+	export type AbortedResult = [null, null, null];
+
 	export type FilteredResult = [uFuzzy.HaystackIdxs, null, null];
 
 	export type RankedResult = [
@@ -71,7 +73,7 @@ declare namespace uFuzzy {
 		uFuzzy.InfoIdxOrder
 	];
 
-	export type SearchResult = FilteredResult | RankedResult;
+	export type SearchResult = FilteredResult | RankedResult | AbortedResult;
 
 	/** partial RegExp */
 	type PartialRegExp = string;
