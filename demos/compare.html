@@ -1238,6 +1238,36 @@
 					search: null,
 					toStr: null,
 				},
+				{
+					name: 'ndx',
+					script: './lib/ndx.min.js',
+					fulltext: true,
+					repo: 'https://github.com/localvoid/ndx',
+					opts: {},
+					setup: (haystack, opts) => {
+						// https://github.com/localvoid/ndx#example
+						const { createIndex, indexAdd, indexQuery } = ndx;
+
+						const termFilter = (term) => term.toLowerCase();
+						const splitterRe = /[^a-z0-9]+/gi;
+						const splitter = (s) => s.split(splitterRe);
+						const numFields = 1;
+						const fieldGetters = [doc => doc];
+						const fieldBoostFactors = [1];
+
+						const index = createIndex(numFields, splitter, termFilter);
+
+						for (let i = 0; i < haystack.length; i++)
+							indexAdd(index, fieldGetters, i, haystack[i]);
+
+						return {
+							search: needle => indexQuery(index, fieldBoostFactors, 1.2, 0.75, needle),
+							toStr: m => `<i>${+m.score.toFixed(2)}</i> ` + haystack[m.key],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//	TODO:
 			//	https://github.com/wouterrutgers/fuzzy-search (186)
 			//	https://github.com/gjuchault/fuzzyjs (177)

@@ -822,6 +822,19 @@ https://bestofjs.org/projects?tags=search
         </tr>
         <tr>
             <td>
+                <a href="https://github.com/localvoid/ndx">ndx</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=ndx&search=super%20ma">try</a>)
+            </td>
+            <td>★ 130</td>
+            <td>2.9KB</td>
+            <td>350ms</td>
+            <td>675ms</td>
+            <td>441MB</td>
+            <td>273MB</td>
+            <td>420ms</td>
+        </tr>
+        <tr>
+            <td>
                 <a href="https://github.com/jhawthorn/fzy.js/">fzy</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fzy&search=super%20ma">try</a>)
             </td>
