@@ -12,7 +12,7 @@ Common use cases are list filtering, auto-complete/suggest, and title/name/descr
 
 In uFuzzy's default MultiInsert mode, each match must contain all alpha-numeric characters from the needle in the same sequence;
 in SingleError mode, single typos are tolerated in each term (like [Damerau–Levenshtein distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) = 1, but much faster).
-Its `.search()` API can efficiently [match out-of-order terms](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca) and supports multiple substring exclusions, e.g. `fruit -green -melon`.
+Its `.search()` API can efficiently [match out-of-order terms](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca), supports multiple substring exclusions (e.g. `fruit -green -melon`), and exact terms with non-alphanum chars (e.g. `"C++"`, `"$100"`, `"#hashtag"`).
 When held _just right_, it can efficiently match against multiple object properties, too.
 
 ---

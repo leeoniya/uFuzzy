@@ -11,7 +11,14 @@ const cmp = new Intl.Collator('en').compare;
 
 const inf = Infinity;
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#escaping
+const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const NEGS_RE = /(?:\s+|^)-[a-z\d]+/ig;
+const EXACTS_RE = /".+?"+/ig;
+
+// meh, magic tmp placeholder, must be tolerant to toLowerCase(), interSplit, and intraSplit
+const EXACT_HERE = 'eexxaacctt';
 
 const OPTS = {
 	// whether regexps use a /u unicode flag
@@ -177,12 +184,20 @@ function uFuzzy(opts) {
 	let contrsRe = new RegExp(intraContr, 'gi' + uFlag);
 
 	const split = needle => {
+		let exacts = [];
+
+		needle = needle.replace(EXACTS_RE, m => {
+			exacts.push(m);
+			return EXACT_HERE;
+		});
+
 		needle = needle.replace(trimRe, '').toLowerCase();
 
 		if (withIntraSplit)
 			needle = needle.replace(intraSplit, m => m[0] + ' ' + m[1]);
 
-		return needle.split(interSplit).filter(t => t != '');
+		let j = 0;
+		return needle.split(interSplit).filter(t => t != '').map(v => v === EXACT_HERE ? exacts[j++] : v);
 	};
 
 	const prepQuery = (needle, capt = 0, interOR = false) => {
@@ -215,6 +230,9 @@ function uFuzzy(opts) {
 
 				if (intraIns + intraSub + intraTrn + intraDel == 0)
 					return p + contrs[pi];
+
+				if (p[0] === '"')
+					return escapeRegExp(p.slice(1, -1));
 
 				let [lftIdx, rgtIdx] = intraSlice;
 				let lftChar = p.slice(0, lftIdx); // prefix
@@ -276,7 +294,7 @@ function uFuzzy(opts) {
 				intraInsTpl = ')(' + intraInsTpl + ')(';
 			}
 
-			reTpl = parts.map((p, pi) => p.split('').map((c, i, chars) => {
+			reTpl = parts.map((p, pi) => p[0] === '"' ? escapeRegExp(p.slice(1, -1)) :  p.split('').map((c, i, chars) => {
 				// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
 				// but skip when search term contains leading repetition (aardvark, aaa)
 				if (intraIns == 1 && i == 0 && chars.length > 1 && c != chars[i+1])
@@ -416,7 +434,8 @@ function uFuzzy(opts) {
 
 			for (let j = 0, k = 2; j < partsLen; j++, k+=2) {
 				let group = m[k].toLowerCase();
-				let term = parts[j] + contrs[j];
+				let part = parts[j];
+				let term = part[0] == '"' ? part.slice(1, -1) : part + contrs[j];
 				let termLen = term.length;
 				let groupLen = group.length;
 				let fullMatch = group == term;
