@@ -376,6 +376,17 @@
 						if (opts.interChars == null)
 							delete opts.interChars;
 
+					/*
+						opts = {
+							unicode: true,
+							interSplit: "[^\\p{L}\\d']+",
+							intraSplit: "\\p{Ll}\\p{Lu}",
+							intraBound: "\\p{L}\\d|\\d\\p{L}|\\p{Ll}\\p{Lu}",
+							intraChars: "[\\p{L}\\d']",
+							intraContr: "'\\p{L}{1,2}\\b",
+						};
+					*/
+
 						let u = new uFuzzy(opts);
 
 						let infoThreshEl = document.getElementById('infoThresh');

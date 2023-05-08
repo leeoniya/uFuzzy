@@ -44,7 +44,7 @@ This seems to work universally, at some perf cost:
 ```js
 let opts = {
   unicode: true,
-  interSplit: "[^\\P{P}']+", // all punct except ' (via double-negative: https://stackoverflow.com/a/3469155)
+  interSplit: "[^\\p{L}\\d']+",
   intraSplit: "\\p{Ll}\\p{Lu}",
   intraBound: "\\p{L}\\d|\\d\\p{L}|\\p{Ll}\\p{Lu}",
   intraChars: "[\\p{L}\\d']",
