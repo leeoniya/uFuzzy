@@ -39,6 +39,19 @@ Latin + Cyrillic can also be supported without the unicode flag by adding a char
 There are likely performance implications for using unicode regexps that should be considered.
 If you're interested in assisting with creating and testing a collection of opts recipes for non-latin scripts, please open an issue to discuss.
 
+This seems to work universally, at some perf cost:
+
+```js
+let opts = {
+  unicode: true,
+  interSplit: "[^\\P{P}']+", // all punct except ' (via double-negative: https://stackoverflow.com/a/3469155)
+  intraSplit: "\\p{Ll}\\p{Lu}",
+  intraBound: "\\p{L}\\d|\\d\\p{L}|\\p{Ll}\\p{Lu}",
+  intraChars: "[\\p{L}\\d']",
+  intraContr: "'\\p{L}{1,2}\\b",
+};
+```
+
 All searches are currently case-insensitive; it is not possible to do a case-sensitive search.
 
 ---
