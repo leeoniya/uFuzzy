@@ -7,9 +7,6 @@ const inf = Infinity;
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#escaping
 const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const NEGS_RE = /(?:\s+|^)-[a-z\d]+/ig;
-const EXACTS_RE = /".+?"+/ig;
-
 // meh, magic tmp placeholder, must be tolerant to toLowerCase(), interSplit, and intraSplit
 const EXACT_HERE = 'eexxaacctt';
 
@@ -123,6 +120,9 @@ export default function uFuzzy(opts) {
 	} = opts;
 
 	let uFlag = unicode ? 'u' : '';
+
+	const EXACTS_RE = new RegExp('".+?"', 'gi' + uFlag);
+	const NEGS_RE = new RegExp(`(?:\\s+|^)-${intraChars}+`, 'gi' + uFlag);
 
 	let { intraRules } = opts;
 
