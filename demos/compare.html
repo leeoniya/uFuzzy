@@ -1279,6 +1279,27 @@
 					search: null,
 					toStr: null,
 				},
+				{
+					name: 'fuzzbunny',
+					script: './lib/fuzzbunny.iife.js',
+					fulltext: false,
+					repo: 'https://github.com/mixpanel/fuzzbunny',
+					opts: {},
+					setup: (haystack, opts) => {
+						const items = haystack.map(s => ({s}));
+						const opts2 = {fields: [`s`]};
+
+						return {
+							search: needle => {
+								const results = fuzzbunny.fuzzyFilter(items, needle, opts2);
+								return results;
+							},
+							toStr: m => `<i>${+m.score.toFixed(2)}</i> ` + m.highlights.s.map((p, i) => i % 2 == 0 ? p : `<mark>${p}</mark>`).join(''),
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//	TODO:
 			//	https://github.com/wouterrutgers/fuzzy-search (186)
 			//	https://github.com/gjuchault/fuzzyjs (177)
