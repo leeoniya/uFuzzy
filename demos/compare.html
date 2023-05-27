@@ -377,6 +377,40 @@
 							delete opts.interChars;
 
 					/*
+						// Latin (default)
+						opts = {
+							interSplit: "[^A-Za-z\\d']+",
+							intraSplit: "[a-z][A-Z]",
+							intraBound: "[A-Za-z]\\d|\\d[A-Za-z]|[a-z][A-Z]",
+							intraChars: "[a-z\\d']",
+							intraContr: "'[a-z]{1,2}\\b",
+						};
+					*/
+
+					/*
+						// Latin + Cyrillic
+						opts = {
+							interSplit: "[^A-Za-zА-ЯЁа-яё\\d']+",
+							intraSplit: "[a-z][A-Z]|[а-яё][А-ЯЁ]",
+							intraBound: "[A-Za-zА-ЯЁа-яё]\\d|\\d[A-Za-zА-ЯЁа-яё]|[a-z][A-Z]|[а-яё][А-ЯЁ]",
+							intraChars: "[a-zа-яё\\d']",
+							intraContr: "'[a-z]{1,2}\\b",
+						};
+					*/
+
+					/*
+						// Latin + Norwegian
+						opts = {
+							interSplit: "[^A-Za-zæøåÆØÅ\\d']+",
+							intraSplit: "[a-zæøå][A-ZÆØÅ]",
+							intraBound: "[A-Za-zæøåÆØÅ]\\d|\\d[A-Za-zæøåÆØÅ]|[a-zæøå][A-ZÆØÅ]",
+							intraChars: "[a-zæøå\\d']",
+							intraContr: "'[a-zæøå]{1,2}\\b",
+						};
+					*/
+
+					/*
+						// Unicode / universal
 						opts = {
 							unicode: true,
 							interSplit: "[^\\p{L}\\d']+",

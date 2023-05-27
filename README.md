@@ -33,15 +33,39 @@ When held _just right_, it can efficiently match against multiple object propert
 uFuzzy is optimized for the [Latin/Roman alphabet](https://en.wikipedia.org/wiki/Latin_alphabet) and relies internally on non-unicode regular expressions.
 The `uFuzzy.latinize()` util function may be used to strip common accents/diacritics from the haystack and needle prior to searching.
 
-It should be possible to support other scripts (Cyrillic, Chinese, Arabic, Greek, etc) by setting `{unicode: true}` and replacing various uFuzzy opts e.g. `[A-Z]` with `\p{Alpha}` or `\p{sc=Cyrillic}`.
-[More examples](https://javascript.info/regexp-unicode#example-chinese-hieroglyphs).
-Latin + Cyrillic can also be supported without the unicode flag by adding a charset range to an ASCII regexps, e.g. `[\wа-яё]`.
-There are likely performance implications for using unicode regexps that should be considered.
-If you're interested in assisting with creating and testing a collection of opts recipes for non-latin scripts, please open an issue to discuss.
-
-This seems to work universally, at some perf cost:
+Support for more languages works by augmenting the built-in Latin regexps with additional chars or by using the slower, universal `{unicode: true}` variant:
 
 ```js
+// Latin (default)
+let opts = {
+  // case-sensitive regexps
+  interSplit: "[^A-Za-z\\d']+",
+  intraSplit: "[a-z][A-Z]",
+  intraBound: "[A-Za-z]\\d|\\d[A-Za-z]|[a-z][A-Z]",
+  // case-insensitive regexps
+  intraChars: "[a-z\\d']",
+  intraContr: "'[a-z]{1,2}\\b",
+};
+
+// Latin + Norwegian
+let opts = {
+  interSplit: "[^A-Za-zæøåÆØÅ\\d']+",
+  intraSplit: "[a-zæøå][A-ZÆØÅ]",
+  intraBound: "[A-Za-zæøåÆØÅ]\\d|\\d[A-Za-zæøåÆØÅ]|[a-zæøå][A-ZÆØÅ]",
+  intraChars: "[a-zæøå\\d']",
+  intraContr: "'[a-zæøå]{1,2}\\b",
+};
+
+// Latin + Russian
+let opts = {
+  interSplit: "[^A-Za-zА-ЯЁа-яё\\d']+",
+  intraSplit: "[a-z][A-Z]|[а-яё][А-ЯЁ]",
+  intraBound: "[A-Za-zА-ЯЁа-яё]\\d|\\d[A-Za-zА-ЯЁа-яё]|[a-z][A-Z]|[а-яё][А-ЯЁ]",
+  intraChars: "[a-zа-яё\\d']",
+  intraContr: "'[a-z]{1,2}\\b",
+};
+
+// Unicode / universal (50%-75% slower)
 let opts = {
   unicode: true,
   interSplit: "[^\\p{L}\\d']+",

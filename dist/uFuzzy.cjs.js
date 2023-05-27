@@ -24,11 +24,11 @@ const OPTS = {
 	unicode: false,
 
 	// term segmentation & punct/whitespace merging
-	interSplit: "[^A-Za-z0-9']+",
-	intraSplit: '[a-z][A-Z]',
+	interSplit: "[^A-Za-z\\d']+",
+	intraSplit: "[a-z][A-Z]",
 
 	// intra bounds that will be used to increase lft1/rgt1 info counters
-	intraBound: '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]',
+	intraBound: "[A-Za-z]\\d|\\d[A-Za-z]|[a-z][A-Z]",
 
 	// inter-bounds mode
 	// 2 = strict (will only match 'man' on whitepace and punct boundaries: Mega Man, Mega_Man, mega.man)
