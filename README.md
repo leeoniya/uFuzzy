@@ -31,11 +31,11 @@ When held _just right_, it can efficiently match against multiple object propert
 ### Charsets, Alphabets, Diacritics
 
 uFuzzy is optimized for the [Latin/Roman alphabet](https://en.wikipedia.org/wiki/Latin_alphabet) and relies internally on non-unicode regular expressions.
-The `uFuzzy.latinize()` util function may be used to strip common accents/diacritics from the haystack and needle prior to searching.
 
 Support for more languages works by augmenting the built-in Latin regexps with additional chars or by using the slower, universal `{unicode: true}` variant.
+A more simple, but less flexible `{letters: "..."}` alternative replaces the `A-Z` and `a-z` parts of the built-in Latin regexps with chars of your choice (the letter case will be matched automatically during replacement).
 
-A more simple, but less flexible alternative replaces the `A-Z` and `a-z` parts of the built-in Latin regexp with `{letters: "..."}` of your choice (the letter case will be matched automatically during replacement).
+The `uFuzzy.latinize()` util function may be used to strip common accents/diacritics from the haystack and needle prior to searching.
 
 ```js
 // Latin (default)
