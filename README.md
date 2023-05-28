@@ -33,10 +33,14 @@ When held _just right_, it can efficiently match against multiple object propert
 uFuzzy is optimized for the [Latin/Roman alphabet](https://en.wikipedia.org/wiki/Latin_alphabet) and relies internally on non-unicode regular expressions.
 The `uFuzzy.latinize()` util function may be used to strip common accents/diacritics from the haystack and needle prior to searching.
 
-Support for more languages works by augmenting the built-in Latin regexps with additional chars or by using the slower, universal `{unicode: true}` variant:
+Support for more languages works by augmenting the built-in Latin regexps with additional chars or by using the slower, universal `{unicode: true}` variant.
+
+A more simple, but less flexible alternative replaces the `A-Z` and `a-z` parts of the built-in Latin regexp with `{letters: "..."}` of your choice (the letter case will be matched automatically during replacement).
 
 ```js
 // Latin (default)
+let opts = { letters: "a-z" };
+// OR
 let opts = {
   // case-sensitive regexps
   interSplit: "[^A-Za-z\\d']+",
@@ -48,6 +52,8 @@ let opts = {
 };
 
 // Latin + Norwegian
+let opts = { letters: "a-zæøå" };
+// OR
 let opts = {
   interSplit: "[^A-Za-zæøåÆØÅ\\d']+",
   intraSplit: "[a-zæøå][A-ZÆØÅ]",
@@ -57,6 +63,8 @@ let opts = {
 };
 
 // Latin + Russian
+let opts = { letters: "a-zа-яё" };
+// OR
 let opts = {
   interSplit: "[^A-Za-zА-ЯЁа-яё\\d']+",
   intraSplit: "[a-z][A-Z]|[а-яё][А-ЯЁ]",

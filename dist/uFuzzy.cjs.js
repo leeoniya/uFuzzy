@@ -19,9 +19,16 @@ const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // meh, magic tmp placeholder, must be tolerant to toLowerCase(), interSplit, and intraSplit
 const EXACT_HERE = 'eexxaacctt';
 
+const LATIN_UPPER = 'A-Z';
+const LATIN_LOWER = 'a-z';
+
+const swapLetters = (str, upper, lower) => str.replace(LATIN_UPPER, upper).replace(LATIN_LOWER, lower);
+
 const OPTS = {
 	// whether regexps use a /u unicode flag
 	unicode: false,
+
+	letters: null,
 
 	// term segmentation & punct/whitespace merging
 	interSplit: "[^A-Za-z\\d']+",
@@ -111,7 +118,7 @@ const mode2Tpl = '(?:\\b|_)';
 function uFuzzy(opts) {
 	opts = Object.assign({}, OPTS, opts);
 
-	const {
+	let {
 		unicode,
 		interLft,
 		interRgt,
@@ -127,6 +134,19 @@ function uFuzzy(opts) {
 		intraBound: _intraBound,
 		intraChars,
 	} = opts;
+
+	let letters = opts.letters;
+
+	if (letters != null) {
+		let upper = letters.toUpperCase();
+		let lower = letters.toLowerCase();
+
+		_interSplit = swapLetters(_interSplit, upper, lower);
+		_intraSplit = swapLetters(_intraSplit, upper, lower);
+		_intraBound = swapLetters(_intraBound, upper, lower);
+		intraChars = swapLetters(intraChars, upper, lower);
+		intraContr = swapLetters(intraContr, upper, lower);
+	}
 
 	let uFlag = unicode ? 'u' : '';
 

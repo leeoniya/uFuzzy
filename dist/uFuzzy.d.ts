@@ -101,6 +101,9 @@ declare namespace uFuzzy {
 		// whether regexps use a /u unicode flag
 		unicode?: boolean; // false
 
+		// regexp character class [] of chars which should be treated as letters (case insensitive)
+		letters?: PartialRegExp | null;     // a-z
+
 		/** term segmentation & punct/whitespace merging */
 		interSplit?: PartialRegExp;         // '[^A-Za-z0-9]+'
 		intraSplit?: PartialRegExp | null;  // '[a-z][A-Z]'
