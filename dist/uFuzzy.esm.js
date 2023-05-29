@@ -483,20 +483,24 @@ function uFuzzy(opts) {
 					let lftCharIdx = idxAcc - 1;
 					let rgtCharIdx = idxAcc + groupLen;
 
-					let isPre = true;
-					let isSuf = true;
+					let isPre = false;
+					let isSuf = false;
 
 					// prefix info
-					if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx]))
+					if (lftCharIdx == -1           || interBound.test(mhstr[lftCharIdx])) {
 						fullMatch && lft2++;
+						isPre = true;
+					}
 					else {
 						if (interLft == 2) {
 							disc = true;
 							break;
 						}
 
-						if (withIntraBound && intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1]))
+						if (withIntraBound && intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1])) {
 							fullMatch && lft1++;
+							isPre = true;
+						}
 						else {
 							if (interLft == 1) {
 								// regexps are eager, so try to improve the match by probing forward inter junk for exact match at a boundary
@@ -515,7 +519,6 @@ function uFuzzy(opts) {
 										let charIdx = junkIdx + idxOf;
 										let lftCharIdx = charIdx - 1;
 
-
 										if (lftCharIdx == -1 || interBound.test(mhstr[lftCharIdx])) {
 											lft2++;
 											found = true;
@@ -529,42 +532,48 @@ function uFuzzy(opts) {
 									}
 
 									if (found) {
+										isPre = true;
+
 										// identical to exact term refinement pass above
 										refine.push(idxAcc, idxOf, termLen);
 										idxAcc += refineMatch(m, k, idxOf, termLen);
 										group = term;
 										groupLen = termLen;
 										fullMatch = true;
-										break;
+
+										if (j == 0)
+											start = idxAcc;
 									}
 								}
 
-								disc = true;
-								break;
+								if (!isPre) {
+									disc = true;
+									break;
+								}
 							}
-
-							isPre = false;
 						}
 					}
 
 					// suffix info
-					if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx]))
+					if (rgtCharIdx == mhstr.length || interBound.test(mhstr[rgtCharIdx])) {
 						fullMatch && rgt2++;
+						isSuf = true;
+					}
 					else {
 						if (interRgt == 2) {
 							disc = true;
 							break;
 						}
 
-						if (withIntraBound && intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx]))
+						if (withIntraBound && intraBound.test(mhstr[rgtCharIdx - 1] + mhstr[rgtCharIdx])) {
 							fullMatch && rgt1++;
+							isSuf = true;
+						}
 						else {
 							if (interRgt == 1) {
 								disc = true;
 								break;
 							}
-
-							isSuf = false;
 						}
 					}
 
