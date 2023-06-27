@@ -5,7 +5,7 @@ declare class uFuzzy {
 	search(
 		haystack: string[],
 		needle: string,
-		/** False by default */
+		/** false by default */
 		outOfOrder?: boolean,
 		/** 1e3 by default */
 		infoThresh?: number,
