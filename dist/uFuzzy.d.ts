@@ -5,8 +5,8 @@ declare class uFuzzy {
 	search(
 		haystack: string[],
 		needle: string,
-		outOfOrder = false,
-		infoThresh = 1e3,
+		outOfOrder?: boolean,
+		infoThresh?: number,
 		preFiltered?: uFuzzy.HaystackIdxs | null
 	): uFuzzy.SearchResult;
 
