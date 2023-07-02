@@ -16,7 +16,7 @@ const inf = Infinity;
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#escaping
 const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// meh, magic tmp placeholder, must be tolerant to toLowerCase(), interSplit, and intraSplit
+// meh, magic tmp placeholder, must be tolerant to toLocaleLowerCase(), interSplit, and intraSplit
 const EXACT_HERE = 'eexxaacctt';
 
 const LATIN_UPPER = 'A-Z';
@@ -138,8 +138,8 @@ function uFuzzy(opts) {
 	let letters = opts.letters;
 
 	if (letters != null) {
-		let upper = letters.toUpperCase();
-		let lower = letters.toLowerCase();
+		let upper = letters.toLocaleUpperCase();
+		let lower = letters.toLocaleLowerCase();
 
 		_interSplit = swapLetters(_interSplit, upper, lower);
 		_intraSplit = swapLetters(_intraSplit, upper, lower);
@@ -213,7 +213,7 @@ function uFuzzy(opts) {
 			return EXACT_HERE;
 		});
 
-		needle = needle.replace(trimRe, '').toLowerCase();
+		needle = needle.replace(trimRe, '').toLocaleLowerCase();
 
 		if (withIntraSplit)
 			needle = needle.replace(intraSplit, m => m[0] + ' ' + m[1]);
@@ -455,7 +455,7 @@ function uFuzzy(opts) {
 			let refine = [];
 
 			for (let j = 0, k = 2; j < partsLen; j++, k+=2) {
-				let group = m[k].toLowerCase();
+				let group = m[k].toLocaleLowerCase();
 				let part = parts[j];
 				let term = part[0] == '"' ? part.slice(1, -1) : part + contrs[j];
 				let termLen = term.length;
@@ -466,7 +466,7 @@ function uFuzzy(opts) {
 				// e.g. blob,ob when searching for 'bob' but finding the earlier `blob` (with extra insertion)
 				if (!fullMatch && m[k+1].length >= termLen) {
 					// probe for exact match in inter junk
-					let idxOf = m[k+1].toLowerCase().indexOf(term);
+					let idxOf = m[k+1].toLocaleLowerCase().indexOf(term);
 
 					if (idxOf > -1) {
 						refine.push(idxAcc, idxOf, termLen);
