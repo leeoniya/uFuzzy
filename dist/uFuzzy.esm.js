@@ -20,13 +20,13 @@ const EXACT_HERE = 'eexxaacctt';
 const LATIN_UPPER = 'A-Z';
 const LATIN_LOWER = 'a-z';
 
-const swapLetters = (str, upper, lower) => str.replace(LATIN_UPPER, upper).replace(LATIN_LOWER, lower);
+const swapAlpha = (str, upper, lower) => str.replace(LATIN_UPPER, upper).replace(LATIN_LOWER, lower);
 
 const OPTS = {
 	// whether regexps use a /u unicode flag
 	unicode: false,
 
-	letters: null,
+	alpha: null,
 
 	// term segmentation & punct/whitespace merging
 	interSplit: "[^A-Za-z\\d']+",
@@ -133,17 +133,17 @@ function uFuzzy(opts) {
 		intraChars,
 	} = opts;
 
-	let letters = opts.letters;
+	let alpha = opts.letters ?? opts.alpha;
 
-	if (letters != null) {
-		let upper = letters.toLocaleUpperCase();
-		let lower = letters.toLocaleLowerCase();
+	if (alpha != null) {
+		let upper = alpha.toLocaleUpperCase();
+		let lower = alpha.toLocaleLowerCase();
 
-		_interSplit = swapLetters(_interSplit, upper, lower);
-		_intraSplit = swapLetters(_intraSplit, upper, lower);
-		_intraBound = swapLetters(_intraBound, upper, lower);
-		intraChars = swapLetters(intraChars, upper, lower);
-		intraContr = swapLetters(intraContr, upper, lower);
+		_interSplit = swapAlpha(_interSplit, upper, lower);
+		_intraSplit = swapAlpha(_intraSplit, upper, lower);
+		_intraBound = swapAlpha(_intraBound, upper, lower);
+		intraChars = swapAlpha(intraChars, upper, lower);
+		intraContr = swapAlpha(intraContr, upper, lower);
 	}
 
 	let uFlag = unicode ? 'u' : '';
