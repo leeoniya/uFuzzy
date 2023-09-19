@@ -466,11 +466,11 @@ var uFuzzy = (function () {
 					// this won't handle the case when an exact match exists across the boundary of the current group and the next junk
 					// e.g. blob,ob when searching for 'bob' but finding the earlier `blob` (with extra insertion)
 					if (!fullMatch && m[k+1].length >= termLen) {
-						// probe for exact match in inter junk
+						// probe for exact match in inter junk (TODO: maybe even in this matched part?)
 						let idxOf = m[k+1].toLocaleLowerCase().indexOf(term);
 
 						if (idxOf > -1) {
-							refine.push(idxAcc, idxOf, termLen);
+							refine.push(idxAcc, groupLen, idxOf, termLen);
 							idxAcc += refineMatch(m, k, idxOf, termLen);
 							group = term;
 							groupLen = termLen;
@@ -538,7 +538,7 @@ var uFuzzy = (function () {
 											isPre = true;
 
 											// identical to exact term refinement pass above
-											refine.push(idxAcc, idxOf, termLen);
+											refine.push(idxAcc, groupLen, idxOf, termLen);
 											idxAcc += refineMatch(m, k, idxOf, termLen);
 											group = term;
 											groupLen = termLen;
@@ -620,32 +620,51 @@ var uFuzzy = (function () {
 
 					// ranges
 					let m = mhstr.match(queryR);
-					let ranges = info.ranges[ii] = [];
 
 					let idxAcc = m.index + m[1].length;
-					let from = idxAcc;
-					let to = idxAcc;
 
 					let refLen = refine.length;
 					let ri = refLen > 0 ? 0 : Infinity;
-					let lastRi = refLen - 3;
+					let lastRi = refLen - 4;
+
+					for (let i = 2; i < m.length;) {
+						let len = m[i].length;
+
+						if (ri <= lastRi && refine[ri] == idxAcc) {
+							let groupLen = refine[ri+1];
+							let idxOf    = refine[ri+2];
+							let termLen  = refine[ri+3];
+
+							// advance to end of original (full) group match that includes intra-junk
+							let j = i;
+							let v = '';
+							for (let _len = 0; _len < groupLen; j++) {
+								v += m[j];
+								_len += m[j].length;
+							}
+
+							m.splice(i, j - i, v);
+
+							idxAcc += refineMatch(m, i, idxOf, termLen);
+
+							ri += 4;
+						}
+						else {
+							idxAcc += len;
+							i++;
+						}
+					}
+
+					idxAcc = m.index + m[1].length;
+
+					let ranges = info.ranges[ii] = [];
+					let from = idxAcc;
+					let to = idxAcc;
 
 					for (let i = 2; i < m.length; i++) {
 						let len = m[i].length;
 
-						if (ri <= lastRi && refine[ri] == idxAcc) {
-							let idxInNext = refine[ri+1];
-							let matchLen = refine[ri+2];
-							let offset = idxInNext + matchLen;
-
-							idxAcc += len + offset;
-							from = idxAcc - matchLen;
-							m[i+1] = m[i+1].slice(offset);
-
-							ri+=3;
-						}
-						else
-							idxAcc += len;
+						idxAcc += len;
 
 						if (i % 2 == 0)
 							to = idxAcc;
