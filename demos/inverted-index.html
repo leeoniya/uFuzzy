@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>With inverted index</title>
+	</head>
+	<body>
+		<input id="query" placeholder="Search...">
+		<pre id="results"></pre>
+
+		<script src="../dist/uFuzzy.iife.js"></script>
+		<script>
+			// https://github.com/lovasoa/fast_array_intersect
+			const intersect = (() => {
+				function default_hash(x) {
+					return x;
+				}
+
+				/**
+				 * Takes an array of arrays and optionnally a hash function,
+				 * and returns the elements that are present in all the arrays.
+				 * When intersecting arrays of objects, you should use a custom
+				 * hash function that returns identical values when given objects
+				 * that should be considered equal in your application.
+				 * The default hash function is the identity function.
+				 * When performance is not critical, a handy hash function can be `JSON.stringify`.
+				 */
+				function intersect(arrays, hash = default_hash) {
+					if (arrays.length === 0)
+						return [];
+					// Put the smallest array in the beginning
+					for (let i = 1; i < arrays.length; i++) {
+						if (arrays[i].length < arrays[0].length) {
+							let tmp = arrays[0];
+							arrays[0] = arrays[i];
+							arrays[i] = tmp;
+						}
+					}
+					// Create a map associating each element to its current count
+					const set = new Map();
+					for (const elem of arrays[0]) {
+						set.set(hash(elem), 1);
+					}
+					for (let i = 1; i < arrays.length; i++) {
+						let found = 0;
+						for (const elem of arrays[i]) {
+							const hashed = hash(elem);
+							const count = set.get(hashed);
+							if (count === i) {
+								set.set(hashed, count + 1);
+								found++;
+							}
+						}
+						// Stop early if an array has no element in common with the smallest
+						if (found === 0)
+							return [];
+					}
+					// Output only the elements that have been seen as many times as there are arrays
+					return arrays[0].filter(e => {
+						const hashed = hash(e);
+						const count = set.get(hashed);
+						if (count !== undefined)
+							set.set(hashed, 0);
+						return count === arrays.length;
+					});
+				}
+
+				return intersect;
+			})();
+
+			const TOKENIZE_RE = /[^a-z0-9']+/gi;
+
+			const buildIndex = corpus => {
+				let index = new Map();
+				let lines = Array.isArray(corpus) ? corpus : corpus.split(/\r\n|\r|\n/g).map(l => l.trim());
+
+				lines.forEach((line, docNum) => {
+					line.split(TOKENIZE_RE).forEach(token => {
+						let docList = index.get(token);
+
+						if (docList == null)
+							index.set(token, docList = []);
+
+						docList.push(docNum);
+					});
+				});
+
+				return {
+					lines,
+					tokens: [...index.keys()],
+					index,
+				};
+			};
+
+			let uf = new uFuzzy();
+
+			const searchIndex = ({ lines, tokens, index }, query) => {
+				let uniqTerms = [...new Set(query.split(TOKENIZE_RE))];
+
+				let toInter = uniqTerms.map(term => {
+					let [idxs, info, order] = uf.search(tokens, term);
+					let found = idxs.map(i => tokens[i]);
+					return found.flatMap(token => index.get(token));
+				});
+
+				return (
+					intersect(toInter)
+					// this is not great, maybe we can utilize some of the uFuzzy's order info to sort better
+					.sort((a, b) => lines[a].localeCompare(lines[b]))
+				);
+			};
+
+			const queryEl = document.querySelector("#query");
+			const resultsEl = document.querySelector("#results");
+
+			let index;
+			let renderLimit = 1e3;
+
+			queryEl.addEventListener("input", e => {
+				let query = e.target.value.trim();
+
+				if (query === "")
+					resultsEl.textContent = "";
+				else {
+					console.time('search');
+					let lineNums = searchIndex(index, query);
+					console.timeEnd('search');
+
+					resultsEl.textContent = lineNums.slice(0, renderLimit).map(lineNum => index.lines[lineNum]).join("\n");
+				}
+			});
+
+			fetch('./testdata.json').then(r => r.json()).then(data => {
+				let haystack = [];
+
+				for (let k in data)
+					haystack = haystack.concat(data[k]);
+
+				console.time("build index");
+				index = buildIndex(haystack);
+				console.timeEnd("build index");
+			});
+
+		/*
+			fetch('./sneakers.txt').then(r => r.text()).then(data => {
+				console.time("build index");
+				let index = buildIndex(data);
+				console.timeEnd("build index");
+
+			//	let query = "pink nike oxf";
+				let query = "Nike SB Dunk Low Pro - White Black White Light Brown";
+
+				console.time('search');
+				let lineNums = searchIndex(index, query);
+				console.timeEnd('search');
+
+				lineNums.forEach(lineNum => {
+					let div = document.createElement('div');
+					div.textContent = index.lines[lineNum];
+					document.body.appendChild(div);
+				});
+			});
+		*/
+		</script>
+	</body>
+</html>
