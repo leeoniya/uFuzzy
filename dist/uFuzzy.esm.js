@@ -696,8 +696,12 @@ function uFuzzy(opts) {
 		return prepend.length;
 	};
 
+	const OOO_TERMS_LIMIT = 5;
+
 	// returns [idxs, info, order]
-	const _search = (haystack, needle, outOfOrder = false, infoThresh = 1e3, preFiltered) => {
+	const _search = (haystack, needle, outOfOrder, infoThresh = 1e3, preFiltered) => {
+		outOfOrder = !outOfOrder ? 0 : outOfOrder === true ? OOO_TERMS_LIMIT : outOfOrder;
+
 		let needles = null;
 		let matches = null;
 
@@ -735,7 +739,7 @@ function uFuzzy(opts) {
 	//	console.log(negs);
 	//	console.log(needle);
 
-		if (outOfOrder) {
+		if (outOfOrder > 0) {
 			// since uFuzzy is an AND-based search, we can iteratively pre-reduce the haystack by searching
 			// for each term in isolation before running permutations on what's left.
 			// this is a major perf win. e.g. searching "test man ger pp a" goes from 570ms -> 14ms
@@ -755,7 +759,7 @@ function uFuzzy(opts) {
 
 				// avoid combinatorial explosion by limiting outOfOrder to 5 terms (120 max searches)
 				// fall back to just filter() otherwise
-				if (terms.length > 5)
+				if (terms.length > outOfOrder)
 					return [preFiltered, null, null];
 
 				needles = permute(terms).map(perm => perm.join(' '));

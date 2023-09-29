@@ -5,9 +5,9 @@ declare class uFuzzy {
 	search(
 		haystack: string[],
 		needle: string,
-		/** false by default */
-		outOfOrder?: boolean,
-		/** 1e3 by default */
+		/** limit how many terms will be permuted, default = 0; 5 will result in up to 5! (120) search iterations. be careful with this! */
+		outOfOrder?: number,
+		/** default = 1e3 */
 		infoThresh?: number,
 		preFiltered?: uFuzzy.HaystackIdxs | null
 	): uFuzzy.SearchResult;

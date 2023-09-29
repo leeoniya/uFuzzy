@@ -184,7 +184,7 @@ if (idxs != null && idxs.length > 0) {
 ---
 ### Integrated Search
 
-uFuzzy provides a `uf.search(haystack, needle, outOfOrder = false, infoThresh = 1e3) => [idxs, info, order]` wrapper which combines the `filter`, `info`, `sort` steps above.
+uFuzzy provides a `uf.search(haystack, needle, outOfOrder = 0, infoThresh = 1e3) => [idxs, info, order]` wrapper which combines the `filter`, `info`, `sort` steps above.
 This method also implements efficient logic for matching search terms out of order and support for multiple substring exclusions, e.g. `fruit -green -melon`.
 
 ---
