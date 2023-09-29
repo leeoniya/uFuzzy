@@ -753,6 +753,11 @@ function uFuzzy(opts) {
 					preFiltered = filter(haystack, terms2[ti], preFiltered);
 				}
 
+				// avoid combinatorial explosion by limiting outOfOrder to 5 terms (120 max searches)
+				// fall back to just filter() otherwise
+				if (terms.length > 5)
+					return [preFiltered, null, null];
+
 				needles = permute(terms).map(perm => perm.join(' '));
 
 				// filtered matches for each needle excluding same matches for prior needles
