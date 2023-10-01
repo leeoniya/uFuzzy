@@ -141,8 +141,9 @@ export default function uFuzzy(opts) {
 
 	let uFlag = unicode ? 'u' : '';
 
-	const EXACTS_RE = new RegExp('".+?"', 'gi' + uFlag);
-	const NEGS_RE = new RegExp(`(?:\\s+|^)-${intraChars}+`, 'gi' + uFlag);
+	const quotedAny = '".+?"';
+	const EXACTS_RE = new RegExp(quotedAny, 'gi' + uFlag);
+	const NEGS_RE = new RegExp(`(?:\\s+|^)-(?:${intraChars}+|${quotedAny})`, 'gi' + uFlag);
 
 	let { intraRules } = opts;
 
@@ -707,7 +708,12 @@ export default function uFuzzy(opts) {
 		let negs = [];
 
 		needle = needle.replace(NEGS_RE, m => {
-			negs.push(m.trim().slice(1));
+			let neg = m.trim().slice(1);
+
+			if (neg[0] === '"')
+				neg = escapeRegExp(neg.slice(1,-1));
+
+			negs.push(neg);
 			return '';
 		});
 
