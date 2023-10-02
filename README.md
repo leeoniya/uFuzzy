@@ -7,18 +7,18 @@ This is my fuzzy 🐈. [There are many like it](#a-biased-appraisal-of-similar-w
 ### Overview
 
 uFuzzy is a [fuzzy search](https://en.wikipedia.org/wiki/Approximate_string_matching) library designed to match a relatively short search phrase (needle) against a large list of short-to-medium phrases (haystack).
-It might be best described as a more forgiving [String.indexOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf).
-Common use cases are list filtering, auto-complete/suggest, and title/name/description/filename/function searches.
+It might be best described as a more forgiving [String.includes()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes).
+Common applications include list filtering, auto-complete/suggest, and searches for titles, names, descriptions, filenames, and functions.
 
-In uFuzzy's default MultiInsert mode, each match must contain all alpha-numeric characters from the needle in the same sequence;
-in SingleError mode, single typos are tolerated in each term (like [Damerau–Levenshtein distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) = 1, but much faster).
+In uFuzzy's default `MultiInsert` mode, each match must contain all alpha-numeric characters from the needle in the same sequence;
+in `SingleError` mode, single typos are tolerated in each term ([Damerau–Levenshtein distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) = 1).
 Its `.search()` API can efficiently [match out-of-order terms](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca), supports multiple substring exclusions (e.g. `fruit -green -melon`), and exact terms with non-alphanum chars (e.g. `"C++"`, `"$100"`, `"#hashtag"`).
 When held _just right_, it can efficiently match against multiple object properties, too.
 
 ---
 ### Features
 
-- **Junk-free, high quality results** that are _dataset-independent_. No need to fine-tune indexing options or boosting params to attain some arbitrary relevance score cut-off.
+- **Junk-free, high quality results** with any dataset. No need to fine-tune indexing options or boosting params to attain some arbitrary relevance score cut-off.
 - **Precise fuzziness control** that follows straightforward rules, without returning unexpected matches.
 - **Sorting you can reason about** and customize using a simple `Array.sort()` which gets access to each match's stats/counters. There's no composite, black box "score" to understand.
 - **Concise set of options** that don't interact in mysterious ways to drastically alter combined behavior.
