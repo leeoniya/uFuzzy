@@ -660,6 +660,23 @@
 					demo: 'https://fwextensions.github.io/quick-score-demo/',
 					opts: {},
 					setup: (haystack, opts) => {
+						const wrapMatches = (string, matches) => {
+							const substrings = [];
+							let previousEnd = 0;
+
+							for (const [start, end] of matches) {
+								const prefix = string.substring(previousEnd, start);
+								const match = `<mark>${string.substring(start, end)}</mark>`;
+
+								substrings.push(prefix, match);
+								previousEnd = end;
+							}
+
+							substrings.push(string.substring(previousEnd));
+
+							return substrings.join('');
+						};
+
 						const qs = new quickScore.QuickScore(haystack);
 
 						return {
@@ -667,7 +684,7 @@
 								return qs.search(needle);
 							},
 							toStr: m => {
-								return `<i>${+m.score.toFixed(3)}</i> ` + uFuzzy.highlight(m.item, m.matches.flat());
+								return `<i>${+m.score.toFixed(3)}</i> ` + wrapMatches(m.item, m.matches);
 							},
 						};
 					},
@@ -932,12 +949,13 @@
 					setup: (haystack, opts) => {
 						return {
 							search: needle => {
-							//	list = list.filter((s) => fzy.hasMatch(s));
-
-								// Sort by fzy's scoring, descending (higher scores are better matches)
-								let out = haystack.map(s => -fzy.score(needle, s));
+								let matches = haystack.filter(s => fzy.hasMatch(needle, s));
+								let scores = matches.map(s => fzy.score(needle, s));
+								let order = Array.from({length: scores.length}, (v, i) => i);
+								order.sort((a, b) => scores[b] - scores[a]);
+								return order.map(i => matches[i]);
 							},
-							toStr: m => haystack[m.id],
+							toStr: m => m,
 						};
 					},
 					search: null,
@@ -951,25 +969,24 @@
 					repo: 'https://github.com/fergiemcdowall/search-index',
 					demo: 'https://fergiemcdowall.github.io/search-index/demo/index.html',
 					opts: {},
-					setup: (haystack, opts) => {
-						haystack = haystack.map(s => ({s}));
+					setup: async (haystack, opts) => {
+						haystack = haystack.map((s, i)=> ({_id: i, s}));//.slice(0, 16_000);
 
-						let db;
-
-						console.time('search-index');
-						SearchIndex({ name: 'index' }).then(_db => {
-							db = _db;
-
-							db.PUT(haystack).then(_ => {
-								console.timeEnd('search-index');
-							});
-						});
+						let db = await SearchIndex();
+						// console.time('flush');
+						await db.FLUSH();
+						// console.timeEnd('flush');
+						await db.PUT(haystack);
 
 						return {
-							search: needle => {
-								db.QUERY('s:' + meedle);
+							search: async needle => {
+								let out = await db.QUERY({
+									AND: needle.split(/\s+/g)
+								});
+
+								return out.RESULT;
 							},
-							toStr: m => haystack[m.id],
+							toStr: m => haystack[m._id].s,
 						};
 					},
 					search: null,
@@ -1115,23 +1132,25 @@
 					toStr: null,
 				},
 				{
-					name: 'Lyra',
-					script: './lib/lyra.iife.min.js',
+					name: 'Orama',
+					script: './lib/orama.iife.js',
 					fulltext: false,
-					repo: 'https://github.com/LyraSearch/lyra',
-					demo: 'https://docs.lyrajs.io/demo/',
+					repo: 'https://github.com/oramasearch/orama',
+					demo: 'https://docs.oramasearch.com/',
 					opts: {},
 					setup: async (haystack, opts) => {
-						const db = await lyra.create({
+						const db = await orama.create({
 							schema: {
 								s: "string",
 							},
+							/*
 							components: {
 								tokenizer: {
 								//	enableStopWords: false,
 								//	tokenizerFn: text => text.split(/[^\w]|_/g),
 								},
 							}
+							*/
 						});
 
 						let docs = [];
@@ -1142,11 +1161,19 @@
 							});
 						}
 
-						await lyra.insertBatch(db, docs);
+						await orama.insertMultiple(db, docs);
 
 						return {
-							search: needle => lyra.search(db, {term: needle, limit: 1e4, exact: true, tolerance: 0}).then(r => r.hits),
-							toStr: m => m.document.s,
+							search: needle => {
+								return orama.search(db, {
+									term: needle,
+									limit: 1e4,
+									// exact: true,
+									tolerance: 1,
+									threshold: 0.5,
+								}).then(r => r.hits);
+							},
+							toStr: m => `<i>${+m.score.toFixed(2)}</i> ${m.document.s}`,
 						};
 					},
 					search: null,
@@ -1193,6 +1220,32 @@
 								return sifter.search(needle, {fields: 's', conjunction: 'and'}).items;
 							},
 							toStr: m => haystack[m.id],
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				{
+					name: 'ItemsJS',
+					script: './lib/itemsjs.min.js',
+					fulltext: false,
+					repo: 'https://github.com/itemsapi/itemsjs',
+					opts: {},
+					setup: (haystack, opts) => {
+						haystack = haystack.map((s, i) => ({_id: i, s}));
+
+						let index = itemsjs(haystack, {
+							searchableFields: ['s'],
+						});
+
+						return {
+							search: needle => {
+								return index.search({
+									per_page: 1e3,
+									query: needle,
+								}).data.items;
+							},
+							toStr: m => m.s,
 						};
 					},
 					search: null,
@@ -1260,6 +1313,26 @@
 					search: null,
 					toStr: null,
 				},
+				/*
+				// http://localhost:8081/demos/compare.html?libs=uFuzzy,nexucisFuzzy,fuzzy&lists=metric_name_9000&intraChars=.&intraIns=100&search=exemplars
+				{
+					name: 'nexucisFuzzy',
+					script: './lib/nexucisFuzzy.js',
+					fulltext: false,
+					repo: 'https://github.com/Nexucis/fuzzy',
+					opts: {},
+					setup: (haystack, opts) => {
+						return {
+							search: needle => {
+								return nexucisFuzzy.filter(needle, haystack, { pre: '<mark>', post: '</mark>' });
+							},
+							toStr: m => m.rendered,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
+				*/
 				{
 					name: 'fuzzy-tools',
 					script: './lib/fuzzy-tools.iife.js',
@@ -1269,18 +1342,16 @@
 					setup: (haystack, opts) => {
 						return {
 							search: needle => {
-								const wordsMode = true;
-								const search = wordsMode ? needle.split(/[\s\t\r\n]/).filter(Boolean) : needle;
-								const result = FuzzyTools.filter(search, haystack, {
-									caseSensitive: false,
+								const search = needle.trim().split(/[\s\t\r\n]/);
+								const result = FuzzyTools.matchList(search, haystack, {
 									withWrapper: '<mark>{?}</mark>',
 									itemWrapper: (item, result) => result.wrapped,
-
+									withScore: true,
 								});
 
-								return result;
+								return Object.values(result.matches).sort((a, b) => a.score - b.score);
 							},
-							toStr: m => m,
+							toStr: m => `<i>${+m.score.toFixed(2)}</i> ` + m.wrapped,
 						};
 					},
 					search: null,

@@ -1,11 +1,3 @@
-/**
-* Copyright (c) 2022, Denis Shelest
-* All rights reserved. (MIT Licensed)
-*
-* fuzzy-tools.js
-* https://github.com/axules/fuzzy-tools (v2.0.1)
-*/
-
 var FuzzyTools = (function (exports) {
   'use strict';
 
@@ -27,7 +19,11 @@ var FuzzyTools = (function (exports) {
   }
 
   function isObject(value) {
-    return typeof value === 'object';
+    return !!value && (typeof value === 'object');
+  }
+
+  function isRegExp(value) {
+    return value instanceof RegExp;
   }
 
   function isString(value) {
@@ -74,6 +70,22 @@ var FuzzyTools = (function (exports) {
     };
   }
 
+  function getRegExpWithFrom(reg, from = undefined) {
+    return new RegExp(`(.{${from && from > 0 ? from : 0},}?)(${reg.source})`, reg.flags);
+  }
+
+  function searchIn(where, what, from = undefined) {
+    const isRegExp = what instanceof RegExp;
+    if (isRegExp) {
+      const regExpWithFrom = getRegExpWithFrom(what, from);
+      const { 1: before = false, 2: found = '' } = regExpWithFrom.exec(where) || {};
+      if (!found) return [-1, ''];
+      return [before.length, found];
+    }
+    const start = where.indexOf(what, from);
+    return [start, start >= 0 ? what : ''];
+  }
+
   function computeScore(begin, end, fullLength, wordNumber) {
     const wordLen = end - begin + 1;
     const kd = (1 / fullLength) * wordLen;
@@ -95,7 +107,11 @@ var FuzzyTools = (function (exports) {
 
     const preparedWhat = caseSensitive
       ? (isWords ? what : String(what))
-      : (isWords ? what.map(it => String(it).toLocaleLowerCase()) : String(what).toLocaleLowerCase());
+      : (
+        isWords
+          ? what.map(it => (isRegExp(it) ? it : String(it).toLocaleLowerCase()))
+          : String(what).toLocaleLowerCase()
+      );
     const originalWhere = String(where);
     if (!preparedWhat || !originalWhere || (!isWords && preparedWhat.length > originalWhere.length)) {
       return null;
@@ -144,13 +160,13 @@ var FuzzyTools = (function (exports) {
     let pos = -1;
     for (let i = 0; i < preparedWhat.length; i++) {
       const chunk = isWords ? preparedWhat[i] : preparedWhat.charAt(i);
-      let nextPos = (preparedWhere || originalWhere).indexOf(chunk, pos + 1);
+      let [nextPos, found] = searchIn(preparedWhere || originalWhere, chunk, pos + 1);
 
       if (nextPos < 0) return null;
 
-      if (isWords && chunk.length > 1) {
+      if (isWords && found.length > 1) {
         wordAction(pos, nextPos);
-        nextPos = nextPos + chunk.length - 1;
+        nextPos = nextPos + found.length - 1;
         pos = nextPos - 1;
       }
       wordAction(pos, nextPos);

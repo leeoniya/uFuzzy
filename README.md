@@ -22,8 +22,8 @@ When held _just right_, it can efficiently match against multiple object propert
 - **Precise fuzziness control** that follows straightforward rules, without returning unexpected matches.
 - **Sorting you can reason about** and customize using a simple `Array.sort()` which gets access to each match's stats/counters. There's no composite, black box "score" to understand.
 - **Concise set of options** that don't interact in mysterious ways to drastically alter combined behavior.
-- **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 13ms with out-of-order terms.
-- **Micro, with zero dependencies** - currently [~7KB min](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.iife.min.js)
+- **Fast with low resource usage** - there's no index to build, so startup is below 1ms with near-zero memory overhead. Searching a three-term phrase in a 162,000 phrase dataset takes 5ms with out-of-order terms.
+- **Micro, with zero dependencies** - currently [~7.5KB min](https://github.com/leeoniya/uFuzzy/blob/main/dist/uFuzzy.iife.min.js)
 
 [![uFuzzy demo](uFuzzy.png)](https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&outOfOrder&search=spac%20ca)
 
@@ -502,6 +502,31 @@ Still, something is better than a hand-wavy YMMV/do-it-yourself dismissal and ce
 
 #### Benchmark
 
+**Environment**
+
+<table>
+  <tr>
+    <th>Date</th>
+    <td>2023-10</td>
+  </tr>
+  <tr>
+    <th>Hardware</th>
+    <td>
+      CPU: <a href="https://www.amd.com/en/products/apu/amd-ryzen-7-pro-5850u">Ryzen 7 PRO 5850U</a> (1.9GHz, 7nm, 15W TDP)<br>
+      RAM: 48GB<br>
+      SSD: Samsung SSD 980 PRO 1TB (NVMe)<br>
+    </td>
+  </tr>
+  <tr>
+    <th>OS</th>
+    <td>EndeavourOS (Arch Linux)<br>v6.5.4-arch2-1 x86_64</td>
+  </tr>
+  <tr>
+    <th>Chrome</th>
+    <td>v117.0.5938.132</td>
+  </tr>
+</table>
+
 - Each benchmark can be run by changing the `libs` parameter to the desired library name: https://leeoniya.github.io/uFuzzy/demos/compare.html?bench&libs=uFuzzy
 - Results output is suppressed in `bench` mode to avoid benchmarking the DOM.
 - Measurements are taken in the Performance secrion of Chrome's DevTools by recording several reloads of the bench page, with forced garbage collection in between. The middle/typical run is used to collect numbers.
@@ -542,13 +567,13 @@ https://bestofjs.org/projects?tags=search
                 <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&search=super%20ma">try</a>)
             </td>
-            <td>★ 2k</td>
-            <td>7KB</td>
-            <td>0.3ms</td>
-            <td>1030ms</td>
-            <td>26.6MB</td>
-            <td>8MB</td>
-            <td>30ms</td>
+            <td>★ 2.3k</td>
+            <td>7.6KB</td>
+            <td>0.5ms</td>
+            <td>434ms</td>
+            <td>28.4MB</td>
+            <td>7.4MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
@@ -559,38 +584,38 @@ https://bestofjs.org/projects?tags=search
             <td></td>
             <td></td>
             <td></td>
-            <td>460ms</td>
-            <td>27.5MB</td>
-            <td>8MB</td>
-            <td>30ms</td>
+            <td>210ms</td>
+            <td>27.8MB</td>
+            <td>7.4MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&intraIns=1&intraChars=[a-z\d%20]&outOfOrder&search=super%20ma">try</a>)<br>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&intraIns=1&intraChars=[a-z\d%27%20]&outOfOrder&search=super%20ma">try</a>)<br>
                 (outOfOrder, fuzzier)
             </td>
             <td></td>
             <td></td>
             <td></td>
-            <td>1275ms</td>
-            <td>26.6MB</td>
-            <td>8MB</td>
-            <td>30ms</td>
+            <td>545ms</td>
+            <td>29.5MB</td>
+            <td>7.4MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/leeoniya/uFuzzy">uFuzzy</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&intraMode=1&intraIns=1&intraChars=[a-z\d%20]&outOfOrder&search=super%20ma">try</a>)<br>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=uFuzzy&intraMode=1&intraIns=1&intraChars=[a-z\d%27%20]&outOfOrder&search=super%20ma">try</a>)<br>
                 (outOfOrder, fuzzier, SingleError)
             </td>
             <td></td>
             <td></td>
             <td></td>
-            <td>1200ms</td>
-            <td>27.5MB</td>
-            <td>8MB</td>
-            <td>30ms</td>
+            <td>508ms</td>
+            <td>30.0MB</td>
+            <td>7.4MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <th colspan="8">-------</th>
@@ -600,78 +625,91 @@ https://bestofjs.org/projects?tags=search
                 <a href="https://github.com/krisk/Fuse">Fuse.js</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuse&search=super%20ma">try</a>)
             </td>
-            <td>★ 14.8k</td>
-            <td>23.5KB</td>
-            <td>40ms</td>
-            <td>35600ms</td>
-            <td>226MB</td>
-            <td>14.5MB</td>
-            <td>30ms</td>
+            <td>★ 16.6k</td>
+            <td>24.2KB</td>
+            <td>31ms</td>
+            <td>33875ms</td>
+            <td>245MB</td>
+            <td>13.9MB</td>
+            <td>25ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/nextapps-de/flexsearch">FlexSearch (Light)</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=FlexSearch&search=super%20ma">try</a>)
             </td>
-            <td>★ 8.9k</td>
-            <td>5.9KB</td>
-            <td>3600ms</td>
-            <td>145ms</td>
-            <td>673MB</td>
+            <td>★ 10.7k</td>
+            <td>6.2KB</td>
+            <td>3210ms</td>
+            <td>83ms</td>
+            <td>670MB</td>
             <td>316MB</td>
-            <td>450ms</td>
+            <td>553ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/olivernn/lunr.js">Lunr.js</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Lunr&search=super%20ma">try</a>)
             </td>
-            <td>★ 8.2k</td>
+            <td>★ 8.7k</td>
             <td>29.4KB</td>
-            <td>2500ms</td>
-            <td>1430ms</td>
-            <td>379MB</td>
-            <td>121MB</td>
-            <td>200ms</td>
+            <td>1704ms</td>
+            <td>996ms</td>
+            <td>380MB</td>
+            <td>123MB</td>
+            <td>166ms</td>
         </tr>
         <tr>
             <td>
-                <a href="https://github.com/LyraSearch/lyra">Lyra</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Lyra&search=super%20ma">try</a>)
+                <a href="https://github.com/oramasearch/orama">Orama (formerly Lyra)</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Orama&search=super%20ma">try</a>)
+            </td>
+            <td>★ 6.4k</td>
+            <td>41.5KB</td>
+            <td>2650ms</td>
+            <td>225ms</td>
+            <td>313MB</td>
+            <td>192MB</td>
+            <td>180ms</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/lucaong/minisearch">MiniSearch</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=MiniSearch&search=super%20ma">try</a>)
             </td>
             <td>★ 3.4k</td>
-            <td>30KB</td>
-            <td>4000ms</td>
-            <td>790ms</td>
-            <td>199MB</td>
-            <td>89MB</td>
-            <td>200ms</td>
+            <td>29.1KB</td>
+            <td>504ms</td>
+            <td>1453ms</td>
+            <td>438MB</td>
+            <td>67MB</td>
+            <td>105ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/kentcdodds/match-sorter">match-sorter</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=match-sorter&search=super%20ma">try</a>)
             </td>
-            <td>★ 3.1k</td>
+            <td>★ 3.4k</td>
             <td>7.3KB</td>
-            <td>0.03ms</td>
-            <td>10000ms</td>
-            <td>39MB</td>
-            <td>8MB</td>
-            <td>30ms</td>
+            <td>0.1ms</td>
+            <td>6245ms</td>
+            <td>71MB</td>
+            <td>7.3MB</td>
+            <td>12ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/farzher/fuzzysort">fuzzysort</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzysort&search=super%20ma">try</a>)
             </td>
-            <td>★ 3k</td>
-            <td>5.5KB</td>
-            <td>60ms</td>
-            <td>1850ms</td>
-            <td>174MB</td>
+            <td>★ 3.4k</td>
+            <td>6.2KB</td>
+            <td>50ms</td>
+            <td>1321ms</td>
+            <td>175MB</td>
             <td>84MB</td>
-            <td>70ms</td>
+            <td>63ms</td>
         </tr>
         <tr>
             <td>
@@ -680,83 +718,72 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 3k</td>
             <td>4KB</td>
-            <td>1000ms</td>
-            <td>460ms</td>
+            <td>781ms</td>
+            <td>194ms</td>
             <td>438MB</td>
             <td>42MB</td>
-            <td>100ms</td>
+            <td>130ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/bevacqua/fuzzysearch">fuzzysearch</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzysearch&search=super%20ma">try</a>)
             </td>
-            <td>★ 2.6k</td>
+            <td>★ 2.7k</td>
             <td>0.2KB</td>
             <td>0.1ms</td>
-            <td>1000ms</td>
-            <td>28MB</td>
-            <td>8MB</td>
-            <td>20ms</td>
+            <td>529ms</td>
+            <td>26.2MB</td>
+            <td>7.3MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/bvaughn/js-search">js-search</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=js-search&search=super%20ma">try</a>)
             </td>
-            <td>★ 2k</td>
+            <td>★ 2.1k</td>
             <td>17.1KB</td>
-            <td>9400ms</td>
-            <td>1580ms</td>
-            <td>1760MB</td>
+            <td>5620ms</td>
+            <td>1190ms</td>
+            <td>1740MB</td>
             <td>734MB</td>
-            <td>1400ms</td>
+            <td>2600ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/weixsong/elasticlunr.js">Elasticlunr.js</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Elasticlunr&search=super%20ma">try</a>)
             </td>
-            <td>★ 1.9k</td>
+            <td>★ 2k</td>
             <td>18.1KB</td>
-            <td>1600ms</td>
-            <td>1800ms</td>
-            <td>227MB</td>
+            <td>933ms</td>
+            <td>1330ms</td>
+            <td>196MB</td>
             <td>70MB</td>
-            <td>130ms</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/lucaong/minisearch">MiniSearch</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=MiniSearch&search=super%20ma">try</a>)
-            </td>
-            <td>★ 1.5k</td>
-            <td>22.4KB</td>
-            <td>650ms</td>
-            <td>2300ms</td>
-            <td>428MB</td>
-            <td>64MB</td>
-            <td>150ms</td>
+            <td>135ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/Glench/fuzzyset.js">Fuzzyset</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=Fuzzyset&search=super%20ma">try</a>)
             </td>
-            <td>★ 1.3k</td>
+            <td>★ 1.4k</td>
             <td>2.8KB</td>
-            <td>4000ms</td>
-            <td>1140ms</td>
-            <td>628MB</td>
+            <td>2962ms</td>
+            <td>606ms</td>
+            <td>654MB</td>
             <td>238MB</td>
-            <td>600ms</td>
+            <td>239ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/fergiemcdowall/search-index">search-index</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=search-index&search=super%20ma">try</a>)
             </td>
-            <td>★ 1.3k</td>
+            <td>★ 1.4k</td>
+            <td>168KB</td>
+            <td colspan="5">RangeError: Maximum call stack size exceeded</td>
         </tr>
         <tr>
             <td>
@@ -766,124 +793,136 @@ https://bestofjs.org/projects?tags=search
             <td>★ 1.1k</td>
             <td>7.5KB</td>
             <td>3ms</td>
-            <td>1140ms</td>
-            <td>40MB</td>
-            <td>11.3MB</td>
-            <td>30ms</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/mattyork/fuzzy">fuzzy</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy&search=super%20ma">try</a>)
-            </td>
-            <td>★ 801</td>
-            <td>1.4KB</td>
-            <td>0.05ms</td>
-            <td>6000ms</td>
-            <td>41MB</td>
-            <td>8MB</td>
-            <td>30ms</td>
+            <td>1070ms</td>
+            <td>46.2MB</td>
+            <td>10.6MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/ajitid/fzf-for-js">fzf-for-js</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fzf-for-js&search=super%20ma">try</a>)
             </td>
-            <td>★ 538</td>
+            <td>★ 831</td>
             <td>15.4KB</td>
-            <td>75ms</td>
-            <td>6700ms</td>
-            <td>353MB</td>
-            <td>190MB</td>
-            <td>160ms</td>
+            <td>50ms</td>
+            <td>6290ms</td>
+            <td>153MB</td>
+            <td>25MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
-                <a href="https://github.com/rmm5t/liquidmetal">LiquidMetal</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=LiquidMetal&search=super%20ma">try</a>)
+                <a href="https://github.com/mattyork/fuzzy">fuzzy</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy&search=super%20ma">try</a>)
             </td>
-            <td>★ 285</td>
-            <td>4.2KB</td>
-            <td colspan="5">(crash)</td>
+            <td>★ 819</td>
+            <td>1.4KB</td>
+            <td>0.1ms</td>
+            <td>5427ms</td>
+            <td>72MB</td>
+            <td>7.3MB</td>
+            <td>14ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/EthanRutherford/fast-fuzzy">fast-fuzzy</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fast-fuzzy&search=super%20ma">try</a>)
             </td>
-            <td>★ 270</td>
-            <td>13.8KB</td>
-            <td>850ms</td>
-            <td>10300ms</td>
-            <td>555MB</td>
+            <td>★ 346</td>
+            <td>18.2KB</td>
+            <td>790ms</td>
+            <td>19266ms</td>
+            <td>550MB</td>
             <td>165MB</td>
-            <td>150ms</td>
+            <td>140ms</td>
         </tr>
         <tr>
             <td>
-                <a href="https://github.com/itemsapi/itemsjs">ItemJS</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=ItemJS&search=super%20ma">try</a>)
+                <a href="https://github.com/itemsapi/itemsjs">ItemsJS</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=ItemsJS&search=super%20ma">try</a>)
             </td>
-            <td>★ 260</td>
+            <td>★ 305</td>
+            <td>109KB</td>
+            <td>2400ms</td>
+            <td>11304ms</td>
+            <td>320MB</td>
+            <td>88MB</td>
+            <td>163ms</td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/rmm5t/liquidmetal">LiquidMetal</a>
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=LiquidMetal&search=super%20ma">try</a>)
+            </td>
+            <td>★ 292</td>
+            <td>4.2KB</td>
+            <td colspan="5">(crash)</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/wouter2203/fuzzy-search">FuzzySearch</a>
-                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy-search&search=super%20ma">try</a>)
+                (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=FuzzySearch&search=super%20ma">try</a>)
             </td>
-            <td>★ 184</td>
+            <td>★ 209</td>
             <td>3.5KB</td>
-            <td>17ms</td>
-            <td>10000ms</td>
-            <td>51MB</td>
-            <td>11.2MB</td>
-            <td>30ms</td>
+            <td>2ms</td>
+            <td>3948ms</td>
+            <td>84MB</td>
+            <td>10.5MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/jeancroy/FuzzySearch">FuzzySearch2</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=FuzzySearch2&search=super%20ma">try</a>)
             </td>
-            <td>★ 173</td>
+            <td>★ 186</td>
             <td>19.4KB</td>
-            <td>120ms</td>
-            <td>6000ms</td>
-            <td>113MB</td>
-            <td>41MB</td>
-            <td>30ms</td>
+            <td>93ms</td>
+            <td>4189ms</td>
+            <td>117MB</td>
+            <td>40.3MB</td>
+            <td>40ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/fwextensions/quick-score">QuickScore</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=QuickScore&search=super%20ma">try</a>)
             </td>
-            <td>★ 131</td>
-            <td>9.1KB</td>
-            <td>40ms</td>
-            <td>7900ms</td>
-            <td>172MB</td>
-            <td>12.8MB</td>
-            <td>30ms</td>
+            <td>★ 153</td>
+            <td>9.5KB</td>
+            <td>10ms</td>
+            <td>6915ms</td>
+            <td>133MB</td>
+            <td>12.1MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/localvoid/ndx">ndx</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=ndx&search=super%20ma">try</a>)
             </td>
-            <td>★ 130</td>
+            <td>★ 142</td>
             <td>2.9KB</td>
-            <td>350ms</td>
-            <td>675ms</td>
-            <td>441MB</td>
-            <td>273MB</td>
-            <td>420ms</td>
+            <td>300ms</td>
+            <td>581ms</td>
+            <td>308MB</td>
+            <td>137MB</td>
+            <td>262ms</td>
         </tr>
         <tr>
             <td>
                 <a href="https://github.com/jhawthorn/fzy.js/">fzy</a>
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fzy&search=super%20ma">try</a>)
             </td>
-            <td>★ 115</td>
+            <td>★ 133</td>
+            <td>1.5KB</td>
+            <td>0.1ms</td>
+            <td>3932ms</td>
+            <td>34MB</td>
+            <td>7.3MB</td>
+            <td>10ms</td>
         </tr>
         <tr>
             <td>
@@ -891,12 +930,12 @@ https://bestofjs.org/projects?tags=search
                 (<a href="https://leeoniya.github.io/uFuzzy/demos/compare.html?libs=fuzzy-tools&search=super%20ma">try</a>)
             </td>
             <td>★ 13</td>
-            <td>2.8KB</td>
+            <td>3KB</td>
             <td>0.1ms</td>
-            <td>6000ms</td>
-            <td>92MB</td>
-            <td>7.7MB</td>
-            <td>30ms</td>
+            <td>5138ms</td>
+            <td>164MB</td>
+            <td>7.5MB</td>
+            <td>18ms</td>
         </tr>
         <tr>
             <td>
@@ -905,11 +944,11 @@ https://bestofjs.org/projects?tags=search
             </td>
             <td>★ 0</td>
             <td>1KB</td>
-            <td>0.05ms</td>
-            <td>2500ms</td>
-            <td>90MB</td>
-            <td>8MB</td>
-            <td>30ms</td>
+            <td>0.1ms</td>
+            <td>2415ms</td>
+            <td>83.5MB</td>
+            <td>7.3MB</td>
+            <td>13ms</td>
         </tr>
     </tbody>
 </table>
