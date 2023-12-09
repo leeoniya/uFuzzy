@@ -39,6 +39,6 @@
   "homepage": "https://github.com/leeoniya/uFuzzy#readme",
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
-    "rollup": "^4.6.1"
+    "rollup": "^4.7.0"
   }
 }

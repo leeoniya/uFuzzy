@@ -156,27 +156,30 @@ export default function uFuzzy(opts) {
 				_intraTrn = 0,
 				_intraDel = 0;
 
-			let plen = p.length;
+			// only-digits strings should match exactly, else special rules for short strings
+			if (/[^\d]/.test(p)) {
+				let plen = p.length;
 
-			// prevent junk matches by requiring stricter rules for short terms
-			if (plen <= 4) {
-				if (plen >= 3) {
-					// one swap in non-first char when 3-4 chars
-					_intraTrn = Math.min(intraTrn, 1);
+				// prevent junk matches by requiring stricter rules for short terms
+				if (plen <= 4) {
+					if (plen >= 3) {
+						// one swap in non-first char when 3-4 chars
+						_intraTrn = Math.min(intraTrn, 1);
 
-					// or one insertion when 4 chars
-					if (plen == 4)
-						_intraIns = Math.min(intraIns, 1);
+						// or one insertion when 4 chars
+						if (plen == 4)
+							_intraIns = Math.min(intraIns, 1);
+					}
+					// else exact match when 1-2 chars
 				}
-				// else exact match when 1-2 chars
-			}
-			// use supplied opts
-			else {
-				_intraSlice = intraSlice;
-				_intraIns = intraIns,
-				_intraSub = intraSub,
-				_intraTrn = intraTrn,
-				_intraDel = intraDel;
+				// use supplied opts
+				else {
+					_intraSlice = intraSlice;
+					_intraIns = intraIns,
+					_intraSub = intraSub,
+					_intraTrn = intraTrn,
+					_intraDel = intraDel;
+				}
 			}
 
 			return {
@@ -214,6 +217,8 @@ export default function uFuzzy(opts) {
 		return needle.split(interSplit).filter(t => t != '').map(v => v === EXACT_HERE ? exacts[j++] : v);
 	};
 
+	const NUM_OR_ALPHA_RE = /[^\d]+|\d+/g;
+
 	const prepQuery = (needle, capt = 0, interOR = false) => {
 		// split on punct, whitespace, num-alpha, and upper-lower boundaries
 		let parts = split(needle);
@@ -234,64 +239,72 @@ export default function uFuzzy(opts) {
 		// allows single mutations within each term
 		if (intraMode == 1) {
 			reTpl = parts.map((p, pi) => {
-				let {
-					intraSlice,
-					intraIns,
-					intraSub,
-					intraTrn,
-					intraDel,
-				} = intraRules(p);
-
-				if (intraIns + intraSub + intraTrn + intraDel == 0)
-					return p + contrs[pi];
-
 				if (p[0] === '"')
 					return escapeRegExp(p.slice(1, -1));
 
-				let [lftIdx, rgtIdx] = intraSlice;
-				let lftChar = p.slice(0, lftIdx); // prefix
-				let rgtChar = p.slice(rgtIdx);    // suffix
+				let reTpl = '';
 
-				let chars = p.slice(lftIdx, rgtIdx);
+				// split into numeric and alpha parts, so numbers are only matched as following punct or alpha boundaries, without swaps or insertions
+				for (let m of p.matchAll(NUM_OR_ALPHA_RE)) {
+					let p = m[0];
 
-				// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
-				// but skip when search term contains leading repetition (aardvark, aaa)
-				if (intraIns == 1 && lftChar.length == 1 && lftChar != chars[0])
-					lftChar += '(?!' + lftChar + ')';
+					let {
+						intraSlice,
+						intraIns,
+						intraSub,
+						intraTrn,
+						intraDel,
+					} = intraRules(p);
 
-				let numChars = chars.length;
+					if (intraIns + intraSub + intraTrn + intraDel == 0)
+						reTpl += p + contrs[pi];
+					else {
+						let [lftIdx, rgtIdx] = intraSlice;
+						let lftChar = p.slice(0, lftIdx); // prefix
+						let rgtChar = p.slice(rgtIdx);    // suffix
 
-				let variants = [p];
+						let chars = p.slice(lftIdx, rgtIdx);
 
-				// variants with single char substitutions
-				if (intraSub) {
-					for (let i = 0; i < numChars; i++)
-						variants.push(lftChar + chars.slice(0, i) + intraChars + chars.slice(i + 1) + rgtChar);
-				}
+						// neg lookahead to prefer matching 'Test' instead of 'tTest' in ManifestTest or fittest
+						// but skip when search term contains leading repetition (aardvark, aaa)
+						if (intraIns == 1 && lftChar.length == 1 && lftChar != chars[0])
+							lftChar += '(?!' + lftChar + ')';
 
-				// variants with single transpositions
-				if (intraTrn) {
-					for (let i = 0; i < numChars - 1; i++) {
-						if (chars[i] != chars[i+1])
-							variants.push(lftChar + chars.slice(0, i) + chars[i+1] + chars[i] + chars.slice(i + 2) + rgtChar);
+						let numChars = chars.length;
+
+						let variants = [p];
+
+						// variants with single char substitutions
+						if (intraSub) {
+							for (let i = 0; i < numChars; i++)
+								variants.push(lftChar + chars.slice(0, i) + intraChars + chars.slice(i + 1) + rgtChar);
+						}
+
+						// variants with single transpositions
+						if (intraTrn) {
+							for (let i = 0; i < numChars - 1; i++) {
+								if (chars[i] != chars[i+1])
+									variants.push(lftChar + chars.slice(0, i) + chars[i+1] + chars[i] + chars.slice(i + 2) + rgtChar);
+							}
+						}
+
+						// variants with single char omissions
+						if (intraDel) {
+							for (let i = 0; i < numChars; i++)
+								variants.push(lftChar + chars.slice(0, i + 1) + '?' + chars.slice(i + 1) + rgtChar);
+						}
+
+						// variants with single char insertions
+						if (intraIns) {
+							let intraInsTpl = lazyRepeat(intraChars, 1);
+
+							for (let i = 0; i < numChars; i++)
+								variants.push(lftChar + chars.slice(0, i) + intraInsTpl + chars.slice(i) + rgtChar);
+						}
+
+						reTpl += '(?:' + variants.join('|') + ')' + contrs[pi];
 					}
 				}
-
-				// variants with single char omissions
-				if (intraDel) {
-					for (let i = 0; i < numChars; i++)
-						variants.push(lftChar + chars.slice(0, i + 1) + '?' + chars.slice(i + 1) + rgtChar);
-				}
-
-				// variants with single char insertions
-				if (intraIns) {
-					let intraInsTpl = lazyRepeat(intraChars, 1);
-
-					for (let i = 0; i < numChars; i++)
-						variants.push(lftChar + chars.slice(0, i) + intraInsTpl + chars.slice(i) + rgtChar);
-				}
-
-				let reTpl = '(?:' + variants.join('|') + ')' + contrs[pi];
 
 			//	console.log(reTpl);
 
