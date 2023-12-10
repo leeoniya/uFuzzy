@@ -7,7 +7,7 @@
 * https://github.com/leeoniya/uFuzzy (v1.0.12)
 */
 
-const cmp = new Intl.Collator('en').compare;
+const cmp = new Intl.Collator('en', { numeric: true, sensitivity: 'base' }).compare;
 
 const inf = Infinity;
 

@@ -1,6 +1,6 @@
 const DEBUG = false;
 
-const cmp = new Intl.Collator('en').compare;
+const cmp = new Intl.Collator('en', { numeric: true, sensitivity: 'base' }).compare;
 
 const inf = Infinity;
 

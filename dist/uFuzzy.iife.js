@@ -10,7 +10,7 @@
 var uFuzzy = (function () {
 	'use strict';
 
-	const cmp = new Intl.Collator('en').compare;
+	const cmp = new Intl.Collator('en', { numeric: true, sensitivity: 'base' }).compare;
 
 	const inf = Infinity;
 
