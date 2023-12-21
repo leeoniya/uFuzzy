@@ -292,7 +292,9 @@ uFuzzy has two operational modes which differ in matching strategy:
   - s**c**r**at**ch
   - **ca**n**t**ina
   - tra**c**tors **a**re la**t**e
-- **intraMode: 1** allows for a single error in each term of the search phrase, where an error is one of: substitution (replacement), transposition (swap), insertion (addition), or deletion (omission). The search strings with errors below can return matches containing "**example**". What is _actually_ matched will depend on additonal fuzziness settings. In contrast to the previous mode, searching for "**example**" will never match "**ex**tr**a** **m**a**ple**".
+- **intraMode: 1** In combintion with the `intraIns`, `intraSub`, `intraTrn` and `intraDel` options, allows for a single error in each term of the search phrase, where an error is either an insertion (addition), substitution (replacement), transposition (swap), or deletion (omission), respectively.
+
+  The search strings with errors below can return matches containing "**example**". In contrast to the previous mode, searching for "**example**" will never match "**ex**tr**a** **m**a**ple**".
   - `example` - exact
   - `examplle` - single insertion (addition)
   - `exemple` - single substitution (replacement)
@@ -300,6 +302,8 @@ uFuzzy has two operational modes which differ in matching strategy:
   - `exmple` - single deletion (omission)
   - `xamp` - partial
   - `xmap` - partial with transposition
+    
+  Note that what is _actually_ matched will depend on additonal fuzziness settings. In particular, you will likely want to change `intraIns`, `intraSub`, `intraTrn` and/or `intraDel` from their default values.
 
 There are 3 phases to a search:
 
