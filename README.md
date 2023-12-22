@@ -340,7 +340,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
         <tr>
             <td><code>intraIns</code></td>
             <td>Max number of extra chars allowed<br>between each char within a term</td>
-            <td><code>0</code></td>
+            <td>Matches the value of <code>intraMode</code> (either <code>0</code> or <code>1</code>)</td>
             <td>
                 Searching "cat"...<br>
                 <code>0</code> can match: <b>cat</b>, s<b>cat</b>, <b>cat</b>ch, va<b>cat</b>e<br>
@@ -367,7 +367,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
                 For <code>intraMode: 1</code> only,<br>
                 Error types to tolerate within terms
             </td>
-            <td><code>0</code></td>
+            <td>Matches the value of <code>intraMode</code> (either <code>0</code> or <code>1</code>)</td>
             <td>
                 <code>0</code> No<br>
                 <code>1</code> Yes<br>
