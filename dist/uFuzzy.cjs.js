@@ -4,7 +4,7 @@
 *
 * uFuzzy.js (μFuzzy)
 * A tiny, efficient fuzzy matcher that doesn't suck
-* https://github.com/leeoniya/uFuzzy (v1.0.13)
+* https://github.com/leeoniya/uFuzzy (v1.0.14)
 */
 
 'use strict';
