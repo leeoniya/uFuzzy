@@ -50,7 +50,7 @@ const OPTS = {
 
 	// allowance between chars in terms
 	intraChars: "[a-z\\d']", // internally case-insensitive
-	intraIns: 0,
+	intraIns: null,
 
 	intraContr: "'[a-z]{1,2}\\b",
 
@@ -61,9 +61,9 @@ const OPTS = {
 	intraSlice: [1, inf],
 
 	// single-error tolerance toggles
-	intraSub: 0,
-	intraTrn: 0,
-	intraDel: 0,
+	intraSub: null,
+	intraTrn: null,
+	intraDel: null,
 
 	// can post-filter matches that are too far apart in distance or length
 	// (since intraIns is between each char, it can accum to nonsense matches)
@@ -134,6 +134,11 @@ function uFuzzy(opts) {
 		intraBound: _intraBound,
 		intraChars,
 	} = opts;
+
+	intraIns ??= intraMode;
+	intraSub ??= intraMode;
+	intraTrn ??= intraMode;
+	intraDel ??= intraMode;
 
 	let alpha = opts.letters ?? opts.alpha;
 
