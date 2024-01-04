@@ -187,6 +187,35 @@ if (idxs != null && idxs.length > 0) {
 uFuzzy provides a `uf.search(haystack, needle, outOfOrder = 0, infoThresh = 1e3) => [idxs, info, order]` wrapper which combines the `filter`, `info`, `sort` steps above.
 This method also implements efficient logic for matching search terms out of order and support for multiple substring exclusions, e.g. `fruit -green -melon`.
 
+Example of retrieving search results in order of ranking:
+
+```js
+let haystack = [
+  'example',
+  'exemple',
+  'another example',
+  'nonmatch'
+];
+
+let needle = 'example';
+
+let u = new uFuzzy({ intraMode: 1 });
+let [idxs,info,order] = u.search(haystack, needle);
+
+let sortHaystackByOrder = (idxs, order) => {
+  // Order may be null when doing out of order searching
+  // when the # of search terms exceed the max allowed 
+  if (order == null)
+    return idxs;
+
+  return order.map(index => idxs[index]);
+}
+
+// Results:
+// ["example", "another example", "exemple"]
+let orderedTerms = sortHaystackByOrder(idxs, order);
+```
+
 ---
 ### Match Highlighting
 
@@ -365,7 +394,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             </td>
             <td>
                 For <code>intraMode: 1</code> only,<br>
-                Error types to tolerate within terms
+                Error types to tolerate within terms - substitution (replacement), transposition (swap), and deletion (omission) 
             </td>
             <td>Matches the value of <code>intraMode</code> (either <code>0</code> or <code>1</code>)</td>
             <td>
@@ -431,6 +460,14 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             <td>
                 Default: <a href="https://github.com/leeoniya/uFuzzy/blob/bba02537334ae9d02440b86262fbfa40d86daa54/src/uFuzzy.js#L32-L52">Search sort</a>, prioritizes full term matches and char density<br>
                 Demo: <a href="https://github.com/leeoniya/uFuzzy/blob/bba02537334ae9d02440b86262fbfa40d86daa54/demos/compare.html#L264-L288">Typeahead sort</a>, prioritizes start offset and match length<br>
+            </td>
+        </tr>
+        <tr>
+            <td><code>intraRules</code></td>
+            <td>Custom matching rules per string</td>
+            <td><code>(text) => { intraSlice, intraIns, intraSub, intraTrn, intraDel }</code></td>
+            <td>
+                <a href="https://github.com/leeoniya/uFuzzy/blob/main/src/uFuzzy.js#L156-L197">Default Rules</a> apply stricter matching for numbers, and terms less than 5 characters
             </td>
         </tr>
     </tbody>
