@@ -200,9 +200,18 @@ let haystack = [
 let needle = 'example';
 
 let u = new uFuzzy({ intraMode: 1 });
+
+// idxs = array, haystack indexes with a match, unordered
+// info = array, match details for highlighting and ranking
+// order = array, rankings for ordering each item in idxs
 let [idxs,info,order] = u.search(haystack, needle);
 
 let sortHaystackByOrder = (idxs, order) => {
+  // idxs may be null, for example if the search term
+  // was all whitespace.
+  if (idxs == null)
+    return [];
+
   // Order may be null when doing out of order searching
   // when the # of search terms exceed the max allowed 
   if (order == null)
