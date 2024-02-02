@@ -10,6 +10,8 @@ const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // meh, magic tmp placeholder, must be tolerant to toLocaleLowerCase(), interSplit, and intraSplit
 const EXACT_HERE = 'eexxaacctt';
 
+const PUNCT_RE = /\p{P}/gu;
+
 const LATIN_UPPER = 'A-Z';
 const LATIN_LOWER = 'a-z';
 
@@ -728,10 +730,11 @@ export default function uFuzzy(opts) {
 		needle = needle.replace(NEGS_RE, m => {
 			let neg = m.trim().slice(1);
 
-			if (neg[0] === '"')
-				neg = escapeRegExp(neg.slice(1,-1));
+			neg = neg[0] === '"' ? escapeRegExp(neg.slice(1,-1)) :  neg.replace(PUNCT_RE, '');
 
-			negs.push(neg);
+			if (neg != '')
+				negs.push(neg);
+
 			return '';
 		});
 
