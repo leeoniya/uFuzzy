@@ -1409,6 +1409,33 @@
 					search: null,
 					toStr: null,
 				},
+				{
+					name: 'fuzzy-search',
+					script: './lib/fuzzy-search.umd.js',
+					fulltext: false,
+					repo: 'https://github.com/m31coding/fuzzy-search',
+					opts: {},
+					setup: (haystack, opts) => {
+						const searcher = fuzzySearch.SearcherFactory.createDefaultSearcher();
+
+						let i = 0;
+						const indexingMeta = searcher.indexEntities(
+							haystack,
+							(e) => i++,
+							(e) => [e]
+						);
+
+						return {
+							search: needle => {
+								const results = searcher.getMatches(new fuzzySearch.Query(needle, Infinity, 0)).matches;
+								return results;
+							},
+							toStr: m => `<i>${+m.quality.toFixed(2)}</i> ` + m.entity,
+						};
+					},
+					search: null,
+					toStr: null,
+				},
 			//	TODO:
 			//	https://github.com/wouterrutgers/fuzzy-search (186)
 			//	https://github.com/gjuchault/fuzzyjs (177)
