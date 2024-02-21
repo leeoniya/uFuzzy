@@ -1410,10 +1410,11 @@
 					toStr: null,
 				},
 				{
-					name: 'fuzzy-search',
-					script: './lib/fuzzy-search.umd.js',
+					name: 'm31-fuzzy-search',
+					script: './lib/m31-fuzzy-search.umd.js',
 					fulltext: false,
 					repo: 'https://github.com/m31coding/fuzzy-search',
+					demo: 'https://www.m31coding.com/fuzzy-search-demo.html',
 					opts: {},
 					setup: (haystack, opts) => {
 						const searcher = fuzzySearch.SearcherFactory.createDefaultSearcher();
@@ -1427,7 +1428,7 @@
 
 						return {
 							search: needle => {
-								const results = searcher.getMatches(new fuzzySearch.Query(needle, Infinity, 0)).matches;
+								const results = searcher.getMatches(new fuzzySearch.Query(needle, 1e4, 0)).matches;
 								return results;
 							},
 							toStr: m => `<i>${+m.quality.toFixed(2)}</i> ` + m.entity,
