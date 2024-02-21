@@ -110,9 +110,11 @@ declare namespace uFuzzy {
 		alpha?: PartialRegExp | null;       // a-z
 
 		/** term segmentation & punct/whitespace merging */
-		interSplit?: PartialRegExp;         // '[^A-Za-z0-9]+'
+		interSplit?: PartialRegExp;         // '[^A-Za-z\\d']+'
 		intraSplit?: PartialRegExp | null;  // '[a-z][A-Z]'
 
+		/** inter bounds that will be used to increase lft2/rgt2 info counters */
+		interBound?: PartialRegExp | null;  // '[^A-Za-z\\d]'
 		/** intra bounds that will be used to increase lft1/rgt1 info counters */
 		intraBound?: PartialRegExp | null;  // '[A-Za-z][0-9]|[0-9][A-Za-z]|[a-z][A-Z]'
 

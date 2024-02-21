@@ -27,6 +27,8 @@ const OPTS = {
 	interSplit: "[^A-Za-z\\d']+",
 	intraSplit: "[a-z][A-Z]",
 
+	// inter bounds that will be used to increase lft2/rgt2 info counters
+	interBound: "[^A-Za-z\\d]",
 	// intra bounds that will be used to increase lft1/rgt1 info counters
 	intraBound: "[A-Za-z]\\d|\\d[A-Za-z]|[a-z][A-Z]",
 
@@ -125,6 +127,7 @@ export default function uFuzzy(opts) {
 		intraSplit: _intraSplit,
 		interSplit: _interSplit,
 		intraBound: _intraBound,
+		interBound: _interBound,
 		intraChars,
 	} = opts;
 
@@ -141,6 +144,7 @@ export default function uFuzzy(opts) {
 
 		_interSplit = swapAlpha(_interSplit, upper, lower);
 		_intraSplit = swapAlpha(_intraSplit, upper, lower);
+		_interBound = swapAlpha(_interBound, upper, lower);
 		_intraBound = swapAlpha(_intraBound, upper, lower);
 		intraChars = swapAlpha(intraChars, upper, lower);
 		intraContr = swapAlpha(intraContr, upper, lower);
@@ -398,7 +402,7 @@ export default function uFuzzy(opts) {
 
 	let withIntraBound = !!_intraBound;
 
-	let interBound = new RegExp(_interSplit, uFlag);
+	let interBound = new RegExp(_interBound, uFlag);
 	let intraBound = new RegExp(_intraBound, uFlag);
 
 	const info = (idxs, haystack, needle) => {
