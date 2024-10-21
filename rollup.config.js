@@ -1,4 +1,4 @@
-const fs = require('fs');
+import * as fs from 'fs';
 
 import terser from '@rollup/plugin-terser';
 
@@ -51,7 +51,7 @@ const terserOpts = {
 
 export default [
 	{
-		input: './src/uFuzzy.js',
+		input: './src/uFuzzy.mjs',
 		output: {
 			name: 'uFuzzy',
 			file: './dist/uFuzzy.esm.js',
@@ -60,7 +60,7 @@ export default [
 		},
 	},
 	{
-		input: './src/uFuzzy.js',
+		input: './src/uFuzzy.mjs',
 		output: {
 			name: 'uFuzzy',
 			file: './dist/uFuzzy.cjs.js',
