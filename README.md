@@ -454,6 +454,9 @@ What constitutes a good top match in a "typeahead / auto-suggest" case can be a 
 Some solutions optimize for the latter, some for the former.
 It's common to find knobs that skew the results in either direction, but these are often by-feel and imperfect, being little more than a proxy to producing a single, composite match "score".
 
+**UPDATE (2024):** The critique below regarding bizzare matches is only true for the *default* config of Fuse.js.
+Counterintuitively, [setting `ignoreFieldNorm: true`](https://github.com/krisk/Fuse/issues/753#issuecomment-1871416557) improved the results considerably, but ordering of the high quality matches remains ungreat.
+
 Let's take a look at some matches produced by the most popular fuzzy search library, [Fuse.js](https://github.com/krisk/Fuse) and some others for which match highlighting is implemented in the demo.
 
 Searching for the partial term **"twili"**, we see these results appearing above numerous obvious **"twilight"** results:
