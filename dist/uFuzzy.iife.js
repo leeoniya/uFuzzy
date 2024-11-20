@@ -456,7 +456,7 @@ var uFuzzy = (function () {
 				chars: field.slice(),
 
 				// case matched in term (via term.includes(match))
-				case: field.slice(),
+				cases: field.slice(),
 
 				// contiguous (no fuzz) and bounded terms (intra=0, lft2/1, rgt2/1)
 				// excludes terms that are contiguous but have < 2 bounds (substrings)
