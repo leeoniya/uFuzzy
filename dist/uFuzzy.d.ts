@@ -34,7 +34,7 @@ declare class uFuzzy {
 	): uFuzzy.InfoIdxOrder;
 
 	/** utility for splitting needle into terms following defined interSplit/intraSplit opts. useful for out-of-order permutes */
-	split(needle: string): uFuzzy.Terms;
+	split(needle: string, keepCase?: boolean): uFuzzy.Terms;
 
 	/** util for creating out-of-order permutations of a needle terms array */
 	static permute(arr: unknown[]): unknown[][];
@@ -187,6 +187,9 @@ declare namespace uFuzzy {
 
 		/** number of exactly-matched terms (intra = 0) where both lft and rgt landed on a BoundMode.Loose or BoundMode.Strict boundary */
 		terms: number[];
+
+		/** number of needle terms with case-sensitive partial matches */
+		cases: number[];
 
 		/** offset ranges within match for highlighting: [startIdx0, endIdx0, startIdx1, endIdx1,...] */
 		ranges: number[][];

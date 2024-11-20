@@ -77,6 +77,7 @@ const OPTS = {
 			start,
 			intraIns,
 			interIns,
+			cases,
 		} = info;
 
 		return idx.map((v, i) => i).sort((ia, ib) => (
@@ -95,6 +96,8 @@ const OPTS = {
 			interIns[ia] - interIns[ib] ||
 			// earliest start of match
 			start[ia] - start[ib] ||
+			// case match
+			cases[ib] - cases[ia] ||
 			// alphabetic
 			cmp(haystack[idx[ia]], haystack[idx[ib]])
 		));
@@ -211,7 +214,7 @@ export default function uFuzzy(opts) {
 	let trimRe = new RegExp('^' + _interSplit + '|' + _interSplit + '$', 'g' + uFlag);
 	let contrsRe = new RegExp(intraContr, 'gi' + uFlag);
 
-	const split = needle => {
+	const split = (needle, keepCase = false) => {
 		let exacts = [];
 
 		needle = needle.replace(EXACTS_RE, m => {
@@ -219,7 +222,10 @@ export default function uFuzzy(opts) {
 			return EXACT_HERE;
 		});
 
-		needle = needle.replace(trimRe, '').toLocaleLowerCase();
+		needle = needle.replace(trimRe, '');
+
+		if (!keepCase)
+			needle = needle.toLocaleLowerCase();
 
 		if (withIntraSplit)
 			needle = needle.replace(intraSplit, m => m[0] + ' ' + m[1]);
@@ -409,8 +415,23 @@ export default function uFuzzy(opts) {
 		DEBUG && console.time('info');
 
 		let [query, parts, contrs] = prepQuery(needle, 1);
+		let partsCased = split(needle, true);
 		let [queryR] = prepQuery(needle, 2);
 		let partsLen = parts.length;
+
+		let _terms      = Array(partsLen);
+		let _termsCased = Array(partsLen);
+
+		for (let j = 0; j < partsLen; j++) {
+			let part      = parts[j];
+			let partCased = partsCased[j];
+
+			let term      = part[0]      == '"' ? part.slice(1, -1)      : part      + contrs[j];
+			let termCased = partCased[0] == '"' ? partCased.slice(1, -1) : partCased + contrs[j];
+
+			_terms[j]      = term;
+			_termsCased[j] = termCased;
+		}
 
 		let len = idxs.length;
 
@@ -427,6 +448,9 @@ export default function uFuzzy(opts) {
 
 			// contiguous chars matched
 			chars: field.slice(),
+
+			// case matched in term (via term.includes(match))
+			case: field.slice(),
 
 			// contiguous (no fuzz) and bounded terms (intra=0, lft2/1, rgt2/1)
 			// excludes terms that are contiguous but have < 2 bounds (substrings)
@@ -469,18 +493,22 @@ export default function uFuzzy(opts) {
 			let rgt1 = 0;
 			let chars = 0;
 			let terms = 0;
+			let cases = 0;
 			let inter = 0;
 			let intra = 0;
 
 			let refine = [];
 
 			for (let j = 0, k = 2; j < partsLen; j++, k+=2) {
-				let group = m[k].toLocaleLowerCase();
-				let part = parts[j];
-				let term = part[0] == '"' ? part.slice(1, -1) : part + contrs[j];
-				let termLen = term.length;
-				let groupLen = group.length;
+				let group     = m[k].toLocaleLowerCase();
+				let term      = _terms[j];
+				let termCased = _termsCased[j];
+				let termLen   = term.length;
+				let groupLen  = group.length;
 				let fullMatch = group == term;
+
+				if (m[k] == termCased)
+					cases++;
 
 				// this won't handle the case when an exact match exists across the boundary of the current group and the next junk
 				// e.g. blob,ob when searching for 'bob' but finding the earlier `blob` (with extra insertion)
@@ -631,6 +659,7 @@ export default function uFuzzy(opts) {
 				info.interRgt1[ii] = rgt1;
 				info.chars[ii]     = chars;
 				info.terms[ii]     = terms;
+				info.cases[ii]     = cases;
 				info.interIns[ii]  = inter;
 				info.intraIns[ii]  = intra;
 
