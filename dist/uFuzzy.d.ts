@@ -53,7 +53,7 @@ declare class uFuzzy {
 	): TAccum;
 }
 
-export = uFuzzy;
+export default uFuzzy;
 
 declare namespace uFuzzy {
 	/** needle's terms */
