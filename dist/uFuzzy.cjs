@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2024, Leon Sorokin
+* Copyright (c) 2025, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
 * uFuzzy.js (μFuzzy)

@@ -27,7 +27,7 @@ function bannerlessESM() {
 		},
 		load(id) {
 			if (id == 'uFuzzy')
-				return fs.readFileSync('./dist/uFuzzy.esm.js', 'utf8').replace(/\/\*\*.*?\*\//gms, '');
+				return fs.readFileSync('./dist/uFuzzy.mjs', 'utf8').replace(/\/\*\*.*?\*\//gms, '');
 			return null;
 		}
 	};
@@ -54,7 +54,7 @@ export default [
 		input: './src/uFuzzy.mjs',
 		output: {
 			name: 'uFuzzy',
-			file: './dist/uFuzzy.esm.js',
+			file: './dist/uFuzzy.mjs',
 			format: 'es',
 			banner,
 		},
@@ -63,7 +63,7 @@ export default [
 		input: './src/uFuzzy.mjs',
 		output: {
 			name: 'uFuzzy',
-			file: './dist/uFuzzy.cjs.js',
+			file: './dist/uFuzzy.cjs',
 			format: 'cjs',
 			exports: "auto",
 			banner,
