@@ -4,7 +4,7 @@
 *
 * uFuzzy.js (μFuzzy)
 * A tiny, efficient fuzzy matcher that doesn't suck
-* https://github.com/leeoniya/uFuzzy (v1.0.17)
+* https://github.com/leeoniya/uFuzzy (v1.0.18)
 */
 
 const cmp = (a, b) => a > b ? 1 : a < b ? -1 : 0;
