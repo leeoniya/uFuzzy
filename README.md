@@ -379,7 +379,7 @@ Options with an **inter** prefix apply to allowances _in between_ search terms, 
             <td><code>[a-z\d']</code></td>
             <td>
                 <code>[a-z\d]</code> matches only alpha-numeric (case-insensitive)<br>
-                <code>[\w-]</code> would match alpha-numeric, undercore, and hyphen<br>
+                <code>[\w-]</code> would match alpha-numeric, underscore, and hyphen<br>
             </td>
         </tr>
         <tr>
