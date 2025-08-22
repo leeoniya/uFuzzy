@@ -926,8 +926,8 @@ export default function uFuzzy(opts) {
 
 const latinize = (() => {
 	let accents = {
-		A: 'ÁÀÃÂÄĄĂ',
-		a: 'áàãâäąă',
+		A: 'ÁÀÃÂÄĄĂÅ',
+		a: 'áàãâäąăå',
 		E: 'ÉÈÊËĖĚ',
 		e: 'éèêëęě',
 		I: 'ÍÌÎÏĮİ',
@@ -955,6 +955,8 @@ const latinize = (() => {
 		Z: 'ŻŹŽ',
 		z: 'żźž'
 	};
+
+	// str.normalize("NFD").replace(/\p{Diacritic}/gu, "")
 
 	let accentsMap = new Map();
 	let accentsTpl = '';
