@@ -928,40 +928,50 @@ var uFuzzy = (function () {
 
 	const latinize = (() => {
 		let accents = {
-			A: 'ÁÀÃÂÄĄ',
-			a: 'áàãâäą',
-			E: 'ÉÈÊËĖ',
-			e: 'éèêëę',
-			I: 'ÍÌÎÏĮ',
-			i: 'íìîïį',
+			A: 'ÁÀÃÂÄĄĂÅ',
+			a: 'áàãâäąăå',
+			E: 'ÉÈÊËĖĚ',
+			e: 'éèêëęě',
+			I: 'ÍÌÎÏĮİ',
+			i: 'íìîïįı',
 			O: 'ÓÒÔÕÖ',
 			o: 'óòôõö',
-			U: 'ÚÙÛÜŪŲ',
-			u: 'úùûüūų',
+			U: 'ÚÙÛÜŪŲŮŰ',
+			u: 'úùûüūųůű',
 			C: 'ÇČĆ',
 			c: 'çčć',
+			D: 'Ď',
+			d: 'ď',
+			G: 'Ğ',
+			g: 'ğ',
 			L: 'Ł',
 			l: 'ł',
-			N: 'ÑŃ',
-			n: 'ñń',
-			S: 'ŠŚ',
-			s: 'šś',
-			Z: 'ŻŹ',
-			z: 'żź'
+			N: 'ÑŃŇ',
+			n: 'ñńň',
+			S: 'ŠŚȘŞ',
+			s: 'šśșş',
+			T: 'ŢȚŤ',
+			t: 'ţțť',
+			Y: 'Ý',
+			y: 'ý',
+			Z: 'ŻŹŽ',
+			z: 'żźž'
 		};
 
-		let accentsMap = new Map();
+		// str.normalize("NFD").replace(/\p{Diacritic}/gu, "")
+
+		let accentsMap = {};
 		let accentsTpl = '';
 
 		for (let r in accents) {
 			accents[r].split('').forEach(a => {
 				accentsTpl += a;
-				accentsMap.set(a, r);
+				accentsMap[a] = r;
 			});
 		}
 
 		let accentsRe = new RegExp(`[${accentsTpl}]`, 'g');
-		let replacer = m => accentsMap.get(m);
+		let replacer = m => accentsMap[m];
 
 		return strings => {
 			if (typeof strings == 'string')

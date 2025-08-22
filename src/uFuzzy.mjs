@@ -958,18 +958,18 @@ const latinize = (() => {
 
 	// str.normalize("NFD").replace(/\p{Diacritic}/gu, "")
 
-	let accentsMap = new Map();
+	let accentsMap = {};
 	let accentsTpl = '';
 
 	for (let r in accents) {
 		accents[r].split('').forEach(a => {
 			accentsTpl += a;
-			accentsMap.set(a, r);
+			accentsMap[a] = r;
 		});
 	}
 
 	let accentsRe = new RegExp(`[${accentsTpl}]`, 'g');
-	let replacer = m => accentsMap.get(m);
+	let replacer = m => accentsMap[m];
 
 	return strings => {
 		if (typeof strings == 'string')
