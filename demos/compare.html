@@ -1432,7 +1432,7 @@
 
 						return {
 							search: needle => {
-								const results = searcher.getMatches(new fuzzySearch.Query(needle, 1e4, 0)).matches;
+								const results = searcher.getMatches(new fuzzySearch.Query(needle, 1e4)).matches;
 								return results;
 							},
 							toStr: m => `<i>${+m.quality.toFixed(2)}</i> ` + m.entity,
