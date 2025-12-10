@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2023, Leon Sorokin
+* Copyright (c) 2025, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
 * uFuzzy.js (μFuzzy)
@@ -61,16 +61,14 @@ const lazyRepeat = (chars, limit) => (
 	               chars + `{0,${limit}}?`
 );
 
-const mode2Tpl = '(?:\\b|_)';
-
 function uFuzzy() {
 	let _interSplit = "[^A-Za-z\\d']+";
 	let _intraSplit = "[a-z][A-Z]";
 	let _intraBound = "[A-Za-z]\\d|\\d[A-Za-z]|[a-z][A-Z]";
 	let interChars = '.';
 	let interIns = inf;
-	let intraChars = "[a-z\\d']";
-	let intraIns = 0;
+	let intraChars = "[\\w-]";
+	let intraIns = 1;
 	let intraContr = "'[a-z]{1,2}\\b";
 	let intraSlice = [1, inf];
 	let intraSub = 1;
@@ -239,7 +237,7 @@ function uFuzzy() {
 
 		// this only helps to reduce initial matches early when they can be detected
 		// TODO: might want a mode 3 that excludes _
-		let preTpl = mode2Tpl ;
+		let preTpl = '';
 		let sufTpl = '';
 
 		let interCharsTpl = sufTpl + lazyRepeat(interChars, interIns) + preTpl;
@@ -347,9 +345,6 @@ function uFuzzy() {
 			let start = m.index + m[1].length;
 
 			let idxAcc = start;
-		//	let span = m[0].length;
-
-			let disc = false;
 			let lft2 = 0;
 			let lft1 = 0;
 			let rgt2 = 0;
@@ -401,9 +396,10 @@ function uFuzzy() {
 						isPre = true;
 					}
 					else {
-						{
-							disc = true;
-							break;
+
+						if (intraBound.test(mhstr[lftCharIdx] + mhstr[lftCharIdx + 1])) {
+							fullMatch && lft1++;
+							isPre = true;
 						}
 					}
 
@@ -438,7 +434,7 @@ function uFuzzy() {
 					idxAcc += groupLen + m[k+1].length;
 			}
 
-			if (!disc) {
+			{
 				info.idx[ii]       = idxs[i];
 				info.interLft2[ii] = lft2;
 				info.interLft1[ii] = lft1;
