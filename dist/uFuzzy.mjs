@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2025, Leon Sorokin
+* Copyright (c) 2026, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
 * uFuzzy.js (μFuzzy)
@@ -493,6 +493,11 @@ function uFuzzy(opts) {
 
 			// the matched parts are [full, junk, term, junk, term, junk]
 			let m = mhstr.match(query);
+
+			// skip items where the regex did not match (can happen with out-of-order
+			// needles that were pre-filtered and had intra-char matching introduce a mismatch)
+			if (m == null)
+				continue;
 
 			// leading junk
 			let start = m.index + m[1].length;
